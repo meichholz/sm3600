@@ -715,7 +715,7 @@ sane_start (SANE_Handle handle)
   rc=SetupInternalParameters(this);
   this->state.bCanceled=false;
   if (!rc) rc=DoInit(this); /* oopsi, we should initalise :-) */
-  if (!rc) rc=DoOriginate(this,true);
+  if (!rc && !this->bOptSkipOriginate) rc=DoOriginate(this,true);
   if (!rc) rc=DoJog(this,this->calibration.yMargin);
   if (rc) return rc;
   this->state.bEOF=false;

@@ -1,4 +1,8 @@
 
+New on 30.9.2001
+
+* Fixed the -O SEGF issue.
+
 New on 30.7.2001
 
 * I begin to include some g4 and pcl supporting stuff into scantool. This

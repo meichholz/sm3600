@@ -85,6 +85,8 @@ typedef enum { false, true } TBool;
 
 typedef SANE_Status TState;
 
+typedef enum { unknown, sm3600, sm3700 } TModel;
+
 typedef struct {
   TBool         bCalibrated;
   int           xMargin; /* in 1/600 inch */
@@ -298,6 +300,7 @@ __SM3600EXPORT__ TState StartScanGray(TInstance *this);
 __SM3600EXPORT__ TState StartScanColor(TInstance *this);
 
 /* sm3600-homerun.c */
+__SM3600EXPORT__ TState FakeCalibration(TInstance *this);
 __SM3600EXPORT__ TState DoOriginate(TInstance *this, TBool bStepOut);
 __SM3600EXPORT__ TState DoJog(TInstance *this,int nDistance);
 

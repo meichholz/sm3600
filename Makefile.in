@@ -1,4 +1,4 @@
-# $Id: Makefile.in,v 1.30 2001/07/30 07:48:11 eichholz Exp $
+# $Id: Makefile.in,v 1.31 2001/09/30 19:44:27 eichholz Exp $
 #
 # -------------------------------------------------------------------
 #
@@ -83,6 +83,10 @@ testraw: scantool initbus
 	echo -e "P5\n200 150\n255" >/tmp/scan.pnm
 	./scantool -v -m g -d 1 -d r /tmp/scan.pnm 75 600 300 2400 2400
 	xv /tmp/scan.pnm
+
+uncalibrated: scantool initbus
+	./scantool -O -m gray /tmp/scan.pnm 100 0 0 10600 3600 
+	ee /tmp/scan.pnm
 
 dist:	clean
 	sh mkdist.sh microtek3600

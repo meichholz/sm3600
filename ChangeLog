@@ -1,3 +1,7 @@
+2001-09-30  Marian Eichholz <eichholz@computer.org>
+
+	* Fixed the -O SEGV issue: Uninitialised buffer, what else.
+
 2001-08-18  Marian Eichholz <eichholz@computer.org>
 
 	* ChangeLog: New begin

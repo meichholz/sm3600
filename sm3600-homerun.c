@@ -203,7 +203,35 @@ static TLineType GetLineType(TInstance *this)
 
 /* **********************************************************************
 
-DoCalibration
+FakeCalibration()
+
+If DoIriginate() and this Calibration code is skipped,
+we should at least provide for some fake measurements.
+Thus a test scan of the scanner's inside is possible.
+
+********************************************************************** */
+
+__SM3600EXPORT__
+TState FakeCalibration(TInstance *this)
+{
+  if (this->calibration.bCalibrated)
+    return SANE_STATUS_GOOD;
+  this->calibration.bCalibrated=true;
+  if (!this->calibration.achStripeY)
+    {
+      this->calibration.achStripeY=calloc(1,MAX_PIXEL_PER_SCANLINE);
+      if (!this->calibration.achStripeY)
+	return SetError(this,SANE_STATUS_NO_MEM,"no memory for calib Y");
+    }
+  memset(this->calibration.achStripeY,0xC0,MAX_PIXEL_PER_SCANLINE);
+  /* scan *every* nonsense */
+  this->calibration.xMargin=this->calibration.yMargin=0;
+  return SANE_STATUS_GOOD;
+}
+
+/* **********************************************************************
+
+DoCalibration() and friends
 
 ********************************************************************** */
 

@@ -45,7 +45,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: sm3600-scanutil.c,v 1.4 2001/07/30 07:48:11 eichholz Exp $
+$Id: sm3600-scanutil.c,v 1.5 2001/09/30 19:44:27 eichholz Exp $
 
 ====================================================================== */
 
@@ -205,7 +205,8 @@ TState CancelScan(TInstance *this)
   DBG(DEBUG_JUNK,"cs4: %d\n",(int)this->nErrorState);
   bCanceled=this->state.bCanceled;
   this->state.bCanceled=false; /* re-enable Origination! */
-  DoOriginate(this,false); /* have an error here... */
+  if (!this->bOptSkipOriginate)
+    DoOriginate(this,false); /* have an error here... */
   this->state.bCanceled=bCanceled;
   DBG(DEBUG_JUNK,"cs5: %d\n",(int)this->nErrorState);
   INST_ASSERT();
@@ -322,6 +323,7 @@ void ResetCalibration(TInstance *this)
     free(this->calibration.achStripeB);
   /* reset all handles, pointers, flags */
   memset(&(this->calibration),0,sizeof(this->calibration));
+  /* TODO: type specific margins */
   this->calibration.xMargin=200;
   this->calibration.yMargin=0x019D;
   this->calibration.nHoleGray=10;

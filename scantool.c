@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scantool.c,v 1.28 2001/07/30 07:48:11 eichholz Exp $
+$Id: scantool.c,v 1.29 2001/09/30 19:44:27 eichholz Exp $
 
 (C) Marian Eichholz 2001
 
@@ -10,7 +10,7 @@ $Id: scantool.c,v 1.28 2001/07/30 07:48:11 eichholz Exp $
 
 #include "sm3600-scantool.h"
 
-#define REVISION "$Revision: 1.28 $"
+#define REVISION "$Revision: 1.29 $"
 
 #define USAGE \
 "usage: %s <outfile> <resolution> <x> <y> <w> <h>" \
@@ -236,10 +236,10 @@ static int ScanToFile(TInstance *this)
   /* fprintf(stderr,"Verbose 1 = %d\n",this->bVerbose); */
   rc=SANE_STATUS_GOOD;
   if (rc==SANE_STATUS_GOOD) rc=DoInit(this);
-  if (!this->bOptSkipOriginate)
-    {
-      if (rc==SANE_STATUS_GOOD) rc=DoOriginate(this,true); 
-    }
+  if (rc==SANE_STATUS_GOOD)
+    rc=  this->bOptSkipOriginate
+      ? FakeCalibration(this)
+      : DoOriginate(this,true);
   if (rc==SANE_STATUS_GOOD) rc=DoJog(this,this->calibration.yMargin);
   if (rc==SANE_STATUS_GOOD) rc=DoScanFile(this);
   if (rc==SANE_STATUS_GOOD) rc=DoJog(this,-this->calibration.yMargin);
@@ -293,7 +293,7 @@ TState FindScanner(TInstance *this, struct usb_device ** ppdevOut)
 
 int main(int cArg, char * const ppchArg[])
 {
-  char               chOpt;
+  int                nOptChar;
   struct usb_device  *pdevScanner;
   int                iOpt;
   TInstance         *this;
@@ -313,8 +313,9 @@ int main(int cArg, char * const ppchArg[])
 
   this->quality=fast;
   this->mode=color;
-  while (EOF!=(chOpt=getopt(cArg,ppchArg,"VOvhid:l:o:p:q:m:c:b:")))
+  while (EOF!=(nOptChar=getopt(cArg,ppchArg,"VOvhid:l:o:p:q:m:c:b:")))
     {
+      char chOpt=(char)nOptChar;
       switch (chOpt)
 	{
 	case 'h':
