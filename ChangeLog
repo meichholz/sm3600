@@ -1,7 +1,10 @@
-Dead History
-============
+2001-08-18  Marian Eichholz <eichholz@computer.org>
 
-	continued more formal in ChangeLog
+	* ChangeLog: New begin
+
+	* README.HISTORY: Incorporates old ChangeLog
+
+	* NEWS: New begin
 
 2001-07-26  Marian Eichholz <eichholz@computer.org>
 
@@ -268,6 +271,8 @@ Code should be fairly robust.
 - Accelerated jogging supported only for movements >1 inch.
 - TODO: Reactivation of slow scan modes.
 
+README.HISTORY no longer supported...
+
 ======= 1.8
 
 - Horizontal interpolation in the color scan routine.
@@ -321,91 +326,3 @@ analysis purposes.
 
 7) The origination routine got an own debugging flag.
 
-
-===============================================================
-
-
-
-	25.3.2001
-
-README.REGISTERS updated.
-Experiments with 100 DPI.
-Formal interface for quality, mode, preset
-
-	24.3.2001
-
-Added tiny "configure" script.
-"make initbus" done by "initbus.sh" script, depending on user.
-".cvsrc" removed, as it depends on cvs user.
-Included scan parameter input in dialog and commandline scan.
-
-	23.3.2001
-
-CVS tree uploaded.
-
-	21.3.2001
-
-Module split. Find the changing stuff faster.
-Parametrisation for DoScanColor(). Controlblocks for 300 and 1200(=600) DPI.
-Found different color orders (???).
-
-	20.3.2001
-Real scans are in fact asynchronous. With a modified robot
-I got a valid overview scan log. It can be reproduced. Made first
-color scan routine in color.
-
-The sacnner uses a BRG coding, but in each line with contigous B, R
-and G sublines. This makes the descrambling code somewhat complicated.
-
-	12.3.2001
-
-Real scans seem to use another protocol.
-Vertical slider movement gies with 1/300 DPI at best.
-GrayScan-Routine stripped down. Still far too slow.
-
-	11.3.2001
-
-Identified W-reg 06h as distance. DoJog() routine.
-Movement unit is 1/600 inch, path has approx. 7600 units total.
-Found the "lamp on/off" bit in reg. 44h.
-
-	7.3.2001
-
-First light :-)
-Grayscale scanning routine (totally dirty)
-finished. The origination heuristics are reworked.
-
-	5.3.2001
-Projectpage on XOOM built and tarball export automated. Format version 0.17.
-
-	4.3.2001
-
-v0.16. You can return the carriage safely to the origin
-with optical detection of the path origin. Works for me, but maybe not
-for You. The old calibration an origination codes are merged into one
-origination routine.
-
-Scanning is brought to a starting point, but I have REALLY no idea how
-to get further, since the Snoopy-Logs have holes at the critical
-points due to Windows message loss.
-
-	0.15 - Origin seek works for me.
-
-	0.12 - Test scan C routine in progress.
-
-	0.9 - Port to usblib 0.1.3b
-
-	0.8 - squeezelog prepared to support replay.
-
-	0.5 - Uses original header. Own USB header. Robot example. SingleCode() fixed.
-
-	17.2.2001
-
-The arcane roots of dirty.c
-
-	13.11.2001
-
-Frustrating gathering of logs from a color scan.
-The very first origins of squeezelog.pl.
-
-Marian Eichholz <marian.eichholz@freenet-ag.de>

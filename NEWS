@@ -1,0 +1,13 @@
+
+New on 30.7.2001
+
+* I begin to include some g4 and pcl supporting stuff into scantool. This
+will be usable for HP-DeskJets for copy applications.
+
+* New product-ID (40FF) included for testing.
+
+New on 1.6.2001
+
+* Removed FixExposure() and Brightness-Contrast-Options.
+
+* Internal changes.
