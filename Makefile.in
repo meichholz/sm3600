@@ -1,4 +1,4 @@
-# $Id: Makefile.in,v 1.10 2001/04/01 17:01:18 eichholz Exp $
+# $Id: Makefile.in,v 1.11 2001/04/04 21:23:07 eichholz Exp $
 #
 # -------------------------------------------------------------------
 #
@@ -6,17 +6,33 @@
 #
 # -------------------------------------------------------------------
 
-NAME=		microtek3600
+NAME=		sm3600
 
 USBDIR=		@USBDIR@
 
+SANE_SRC=	/packin/sane-backends-1.0.4
+SANE_INCLUDE=	$(SANE_SRC)/include
+SANE_LIBDIR=	/usr/lib/sane
+SANE_CONFDIR=	/etc/sane.d
+SANE_EXECDIR=	$(SANE_LIBDIR)
+SANE_LIBS=	-lm -ldl
+SANE_STUB=	$(SANE_SRC)/backend/stubs.c
+
+V_MAJOR=	1
+V_MINOR=	0
+V_REV=		4
+
 # mit -pedantic warnt eine Include-Datei!
-CCFLAGS=	-g -DPROG_NAME=\"$*\" -I $(USBDIR)/include \
+CCFLAGS=	-g -DPROG_NAME=\"$*\" -I $(USBDIR)/include -I $(SANE_INCLUDE) \
 		-fno-common -Wall -O2
-LDFLAGS=	-g -L$(USBDIR)/lib
+LDFLAGS=	-g -L$(USBDIR)/lib -L$(SANE_LIBDIR)
 LIBS=		-lusb
 
 CC=		gcc
+COMPILE=	$(CC) -c $(CCFLAGS) 
+LIBTOOL= 	/usr/bin/libtool
+
+# ======================================================================
 
 BINARIES=	scantool
 
@@ -24,7 +40,7 @@ SCANTOOL_MODS=	scantool.o gray.o color.o homerun.o \
 		scanvars.o scanusb.o scanmtek.o scanutil.o
 SCANTOOL_H=	scantool.h
 
-default: test
+default: sanemod
 
 .c.o :
 	@echo "compiling $* "
@@ -34,8 +50,7 @@ bin:	$(BINARIES)
 
 all:	bin
 
-initbus:
-	sh initbus.sh
+# ======================================================================
 
 test:	scantool initbus
 	./scantool -i -d 5 temp.out
@@ -54,7 +69,41 @@ testraw: scantool initbus
 	xv /tmp/scan.pnm
 
 dist:	clean
-	sh mkdist.sh $(NAME)
+	sh mkdist.sh microtek3600
+
+# ======================================================================
+
+sanemod: libsane-$(NAME).la
+
+libsane-$(NAME).la : $(NAME).lo $(NAME)-s.lo
+	$(LIBTOOL) --mode=link $(CC) -export-dynamic -o $@ $($*_LIBS) \
+	$(LDFLAGS) $(SANE_LIBS) $^ \
+	-rpath $(SANE_EXECDIR) \
+	-version-info $(V_MAJOR):$(V_REV):$(V_MINOR)
+
+$(NAME)-s.lo : $(NAME)-s.c
+	$(LIBTOOL) --mode=compile $(COMPILE) -DSTUBS -DBACKEND_NAME=$* $<
+
+$(NAME).lo: $(NAME).c
+	$(LIBTOOL) --mode=compile $(COMPILE) -DBACKEND_NAME=$* \
+	-DV_MAJOR=$(V_MAJOR) -DV_MINOR=$(V_MINOR) -DV_REV=$(V_REV) \
+	-DLIBDIR=$(SANE_LIB) $<
+
+$(NAME)-s.c: $(SANE_STUB)
+	rm -f $@
+	ln -s $(SANE_STUB) $@
+
+libsane-$(NAME).so : libsane-$(NAME).la
+	$(LIBTOOL) --mode=install install \
+	libsane-$(NAME).la \
+	$(SANE_EXECDIR)/libsane-$(NAME).so
+
+install-sane: libsane-$(NAME).la libsane-$(NAME).so
+	install $(NAME).conf $(SANE_CONFDIR)
+
+.PRECIOUS: %-s.c %-s.lo %.lo dll-preload.c
+
+# ======================================================================
 
 $(SCANTOOL_MODS) : $(SCANTOOL_H)
 
@@ -62,18 +111,32 @@ scantool:	$(SCANTOOL_MODS)
 	@echo "linking $< "
 	@$(CC) $(LDFLAGS) -o $@ $(SCANTOOL_MODS) $(LIBS)
 
+# ======================================================================
+
 dirty:		dirty.o
 	@echo
 	@echo "linking $< "
 # erst die O-Files, dann die Bubitheken
 	@$(CC) $(LDFLAGS) -o $@ $@.o $(LIBS)
 
+
+# ======================================================================
+
 checkin:	clean
 #		docheckin -i
 #		cvs noidea...
 		make dist
 
+initbus:
+	@sh initbus.sh
 
+copy:	initbus scantool
+	@scantool -p copy -m h -b 80 -c 100 - | \
+	pnmtops -dpi 300 -center -scale 0.25 -width 8.26 -height 11.6 | \
+	lpr
+#	ee /tmp/scan.pnm
+
+install: install-sane
 
 getif:
 	ssh -l root localhost chown -R marian /proc/bus/usb/001
@@ -98,7 +161,9 @@ robot:
 
 
 clean:
-	rm -rf data/*~ data/ctlblocks/*~ temp.* *.o *~ t $(BINARIES) DEADJOE || true
+	rm -rf data/*~ data/ctlblocks/*~ temp.* \
+	*.lo *.la dll-preload.c *-s.c *.so *.o *~ t $(BINARIES) \
+	DEADJOE || true
 
 distclean: clean
 	rm Makefile || true

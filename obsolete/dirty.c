@@ -2,7 +2,7 @@
 
 Testing driver for the Microtek 3600 scanner
 
-$Id: dirty.c,v 1.1 2001/03/23 21:58:27 eichholz Exp $
+$Id: dirty.c,v 1.1 2001/04/04 21:23:07 eichholz Exp $
 
 01.03.2001 : Numerical register access.
 27.02.2001 : TestScan routine in progress

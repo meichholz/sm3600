@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scantool.c,v 1.13 2001/04/01 17:01:18 eichholz Exp $
+$Id: scantool.c,v 1.14 2001/04/04 21:23:07 eichholz Exp $
 
 (C) Marian Eichholz 2001
 
@@ -10,7 +10,7 @@ $Id: scantool.c,v 1.13 2001/04/01 17:01:18 eichholz Exp $
 
 #include "scantool.h"
 
-#define REVISION "$Revision: 1.13 $"
+#define REVISION "$Revision: 1.14 $"
 
 #define USAGE \
 "usage: %s <outfile> <resolution> <x> <y> <w> <h>" \
@@ -33,7 +33,9 @@ $Id: scantool.c,v 1.13 2001/04/01 17:01:18 eichholz Exp $
 #define SCANNER_VENDOR     0x05DA
 
 static unsigned short aidProduct[] = {
-  0x40B3, 0x40CA, 0x40FF, /* ScanMaker 3600 */
+  0x40B3, 0x40CA, 0x40FF /* not official */, /* ScanMaker 3600 */
+  0x40B8, 0x40CB, /* ScanMaker 3700 */
+  /* SM3750 unknown */
   0x0 };
 
 /* **********************************************************************
@@ -285,7 +287,23 @@ int main(int cArg, char * const ppchArg[])
 	case 'V': TellRevision(); exit(0); break;
 	case 'l': szLogFile=strdup(optarg); break;
         case 'i': bInteractive=true; break;
-	case 'p': /* preset */ break;
+	case 'p': /* preset */
+	  switch (tolower(*optarg))
+	    {
+	    case 'c': /* copy */
+	      param.res=300;
+	      param.x=param.y=300;
+	      param.cx=9200;
+	      param.cy=12990;
+	      break;
+	    case 'f': /* fax */
+	      param.res=200;
+	      param.x=param.y=300;
+	      param.cx=9200;   /* TODO */
+	      param.cy=12990;
+	      break;
+	    }
+	  break;
 	case 'q':
 	  switch (tolower(*optarg))
 	    {
