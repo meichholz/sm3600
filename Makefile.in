@@ -1,4 +1,4 @@
-# $Id: Makefile.in,v 1.13 2001/04/04 22:40:26 eichholz Exp $
+# $Id: Makefile.in,v 1.14 2001/04/07 23:16:43 eichholz Exp $
 #
 # -------------------------------------------------------------------
 #
@@ -36,13 +36,13 @@ LIBTOOL= 	/usr/bin/libtool
 
 BINARIES=	scantool
 
-SCANTOOL_MODS=	scantool.o gray.o color.o homerun.o \
-		scanvars.o scanusb.o scanmtek.o scanutil.o
+SCANTOOL_MODS=	scantool.o  scanutil.o gray.o color.o homerun.o \
+		scanvars.o scanusb.o scanmtek.o
 SCANTOOL_H=	scantool.h
 
 # ======================================================================
 
-default: sane
+default: testscan
 
 .c.o :
 	@echo "compiling $* "
@@ -58,8 +58,8 @@ test:	scantool initbus
 	./scantool -i -d 5 temp.out
 
 testscan: scantool initbus
-	./scantool -d 1 -v -m color -b 30 -c 40 /tmp/scan.pnm 200 000 000 3610 5400
-#	./scantool -d 1 -v -m gray -b 20 -c -50 /tmp/scan.pnm 100 000 000 4800 5400
+	./scantool -d 1 -v -m color -b 30 -c 30 /tmp/scan.pnm 200 000 000 3600 5400
+#	./scantool -d 1 -v -m gray -b 20 -c -50 /tmp/scan.pnm 75 000 000 3600 5400
 #	./scantool -d 1 -v -m line -b 30 /tmp/scan.pnm 200 000 000 3600 4800
 #	./scantool -d 1 -v -m halftone /tmp/scan.pnm 300 000 000 3600 4800
 	xv /tmp/scan.pnm

@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scanmtek.c,v 1.8 2001/03/29 22:01:51 eichholz Exp $
+$Id: scanmtek.c,v 1.9 2001/04/07 23:16:43 eichholz Exp $
 
 ====================================================================== */
 
@@ -16,11 +16,9 @@ Replay the first initialisation block (no slider movement).
 
 ********************************************************************** */
 
-void DoInit(void)
+int DoInit(TInstance *this)
 {
-  dprintf(DEBUG_SCAN,"general init...\n");
-  {
-    unsigned char uchRegs2466[]={
+  unsigned char uchRegs2466[]={
       0x00 /*0x01*/, 0x00 /*0x02*/, 0x3F /*0x03*/,
       0x10 /*0x04*/, 0xC0 /*0x05*/, 0x00 /*0x06*/,
       0x00 /*0x07*/, 0xFF /*0x08*/, 0xFF /*0x09*/,
@@ -46,51 +44,54 @@ void DoInit(void)
       0x03 /*R_SPD*/, 0x01 /*0x44*/, 0x00 /*0x45*/,
       0x39 /*R_CTL*/, 0xC0 /*0x47*/, 0x40 /*0x48*/,
       0x96 /*0x49*/, 0xD8 /*0x4A*/ };
-    RegWriteArray(R_ALL, 74, uchRegs2466);
-  }    /* #2466[061.8] */
-  RegWrite(R_CCAL,3,0x848888);
+  dprintf(DEBUG_SCAN,"general init...\n");
+  return RegWriteArray(this, R_ALL, 74, uchRegs2466);
 }
 
 /* **********************************************************************
 
 WaitWhileBusy()
 
+NOTE: Semantics changed: 0 on success, -1 else
+
 ********************************************************************** */
 
-int WaitWhileBusy(int cSecs)
+int WaitWhileBusy(TInstance *this, int cSecs)
 {
   int cTimeOut=cSecs*10;
   int value;
+  INST_ASSERT();
   while (cTimeOut--)
     {
-      if ((value=(int)RegRead(R_CTL,1)) & 0x80)
+      if ((value=(int)RegRead(this,R_CTL,1)) & 0x80)
 	usleep(50);
       else
-	return value;
+	return 0;
     }
-  Panic(PANIC_COMM,"Timeout while waiting for CTL");
-  return -1;
+  return SetError(this,PANIC_COMM,"Timeout while waiting for CTL");
 }
 
 /* **********************************************************************
 
 WaitWhileScanning()
 
+NOTE: Semantics changed: 0 on success, -1 else
+
 ********************************************************************** */
 
-int WaitWhileScanning(int cSecs)
+int WaitWhileScanning(TInstance *this, int cSecs)
 {
   int cTimeOut=cSecs*10;
   int value;
+  INST_ASSERT();
   while (cTimeOut--)
     {
-      if ((value=(int)RegRead(R_CSTAT, 1)) & 0x80)
-	return value;
+      if ((value=(int)RegRead(this,R_CSTAT, 1)) & 0x80)
+	return 0;
       else
 	usleep(50);
     }
-  Panic(PANIC_COMM,"Timeout while waiting for CSTAT");
-  return -1;
+  return SetError(this,PANIC_COMM,"Timeout while waiting for CSTAT");
 }
 
 /* **********************************************************************
@@ -102,9 +103,9 @@ DoLampSwitch(nRegister)
 
 ********************************************************************** */
 
-void DoLampSwitch(int nPattern)
+int DoLampSwitch(TInstance *this, int nPattern)
 {
-  RegWrite(R_LMP, 1, nPattern);
+  return RegWrite(this, R_LMP, 1, nPattern);
 }
 
 /* **********************************************************************
@@ -113,9 +114,10 @@ DoCalibration
 
 ********************************************************************** */
 
-void DoCalibration(void)
+int DoCalibration(TInstance *this)
 {
   int cchBulk;
+  INST_ASSERT();
   dprintf(DEBUG_SCAN,"do calibration...\n");
 
   /* this sequence makes a jump start (0.5 cm) forward and stops.
@@ -123,11 +125,12 @@ void DoCalibration(void)
 
   dprintf(DEBUG_SCAN,"start scan position...\n");
   
-  RegWrite(0x34, 1, 0x63);
-  RegWrite(0x49, 1, 0x96);
-  WaitWhileBusy(2);
-  RegWrite(0x34, 1, 0x63);
-  RegWrite(0x49, 1, 0x9E); /* that is a difference! */
+  RegWrite(this,0x34, 1, 0x63);
+  RegWrite(this,0x49, 1, 0x96);
+  WaitWhileBusy(this,2);
+  RegWrite(this,0x34, 1, 0x63);
+  RegWrite(this,0x49, 1, 0x9E); /* that is a difference! */
+  INST_ASSERT();
   {
     unsigned char uchRegs2587[]={
       0x00 /*0x01*/, 0x00 /*0x02*/, 0x3F /*0x03*/,
@@ -155,13 +158,15 @@ void DoCalibration(void)
       0x03 /*R_SPD*/, 0x01 /*0x44*/, 0x00 /*0x45*/,
       0x79 /*!!R_CTL!!*/, 0xC0 /*0x47*/, 0x40 /*0x48*/,
       0x9E /*!!0x49!!*/, 0xD8 /*0x4A*/ };
-    RegWriteArray(R_ALL, 74, uchRegs2587);
+    RegWriteArray(this, R_ALL, 74, uchRegs2587);
   }    /* #2587[065.4] */
-  RegWrite(R_CTL, 1, 0x39);    /* #2588[065.4] */
-  RegWrite(R_CTL, 1, 0x79);    /* #2589[065.4] */
-  RegWrite(R_CTL, 1, 0xF9);    /* #2590[065.4] */
-  WaitWhileBusy(5);
- 
+  INST_ASSERT();
+  RegWrite(this,R_CTL, 1, 0x39);    /* #2588[065.4] */
+  RegWrite(this,R_CTL, 1, 0x79);    /* #2589[065.4] */
+  RegWrite(this,R_CTL, 1, 0xF9);    /* #2590[065.4] */
+  WaitWhileBusy(this, 5);
+  INST_ASSERT();
+
   dprintf(DEBUG_SCAN,"magic1...\n");
   {
     unsigned char uchRegs2609[]={
@@ -190,10 +195,12 @@ void DoCalibration(void)
       0x03 /*R_SPD*/, 0x01 /*0x44*/, 0x00 /*0x45*/,
       0x39 /*!!R_CTL!!*/, 0xC0 /*0x47*/, 0x40 /*0x48*/,
       0x96 /*!!0x49!!*/, 0xD8 /*0x4A*/ };
-    RegWriteArray(R_ALL, 74, uchRegs2609);
+    RegWriteArray(this, R_ALL, 74, uchRegs2609);
   }    /* #2609[066.2] */
-  RegWrite(R_CTL, 1, 0x39);    /* #2614[066.2] */
-  WaitWhileBusy(3);
+  INST_ASSERT();
+  RegWrite(this,R_CTL, 1, 0x39);    /* #2614[066.2] */
+  WaitWhileBusy(this,3);
+  INST_ASSERT();
 
   dprintf(DEBUG_SCAN,"magic2...\n");
   {
@@ -223,17 +230,22 @@ void DoCalibration(void)
       0x03 /*R_SPD*/, 0x01 /*0x44*/, 0x00 /*0x45*/,
       0x39 /*R_CTL*/, 0xC0 /*0x47*/, 0x40 /*0x48*/,
       0x96 /*0x49*/, 0xD8 /*0x4A*/ };
-    RegWriteArray(R_ALL, 74, uchRegs2617);
+    RegWriteArray(this, R_ALL, 74, uchRegs2617);
   }    /* #2617[066.2] */
-  RegWrite(0x34, 1, 0x03);    /* #2618[066.2] */
-  RegWrite(0x49, 1, 0x96);    /* #2619[066.2] */
-  RegWrite(R_CTL, 1, 0x79);    /* #2620[066.2] */
-  RegWrite(R_CTL, 1, 0xF9);    /* #2621[066.2] */
-  WaitWhileScanning(3);
-  cchBulk=2*RegRead(R_STAT,2); /* the mysterious 3840 bytes */
+  INST_ASSERT();
+  RegWrite(this,0x34, 1, 0x03);    /* #2618[066.2] */
+  RegWrite(this,0x49, 1, 0x96);    /* #2619[066.2] */
+  RegWrite(this,R_CTL, 1, 0x79);    /* #2620[066.2] */
+  RegWrite(this,R_CTL, 1, 0xF9);    /* #2621[066.2] */
+  INST_ASSERT();
+  WaitWhileScanning(this, 3);
+  INST_ASSERT();
+  cchBulk=2*RegRead(this,R_STAT,2); /* the mysterious 3840 bytes */
+  INST_ASSERT();
   dprintf(DEBUG_SCAN,"reading %d bytes...\n",cchBulk);
-  BulkRead(NULL,cchBulk);
-  WaitWhileBusy(3);
+  BulkRead(this,NULL,cchBulk);
+  INST_ASSERT();
+  WaitWhileBusy(this, 3);
 
   dprintf(DEBUG_SCAN,"magic2...\n");
   {
@@ -263,23 +275,26 @@ void DoCalibration(void)
       0x03 /*R_SPD*/, 0x01 /*0x44*/, 0x00 /*0x45*/,
       0x79 /*!!R_CTL!!*/, 0xC0 /*0x47*/, 0x40 /*0x48*/,
       0x96 /*0x49*/, 0xD8 /*0x4A*/ };
-    RegWriteArray(R_ALL, 74, uchRegs2631);
+    RegWriteArray(this, R_ALL, 74, uchRegs2631);
   }    /* #2631[066.4] */
-  RegWrite(0x34, 1, 0x03);    /* #2632[066.4] */
-  RegWrite(0x49, 1, 0x96);    /* #2633[066.4] */
-  RegWrite(R_CTL, 1, 0x79);    /* #2634[066.5] */
-  RegWrite(R_CTL, 1, 0xF9);    /* #2635[066.5] */
-  WaitWhileScanning(3);
-  cchBulk=2*RegRead(R_STAT, 2);
+  INST_ASSERT();
+  RegWrite(this,0x34, 1, 0x03);    /* #2632[066.4] */
+  RegWrite(this,0x49, 1, 0x96);    /* #2633[066.4] */
+  RegWrite(this,R_CTL, 1, 0x79);    /* #2634[066.5] */
+  RegWrite(this,R_CTL, 1, 0xF9);    /* #2635[066.5] */
+  WaitWhileScanning(this, 3);
+  INST_ASSERT();
+  cchBulk=2*RegRead(this,R_STAT, 2);
+  INST_ASSERT();
   dprintf(DEBUG_SCAN,"reading %d bytes...\n",cchBulk);
-  BulkRead(NULL,cchBulk); /* again, why 3840 ? */
-  WaitWhileBusy(3);
+  BulkRead(this,NULL,cchBulk); /* again, why 3840 ? */
+  WaitWhileBusy(this,3);
+  INST_ASSERT();
 
   dprintf(DEBUG_SCAN,"magic3...\n");
-  WaitWhileBusy(3);
-  WaitWhileBusy(3);
-  RegWrite(R_CTL, 1, 0x39);    /* #2648[066.7] */
-  RegWrite(R_CCAL, 3, 0x848888);    /* #2650[066.7] */
+  WaitWhileBusy(this,3);
+  RegWrite(this,R_CTL, 1, 0x39);    /* #2648[066.7] */
+  RegWrite(this,R_CCAL, 3, 0x848888);    /* #2650[066.7] */
   {
     unsigned char uchRegs2651[]={
       0x19 /*!!0x01!!*/, 0x00 /*!!0x02!!*/, 0x3F /*!!0x03!!*/,
@@ -307,17 +322,21 @@ void DoCalibration(void)
       0x03 /*R_SPD*/, 0x01 /*0x44*/, 0x00 /*0x45*/,
       0x39 /*!!R_CTL!!*/, 0xC0 /*0x47*/, 0x40 /*0x48*/,
       0x96 /*0x49*/, 0xD8 /*0x4A*/ };
-    RegWriteArray(R_ALL, 74, uchRegs2651);
+    RegWriteArray(this,R_ALL, 74, uchRegs2651);
   }    /* #2651[066.7] */
-  RegWrite(0x34, 1, 0x03);    /* #2652[066.7] */
-  RegWrite(0x49, 1, 0x96);    /* #2653[066.7] */
-  RegWrite(R_CTL, 1, 0x79);    /* #2654[066.7] */
-  RegWrite(R_CTL, 1, 0xF9);    /* #2655[066.7] */
-  WaitWhileScanning(3);
-  cchBulk=2*RegRead(R_STAT, 2);
+  INST_ASSERT();
+  RegWrite(this,0x34, 1, 0x03);    /* #2652[066.7] */
+  RegWrite(this,0x49, 1, 0x96);    /* #2653[066.7] */
+  RegWrite(this,R_CTL, 1, 0x79);    /* #2654[066.7] */
+  RegWrite(this,R_CTL, 1, 0xF9);    /* #2655[066.7] */
+  INST_ASSERT();
+  WaitWhileScanning(this,3);
+  cchBulk=2*RegRead(this, R_STAT, 2);
+  INST_ASSERT();
   dprintf(DEBUG_SCAN,"reading %d bytes...\n",cchBulk);
-  BulkRead(NULL,cchBulk); /* again, why 3840 ? */
-  WaitWhileBusy(1);
+  BulkRead(this,NULL,cchBulk); /* again, why 3840 ? */
+  INST_ASSERT();
+  return WaitWhileBusy(this,1);
 }
 
 

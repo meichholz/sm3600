@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scanutil.c,v 1.3 2001/04/01 17:01:18 eichholz Exp $
+$Id: scanutil.c,v 1.4 2001/04/07 23:16:43 eichholz Exp $
 
 ====================================================================== */
 
@@ -33,28 +33,46 @@ void dprintf(unsigned long ulType, const char *szFormat, ...)
 
 /* **********************************************************************
 
-Panic(error, format, ...)
+ExitCheck(pinst)
+
+********************************************************************** */
+
+void ExitCheck(TInstance *this)
+{
+  if (!this->nErrorState) return;
+  fprintf(stderr,"fatal:%s (aborting)\n",
+	  this->szErrorReason ? this->szErrorReason  : "[unknown reason]");
+  if (this->hScanner) usb_close(this->hScanner);
+  if (this->fhLog) fclose(this->fhLog);
+  if (this->fhScan) fclose(this->fhScan);
+  exit(this->nErrorState);
+}
+
+
+/* **********************************************************************
+
+SetError(error, format, ...)
 
 The program is aborted, all handles and ressources are freed (this
 being global) and the user gets a nice panic screen :-)
 
 ********************************************************************** */
 
-void Panic(int nError, const char *szFormat, ...)
+int SetError(TInstance *this, int nError, const char *szFormat, ...)
 {
   va_list ap;
-  if (szFormat!=NULL)
+  if (this->nErrorState) return 0; /* do not overwrite error state */
+  this->nErrorState=nError;
+  this->szErrorReason=malloc(500);
+  
+  if (szFormat!=NULL && this->szErrorReason)
     {
-      fprintf(stderr,"fatal:");
       va_start(ap,szFormat);
-      vfprintf(stderr,szFormat,ap);
+      vsnprintf(this->szErrorReason,499,szFormat,ap);
+      this->szErrorReason[499]='\0';
       va_end(ap);
-      fprintf(stderr," (aborting)\n");
     }
-  if (hScanner) usb_close(hScanner);
-  if (fhLog) fclose(fhLog);
-  if (fhScan && fhScan!=stdout) fclose(fhScan);
-  exit(nError);
+  return nError;
 }
 
 /* **********************************************************************

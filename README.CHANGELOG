@@ -1,6 +1,22 @@
 CHANGELOG
 =========
 
+8.4.2001
+
+scantool compiles again and seems to work.
+
+BUGS:
+
+- Some CX values give "off by one" scan errors. Reproduceable example is
+  3610 versus 3600. 
+
+- Error diffusion need far too much CPU time. See A4 scan with 600 DPI.
+
+5.4.2001
+
+Interface is being rewritten for SANE compatibility. The tool won't compile
+for now!
+
 1.4.2001
 
 DoScanGray() augmented. It does line art separation,

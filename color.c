@@ -20,9 +20,7 @@ DoScanColor()
 #define ORDER_BRG             "120"
 
 /* Parameter are in resolution units! */
-void DoScanColor(FILE *fh, int nResolution,
-		 int xBorder, int yBorder,
-		 int cxPixel, int cyPixel)
+int DoScanColor(TInstance *this)
 {
 
   /* live could be easy: Simple calculate a window, start the scan,
@@ -34,6 +32,7 @@ void DoScanColor(FILE *fh, int nResolution,
      construction.  Thus, we have to deal with several buffers, some
      interpolation, and related management stuff. */
 
+  int    cxPixel,cyPixel; /* real units */
   int    cxWindow,cxMax; /* in real pixels */
   int    cyTotalPath;    /* from bed start to window end in 600 dpi */
   int    nFixAspect;     /* aspect ratio in percent, 75-100 */
@@ -42,11 +41,13 @@ void DoScanColor(FILE *fh, int nResolution,
   char  *pchBuf;         /* bulk transfer buffer */
   int    cBackLog;       /* depth of ppchLines */
   int    ySensorSkew;    /* distance from sensor to sensor in scan lines */
+  cxPixel=this->param.cx*this->param.res/1200;
+  cyPixel=this->param.cy*this->param.res/1200;
   if (bVerbose)
     fprintf(stderr,"scanning %d by %d in color\n",cxPixel,cyPixel);
   nFixAspect=100;
   ySensorSkew=0;
-  switch (nResolution)
+  switch (this->param.res)
     {
     case 75:  nFixAspect=75; break;
     case 200: ySensorSkew=1; break;
@@ -56,9 +57,9 @@ void DoScanColor(FILE *fh, int nResolution,
   /* since we need 2*ySensorSkew additional scan lines for de-skewing of
      the sensor lines, we enlarge the window and shorten the initial movement
      accordingly */
-  cyTotalPath = (yBorder-2*ySensorSkew)*600/nResolution;
-  DoJog(cyTotalPath);
-  cyTotalPath += (cyPixel+2*ySensorSkew)*600/nResolution; /* for jogging back */
+  cyTotalPath = this->param.y/2-(2*ySensorSkew)*600/this->param.res;
+  DoJog(this,cyTotalPath); INST_ASSERT();
+  cyTotalPath += (cyPixel+2*ySensorSkew)*600/this->param.res; /* for jogging back */
 
   /*
     regular scan is asynchronously, that is,
@@ -93,55 +94,51 @@ void DoScanColor(FILE *fh, int nResolution,
       0x03 /*0x43*/, 0x01 /*R_LMP*/, 0x00 /*0x45*/,
       0x39 /*R_CTL*/, 0xC5 /*!!0x47!!*/, 0x40 /*0x48*/,
       0x9E /*0x49*/, 0x8C /*0x4A*/ };
-    RegWriteArray(R_ALL, NUM_SCANREGS, uchRegs);
-    RegWrite(R_SPOS, 2, xBorder*600/nResolution+calibration.xMargin);
-    RegWrite(R_SLEN, 2, (cyPixel+2*ySensorSkew)*600/nResolution);
+    RegWriteArray(this,R_ALL, NUM_SCANREGS, uchRegs);
+    RegWrite(this,R_SPOS, 2, this->param.x/2 + this->calibration.xMargin);
+    RegWrite(this,R_SLEN, 2, (cyPixel+2*ySensorSkew)*600/this->param.res);
     szOrder=ORDER_BRG; 
-    RegWrite(R_CCAL, 3, 0x808080); /* 0xBBGGRR */
-    if (optQuality==fast)
-      {
-	
-      }
+    RegWrite(this,R_CCAL, 3, this->calibration.rgbBias); INST_ASSERT(); /* 0xBBGGRR */
     cxMax=cxPixel;
-    cxWindow=cxPixel*600/nResolution;
-    switch (nResolution)
+    cxWindow=this->param.cx/2;
+    switch (this->param.res)
       {
       case 75:
-	RegWrite(R_XRES,1, 0x20); /* ups, can  do only 100 dpi horizontal */
+	RegWrite(this,R_XRES,1, 0x20); /* ups, can  do only 100 dpi horizontal */
 	cxMax=cxPixel*100/75;
-	RegWrite(R_SWID, 2, 0xC000 | cxMax*6);
-	RegWrite(0x34, 1, 0x83); /* halfs the vertical resolution */
-	RegWrite(0x47,1,0xC0); /* reduces the speed a bit */
+	RegWrite(this,R_SWID, 2, 0xC000 | cxMax*6);
+	RegWrite(this,0x34, 1, 0x83); /* halfs the vertical resolution */
+	RegWrite(this,0x47,1,0xC0); /* reduces the speed a bit */
 	szOrder=ORDER_BRG;
 	break;
       case 100:
-	RegWrite(R_XRES,1, 0x20);
-	RegWrite(R_SWID, 2, 0xC000 | cxWindow);
-	RegWrite(0x34, 1, 0x63); /* halfs the vertical resolution */
-	RegWrite(0x47,1,0xC0); /* reduces the speed a bit */
+	RegWrite(this,R_XRES,1, 0x20);
+	RegWrite(this,R_SWID, 2, 0xC000 | cxWindow);
+	RegWrite(this,0x34, 1, 0x63); /* halfs the vertical resolution */
+	RegWrite(this,0x47,1,0xC0); /* reduces the speed a bit */
 	/* I have no idea, what these differences are good for. The seem to produce
 	   a slight blue presence.
-	   RegWrite(0x16, 1, 0xC0);  RegWrite(0x18, 1, 0xC0);
-	   RegWrite(0x12, 1, 0x40);  RegWrite(0x10, 2, 0x0728);
-	   RegWrite(0x14, 1, 0x80); */
+	   RegWrite(this,0x16, 1, 0xC0);  RegWrite(this,0x18, 1, 0xC0);
+	   RegWrite(this,0x12, 1, 0x40);  RegWrite(this,0x10, 2, 0x0728);
+	   RegWrite(this,0x14, 1, 0x80); */
 	break;
       case 200:
-	RegWrite(R_XRES,1, 0x24);
-	RegWrite(R_SWID, 2, 0xC000 | cxWindow);
+	RegWrite(this,R_XRES,1, 0x24);
+	RegWrite(this,R_SWID, 2, 0xC000 | cxWindow);
 	break;
       case 300:
-	RegWrite(0x08,2, 0x6A6A);
-	RegWrite(R_XRES,1, 0x2A);
-	RegWrite(R_SWID, 2, 0x4000 | cxWindow);
-	RegWrite(0x34, 1, 0x03); /* halfs the vertical resolution */
-	RegWrite(0x47,1,0xC0); /* reduces the speed a bit */
+	RegWrite(this,0x08,2, 0x6A6A);
+	RegWrite(this,R_XRES,1, 0x2A);
+	RegWrite(this,R_SWID, 2, 0x4000 | cxWindow);
+	RegWrite(this,0x34, 1, 0x03); /* halfs the vertical resolution */
+	RegWrite(this,0x47,1,0xC0); /* reduces the speed a bit */
 	szOrder=ORDER_RGB;
 	break;
       case 600:
-	RegWrite(R_XRES,1, 0x3F);
-	RegWrite(R_SWID, 2, 0xC000 | cxWindow);
-	RegWrite(0x34, 1, 0x03); /* halfs the vertical resolution */
-	RegWrite(0x47,1,0xC2); /* reduces the speed a bit */
+	RegWrite(this,R_XRES,1, 0x3F);
+	RegWrite(this,R_SWID, 2, 0xC000 | cxWindow);
+	RegWrite(this,0x34, 1, 0x03); /* halfs the vertical resolution */
+	RegWrite(this,0x47,1,0xC2); /* reduces the speed a bit */
 	break;
       case 1200:
 	/* not supported, since the driver supports only 600 dpi in color */
@@ -152,21 +149,30 @@ void DoScanColor(FILE *fh, int nResolution,
   cBackLog=1+2*ySensorSkew; /* enough for 1/100 inch sensor distance */
   ppchLines=calloc(cBackLog,sizeof(char*));
   pchBuf=malloc(0x8000);
-  if (!ppchLines || !pchBuf) Panic(PANIC_RUNTIME,"no buffers available");
+  if (!ppchLines || !pchBuf)
+  {
+    free(pchBuf); free(ppchLines);
+    return SetError(this,PANIC_RUNTIME,"no buffers available");
+  }
 
-  RegWrite(R_CTL, 1, 0x39);    /* #1532[005.0] */
-  RegWrite(R_CTL, 1, 0x79);    /* #1533[005.0] */
-  RegWrite(R_CTL, 1, 0xF9);    /* #1534[005.0] */
+  RegWrite(this,R_CTL, 1, 0x39);    /* #1532[005.0] */
+  RegWrite(this,R_CTL, 1, 0x79);    /* #1533[005.0] */
+  RegWrite(this,R_CTL, 1, 0xF9);    /* #1534[005.0] */
 
-  if (fh && !bWriteRaw)
-    fprintf(fh,"P6\n%d %d\n255\n",cxPixel,cyPixel);
+  if (this->fhScan && !this->bWriteRaw)
+    fprintf(this->fhScan,"P6\n%d %d\n255\n",cxPixel,cyPixel);
   {
     int iFrom,iTo,iChunk,cchBulk,iLine;
     
     for (iLine=0; iLine<cBackLog; iLine++)
       {
 	ppchLines[iLine]=calloc(1,3*cxMax); /* must be less than 0x8000 */
-	if (!ppchLines[iLine]) Panic(PANIC_RUNTIME,"no line buffer available");
+	if (!ppchLines[iLine])
+	  {
+	    free(pchBuf); free(ppchLines);
+	    /* TODO: free all previous buffers */
+	    return SetError(this,PANIC_RUNTIME,"no line buffer available");
+	  }
       }
     iChunk=0;
     cchBulk=0;
@@ -176,20 +182,22 @@ void DoScanColor(FILE *fh, int nResolution,
     do {
       /* "flush" rest of last buffer run */
       iChunk++;
-      if (!bWriteRaw)
+      if (!this->bWriteRaw)
 	{
 	  iTo=0;
 	  while (iFrom<cchBulk)
 	    ppchLines[0][iTo++]=pchBuf[iFrom++];
 	}
       /* read new buffer */
-      cchBulk=BulkReadBuffer(pchBuf,0x8000);
-      FixExposure(pchBuf,cchBulk,param.nBrightness,param.nContrast);
+      cchBulk=BulkReadBuffer(this,pchBuf,0x8000);
+      FixExposure(pchBuf,cchBulk,
+		  this->param.nBrightness,
+		  this->param.nContrast);
 
       dprintf(DEBUG_SCAN,"bulk#%d, got %d bytes...\n",iChunk,cchBulk);
 
-      if (bWriteRaw)
-	fwrite(pchBuf,1,cchBulk,fh);
+      if (this->bWriteRaw)
+	fwrite(pchBuf,1,cchBulk,this->fhScan);
       else
 	{
 	  /* a few calculations are cached here to save CPU cycles */
@@ -219,9 +227,11 @@ void DoScanColor(FILE *fh, int nResolution,
 		      if (nInterpolator<100) continue; /* res. reduction */
 		      nInterpolator-=100;
 		      cxToWrite--;
-		      fwrite(ppchLines[2*ySensorSkew]+iTo+iOffsetR,1,1,fh);
-		      fwrite(ppchLines[ySensorSkew]+iTo+iOffsetG,1,1,fh);
-		      fwrite(ppchLines[0]+iTo+iOffsetB,1,1,fh);
+		      fwrite(ppchLines[2*ySensorSkew]+iTo+iOffsetR,
+			     1,1,this->fhScan);
+		      fwrite(ppchLines[ySensorSkew]+iTo+iOffsetG,
+			     1,1,this->fhScan);
+		      fwrite(ppchLines[0]+iTo+iOffsetB,1,1,this->fhScan);
 		    }
 		}
 	      /* cycle backlog buffers */
@@ -230,14 +240,15 @@ void DoScanColor(FILE *fh, int nResolution,
 	      ppchLines[0]=pchLineSwap;
 	      iTo=0; /* reset buffer offset */
 	    } /* while pixels available */
-	} /* ! bWriteRaw */
+	} /* ! this->bWriteRaw */
       /* Rest from iFrom is to be written into next line buffer */
     } while (cchBulk==0x8000);
   } /* color descrambling */
   /* free all dynamic space */
   for (cxMax=0; cxMax<cBackLog; free(ppchLines[cxMax++]));
-  free(pchBuf); free(ppchLines); 
+  free(pchBuf); free(ppchLines);
+  INST_ASSERT();
   /* move slider back to start */
-  DoJog(-cyTotalPath);
+  return DoJog(this,-cyTotalPath);
 }
 

@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scantool.c,v 1.14 2001/04/04 21:23:07 eichholz Exp $
+$Id: scantool.c,v 1.15 2001/04/07 23:16:43 eichholz Exp $
 
 (C) Marian Eichholz 2001
 
@@ -10,7 +10,7 @@ $Id: scantool.c,v 1.14 2001/04/04 21:23:07 eichholz Exp $
 
 #include "scantool.h"
 
-#define REVISION "$Revision: 1.14 $"
+#define REVISION "$Revision: 1.15 $"
 
 #define USAGE \
 "usage: %s <outfile> <resolution> <x> <y> <w> <h>" \
@@ -43,7 +43,7 @@ static unsigned short aidProduct[] = {
 TellRevision()
 
 Extract Revision number from the RCS string
-
+SM3600_Device
 ********************************************************************** */
 
 static void TellRevision(void)
@@ -71,48 +71,45 @@ Just a funny Macro for setting up the interface and USB configuration.
 
 ********************************************************************** */
 
-static struct usb_dev_handle *OpenScanner(struct usb_device *pScanner)
+static int OpenScanner(TInstance *this,
+		       struct usb_device *pScanner)
 {
   int rc;
-  struct usb_dev_handle *hScanner;
-
   if (bVerbose) fprintf(stderr,"opening scanner...\n");
 
-  hScanner=usb_open(pScanner);
-  if (!hScanner)
-    Panic(PANIC_SETUP, "cannot open scanner device");
+  this->hScanner=usb_open(pScanner);
+  if (!this->hScanner)
+    return SetError(this,PANIC_SETUP, "cannot open scanner device");
   dprintf(DEBUG_DEVSCAN,"scanner is open\n");
   rc=0;
 
   if (!rc)
     {
-      rc=usb_claim_interface(hScanner, 0); /* 0 or 1 ? */
+      rc=usb_claim_interface(this->hScanner, 0); /* 0 or 1 ? */
       if (rc<0) dprintf(DEBUG_COMM,"make getif!\n");
       rc=0;
     }
   if (!rc)
     {
-      rc=usb_set_configuration(hScanner, 1); /* 0 or 1 ? */
+      rc=usb_set_configuration(this->hScanner, 1); /* 0 or 1 ? */
       if (rc<0)
-	Panic(PANIC_SETUP,"set USB config: %s",usb_strerror());
+	return SetError(this,PANIC_SETUP,"set USB config: %s",usb_strerror());
     }
-  return hScanner;
+  return 0;
 }
 
 /* **********************************************************************
 
-RunDialog(fh,pDevice)
+RunDialog()
 
 Let the user specify, what to do.
 
 ********************************************************************** */
 
-void RunDialog(FILE *fhOut, struct usb_device *pScanner)
+static int RunDialog(TInstance *this)
 {
   char chChoice;
   int  nParam,nSign;
-  printf("opening scanner...\n");
-  hScanner=OpenScanner(pScanner);
   chChoice='?';
   nParam=0;
   nSign=1;
@@ -121,7 +118,8 @@ void RunDialog(FILE *fhOut, struct usb_device *pScanner)
       if (chChoice!='\n')
 	{
 	  printf("\nParm: xy=[%d,%d], wh=[%d,%d], res=%d dpi",
-		 param.x,param.y,param.cx,param.cy,param.res);
+		 this->param.x,this->param.y,
+		 this->param.cx,this->param.cy,this->param.res);
 	printf("\nMenu:\ti(nit, o(riginate, j(og, l(amp\n"
 	       "\tg(ray scan, c(olor scan\n\tq(uit.\n(%d) ==>",nSign*nParam);
 	}
@@ -132,25 +130,17 @@ void RunDialog(FILE *fhOut, struct usb_device *pScanner)
 	  fprintf(stderr,"EOF received!\n");
 	  chChoice='q';
 	  continue;
-	case 'x': param.x=nParam; nParam=0; nSign=1; break;
-	case 'y': param.y=nParam; nParam=0; nSign=1; break;
-	case 'w': param.cx=nParam; nParam=0; nSign=1; break;
-	case 'h': param.cy=nParam; nParam=0; nSign=1; break;
-	case 'r': param.res=nParam; nParam=0; nSign=1; break;
-	case 'i': DoInit(); break;
-	case 'g': DoScanGray(fhOut,param.res,
-			      param.x*param.res/1200,
-			      param.y*param.res/1200,
-			      param.cx*param.res/1200,
-			      param.cy*param.res/1200); break;
-	case 'c': DoScanColor(fhOut,param.res,
-			      param.x*param.res/1200,
-			      param.y*param.res/1200,
-			      param.cx*param.res/1200,
-			      param.cy*param.res/1200); break;
-	case 'o': DoOriginate(); break;
-	case 'j': DoJog(nParam*nSign); break;
-	case 'l': DoLampSwitch(nParam); break;
+	case 'x': this->param.x=nParam; nParam=0; nSign=1; break;
+	case 'y': this->param.y=nParam; nParam=0; nSign=1; break;
+	case 'w': this->param.cx=nParam; nParam=0; nSign=1; break;
+	case 'h': this->param.cy=nParam; nParam=0; nSign=1; break;
+	case 'r': this->param.res=nParam; nParam=0; nSign=1; break;
+	case 'i': DoInit(this); break;
+	case 'g': DoScanGray(this); break;
+	case 'c': DoScanColor(this); break;
+	case 'o': DoOriginate(this); break;
+	case 'j': DoJog(this, nParam*nSign); break;
+	case 'l': DoLampSwitch(this, nParam); break;
 	case '-': nSign=-1; nParam=0; break;
 	case '+': nSign= 1; nParam=0; break;
 	case '\n':
@@ -161,60 +151,42 @@ void RunDialog(FILE *fhOut, struct usb_device *pScanner)
 		   printf("\a");
 	         break;
 	}
-
+      INST_ASSERT();
     }
-  usb_close(hScanner);
+  return 0;
 }
 
 /* **********************************************************************
 
-ScanToFile(fh,pDevice)
+ScanToFile()
 
 Do some funny things with the given scanner and see if it crashes.
 
 ********************************************************************** */
 
-void ScanToFile(FILE *fhOut, struct usb_device *pScanner)
+static int ScanToFile(TInstance *this)
 {
-  if (!fhOut)
-    Panic(PANIC_SETUP,"test scan file not given");
+  if (!this->fhScan)
+    return SetError(this,PANIC_SETUP,"test scan file not given");
 
-  hScanner=OpenScanner(pScanner);
+  DoInit(this);
+  DoJog(this,100);
+  DoOriginate(this);
+  DoJog(this,this->calibration.yMargin);
 
-#ifdef CHECK_INITIALISATION
-  if (RegRead(R_INIT,2)!=RVAL_INIT)
-    {
-    }
-#else
-  DoInit();
-  DoJog(100);
-  DoOriginate();
-#endif
-  DoJog(calibration.yMargin);
-
-  switch (optMode)
+  switch (this->mode)
     {
     case color:
-      DoScanColor(fhOut,param.res,
-		  param.x*param.res/1200,
-		  param.y*param.res/1200,
-		  param.cx*param.res/1200,
-		  param.cy*param.res/1200);
+      DoScanColor(this);
       break;
     case gray:
     case line:
     case halftone:
-      DoScanGray(fhOut,param.res,
-		  param.x*param.res/1200,
-		  param.y*param.res/1200,
-		  param.cx*param.res/1200,
-		  param.cy*param.res/1200);
+      DoScanGray(this);
       break;
     }
-
-  DoJog(-calibration.yMargin);
-
-  usb_close(hScanner); hScanner=NULL;
+  INST_ASSERT();
+  return DoJog(this,-this->calibration.yMargin);
 }
 
 /* **********************************************************************
@@ -226,14 +198,15 @@ Enumerate USB devices and look for the Microtek-3600 signature.
 
 ********************************************************************** */
 
-struct usb_device *FindScanner(void)
+int FindScanner(TInstance *this, struct usb_device ** ppdevOut)
 {
   struct usb_bus    *pbus;
   struct usb_device *pdev;
-  if (usb_find_busses())  Panic(PANIC_SETUP, "no USB found");
+  *ppdevOut=NULL;
+  if (usb_find_busses()) return SetError(this,PANIC_SETUP, "no USB found");
   usb_find_devices();
   if (bVerbose) fprintf(stderr,"scanning for scanner...\n");
-  if (!usb_busses) Panic(PANIC_SETUP,"no usb bus found");
+  if (!usb_busses) return SetError(this,PANIC_SETUP,"no usb bus found");
   for (pbus = usb_busses; pbus; pbus = pbus->next)
     {
       /* 0.1.3b no longer has a "busnum" member */
@@ -248,10 +221,13 @@ struct usb_device *FindScanner(void)
 	  for (pidProduct=aidProduct; pidProduct; pidProduct++)
 	      if (pdev->descriptor.idVendor  ==  SCANNER_VENDOR &&
 		  pdev->descriptor.idProduct == *pidProduct)
-		return pdev;
+		{
+		  *ppdevOut=pdev;
+		  return 0;
+		}
 	}
     }
-  return NULL;
+  return SetError(this,PANIC_RUNTIME,"no ScanMaker connected");
 }
 
 /* ============================== MAIN ============================== */
@@ -261,20 +237,27 @@ int main(int cArg, char * const ppchArg[])
   char               chOpt;
   struct usb_device  *pdevScanner;
   int                iOpt;
+  TInstance         *this;
+  this=&devInstance;
+  memset(this,0,sizeof(*this));
+
   /* Default is full scan bed at 300 DPI */
-  param.x=param.y=0;
-  param.res=300;
-  param.cx=10250;
-  param.cy=14078;
-  param.nBrightness=0;
-  param.nContrast=0;
-  calibration.xMargin=200;
-  calibration.yMargin=0x019D;
-  calibration.nHoleGray=10;
-  calibration.rgbWhite=0xC0C0C0;
-  calibration.nBarGray=0xC0;
-  optQuality=fast;
-  optMode=color;
+  this->param.res=300;
+  this->param.x=
+    this->param.y=0;
+  this->param.cx=10250;
+  this->param.cy=14078;
+  this->param.nBrightness=0;
+  this->param.nContrast=0;
+
+  this->calibration.xMargin=200;
+  this->calibration.yMargin=0x019D;
+  this->calibration.nHoleGray=10;
+  this->calibration.rgbBias=0x888884;
+  this->calibration.nBarGray=0xC0;
+
+  this->quality=fast;
+  this->mode=color;
   while (EOF!=(chOpt=getopt(cArg,ppchArg,"Vvhid:l:o:p:q:m:c:b:")))
     {
       switch (chOpt)
@@ -284,51 +267,51 @@ int main(int cArg, char * const ppchArg[])
 	  exit(0);
 	  break;
         case 'v': bVerbose=true; break;
+        case 'i': bInteractive=true; break;
 	case 'V': TellRevision(); exit(0); break;
 	case 'l': szLogFile=strdup(optarg); break;
-        case 'i': bInteractive=true; break;
 	case 'p': /* preset */
 	  switch (tolower(*optarg))
 	    {
 	    case 'c': /* copy */
-	      param.res=300;
-	      param.x=param.y=300;
-	      param.cx=9200;
-	      param.cy=12990;
+	      this->param.res=300;
+	      this->param.x=this->param.y=300;
+	      this->param.cx=9200;
+	      this->param.cy=12990;
 	      break;
 	    case 'f': /* fax */
-	      param.res=200;
-	      param.x=param.y=300;
-	      param.cx=9200;   /* TODO */
-	      param.cy=12990;
+	      this->param.res=200;
+	      this->param.x=this->param.y=300;
+	      this->param.cx=9200;   /* TODO */
+	      this->param.cy=12990;
 	      break;
 	    }
 	  break;
 	case 'q':
 	  switch (tolower(*optarg))
 	    {
-	    case 'f': optQuality=fast; break;
-	    case 'h': optQuality=high; break;
-	    case 'b': optQuality=best; break;
+	    case 'f': this->quality=fast; break;
+	    case 'h': this->quality=high; break;
+	    case 'b': this->quality=best; break;
 	    default: printf(USAGE,PROG_NAME); exit(1);
 	    }
 	  break;
 	case 'm':
 	  switch (tolower(*optarg))
 	    {
-	    case 'c': optMode=color; break;
-	    case 'g': optMode=gray; break;
-	    case 'l': optMode=line; break;
-	    case 'h': optMode=halftone; break;
+	    case 'c': this->mode=color; break;
+	    case 'g': this->mode=gray; break;
+	    case 'l': this->mode=line; break;
+	    case 'h': this->mode=halftone; break;
 	    default: printf(USAGE,PROG_NAME); exit(1);
 	    }
 	  break;
-	case 'b': param.nBrightness=atoi(optarg); break;
-	case 'c': param.nContrast  =atoi(optarg); break;
+	case 'b': this->param.nBrightness=atoi(optarg); break;
+	case 'c': this->param.nContrast  =atoi(optarg); break;
         case 'd':
 	  switch (*optarg)
 	    {
-	    case 'r': bWriteRaw=true; break;
+	    case 'r': this->bWriteRaw=true; break;
 	    default:  ulDebugMask=strtoul(optarg,NULL,10); break;
 	    }
 	  break;
@@ -339,15 +322,20 @@ int main(int cArg, char * const ppchArg[])
       switch (iOpt)
 	{
 	case 0: szScanFile=strdup(ppchArg[optind+iOpt]); break;
-	case 1: param.res=strtoul(ppchArg[optind+iOpt],NULL,10); break;
-	case 2: param.x=strtoul(ppchArg[optind+iOpt],NULL,10); break;
-	case 3: param.y=strtoul(ppchArg[optind+iOpt],NULL,10); break;
-	case 4: param.cx=strtoul(ppchArg[optind+iOpt],NULL,10); break;
-	case 5: param.cy=strtoul(ppchArg[optind+iOpt],NULL,10); break;
+	case 1: this->param.res=strtoul(ppchArg[optind+iOpt],NULL,10);
+	  break;
+	case 2: this->param.x=strtoul(ppchArg[optind+iOpt],NULL,10);
+	  break;
+	case 3: this->param.y=strtoul(ppchArg[optind+iOpt],NULL,10); 
+	  break;
+	case 4: this->param.cx=strtoul(ppchArg[optind+iOpt],NULL,10);
+	  break;
+	case 5: this->param.cy=strtoul(ppchArg[optind+iOpt],NULL,10); 
+	  break;
 	}
     }
 
-  switch (param.res)
+  switch (this->param.res)
     {
     case 75:
     case 100:
@@ -356,7 +344,7 @@ int main(int cArg, char * const ppchArg[])
     case 600:
       break; /* ok */
     default:
-      Panic(PANIC_SETUP,"unsupported resolution requested");
+      SetError(this,PANIC_SETUP,"unsupported resolution requested");
     }
 
   
@@ -364,36 +352,48 @@ int main(int cArg, char * const ppchArg[])
 
   usb_set_debug(0);
   usb_init();
-  if (!(pdevScanner=FindScanner()))
-    Panic(PANIC_SETUP, "no microtek 3600 connected");
+  FindScanner(this,&pdevScanner);
 
   /* ======================================== open and create files */
 
-  fhLog = bInteractive ? stderr : stderr;
+  ExitCheck(this);
+  this->fhLog = stderr;
   if (szLogFile)
     {
-      fhLog=fopen(szLogFile,"a+");
-      if (!fhLog)
-	Panic(PANIC_SETUP,"cannot open log file \%s\": %s",
+      this->fhLog=fopen(szLogFile,"a+");
+      if (!this->fhLog)
+	SetError(this,PANIC_SETUP,"cannot open log file \%s\": %s",
 	      szLogFile,strerror(errno));
     }
+  ExitCheck(this);
   if (szScanFile && strcmp(szScanFile,"-"))
     {
-      fhScan=fopen(szScanFile, bWriteRaw ? "a" : "w");
-      if (!fhScan)
-	Panic(PANIC_SETUP,"cannot create scan file \"%s\": %s",
+      this->fhScan=fopen(szScanFile, this->bWriteRaw ? "a" : "w");
+      if (!this->fhScan)
+	SetError(this,PANIC_SETUP,"cannot create scan file \"%s\": %s",
 	      szScanFile,strerror(errno));
     }
   else
-    fhScan=stdout;
+    this->fhScan=stdout;
+
+  ExitCheck(this);
 
   /* ======================================== to the work */
 
-  if (bInteractive)
-    RunDialog(fhScan,pdevScanner);
-  else
-    ScanToFile(fhScan,pdevScanner);
+  OpenScanner(this,pdevScanner);
+  ExitCheck(this);
 
-  Panic(0,NULL); /* close all files, free resources and exit */
-  return 0; /* not reached */
+  if (bInteractive)
+    RunDialog(this);
+  else
+    ScanToFile(this);
+
+  ExitCheck(this);
+
+  usb_close(this->hScanner);
+  if (this->fhScan) fclose(this->fhScan);
+  if (this->fhLog)  fclose(this->fhLog);
+  if (this->hScanner) usb_close(this->hScanner);
+ 
+  return 0;
 }

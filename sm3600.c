@@ -14,6 +14,8 @@ Start: 2.4.2001
 #include <string.h>
 #include <errno.h>
 
+#include <usb.h>
+
 #include <sane/sane.h>
 
 #ifndef BACKEND_NAME
@@ -33,9 +35,12 @@ Start: 2.4.2001
 
 #include "sm3600.h"
 
+unsigned long ulDebugMask;
+
 int num_devices;
 static SM3600_Device  *first_dev;
 static SM3600_Scanner *first_handle;
+
 
 /* ====================================================================== */
 

@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scanusb.c,v 1.2 2001/03/24 17:02:48 eichholz Exp $
+$Id: scanusb.c,v 1.3 2001/04/07 23:16:43 eichholz Exp $
 
 (C) Marian Eichholz 2001
 
@@ -17,49 +17,54 @@ RegWriteArray(iRegister, cb, unsigned char uchValues)
 
 ********************************************************************** */
 
-int RegWrite(int iRegister, int cb, unsigned long ulValue)
+int RegWrite(TInstance *this, int iRegister, int cb, unsigned long ulValue)
 {
   char *pchBuffer;
   int   i;
   TBool bOk=true;
+  INST_ASSERT();
   /* some rough assertions */
   if (cb<1 || cb>4)
-    Panic(PANIC_INTERN,"unsupported control transfer size %d",cb);
+  return SetError(this,PANIC_INTERN,"unsupported control transfer size %d",cb);
   pchBuffer=malloc(cb);
   CHECK_POINTER(pchBuffer);
   for (i=0; i<cb; i++)
-    {
-      pchBuffer[i]=(char)(ulValue&0xFF);
-      ulValue=ulValue>>8;
-    }
+  {
+    pchBuffer[i]=(char)(ulValue&0xFF);
+    ulValue=ulValue>>8;
+  }
   if (!bOk)
-    Panic(PANIC_COMM,"error in reg out: %d,%d,%08X",iRegister,cb,ulValue);
-  i=usb_control_msg(hScanner,  /* handle */
-        0x40,                  /* request type */
-	0x08,                  /* request */
-	iRegister,             /* value */
-	0,                     /* index */
-	pchBuffer, cb,        /* bytes, size */
-	10000);                /* TO, jiffies... */
-  if (i<0)
-    Panic(PANIC_COMM,"error during register write");
+  {
+    free(pchBuffer);
+    return SetError(this,PANIC_COMM,"error in reg out: %d,%d,%08X",iRegister,cb,ulValue);
+  }
+  i=usb_control_msg(this->hScanner,  /* handle */
+		    0x40,                  /* request type */
+		    0x08,                  /* request */
+		    iRegister,             /* value */
+		    0,                     /* index */
+		    pchBuffer, cb,         /* bytes, size */
+		    10000);                /* TO, jiffies... */
   free(pchBuffer);
+  if (i<0)
+  return SetError(this,PANIC_COMM,"error during register write");
   return 0;
 }
 
-int RegWriteArray(int iRegister, int cb, unsigned char *pchBuffer)
+int RegWriteArray(TInstance *this, int iRegister, int cb, unsigned char *pchBuffer)
 {
   int   i;
+  INST_ASSERT();
   /* some rough assertions */
-  i=usb_control_msg(hScanner,  /* handle */
-        0x40,                  /* request type */
-	0x08,                  /* request */
-	iRegister,             /* value */
-	0,                     /* index */
-	pchBuffer, cb,         /* bytes, size */
-	10000);                /* TO, jiffies... */
+  i=usb_control_msg(this->hScanner,        /* handle */
+		    0x40,                  /* request type */
+		    0x08,                  /* request */
+		    iRegister,             /* value */
+		    0,                     /* index */
+		    pchBuffer, cb,         /* bytes, size */
+		    10000);                /* TO, jiffies... */
   if (i<0)
-    Panic(PANIC_COMM,"error during register write");
+    return SetError(this,PANIC_COMM,"error during register write");
   return 0;
 }
 
@@ -69,42 +74,54 @@ RegCheck(iRegister, cb, ulValue)
 
 ********************************************************************** */
 
-int RegCheck(int iRegister, int cch, unsigned long ulValue)
+int RegCheck(TInstance *this, int iRegister, int cch, unsigned long ulValue)
 {
   char *pchBuffer,*pchTransfer;
-  int   i;
+  int   i,rcCode;
   TBool bOk;
+  INST_ASSERT();
   if (cch<1 || cch>3)
-    Panic(PANIC_INTERN,"unsupported control transfer size %d",cch);
+    return SetError(this,PANIC_INTERN,"unsupported control transfer size %d",cch);
   pchBuffer=malloc(cch);
   pchTransfer=calloc(1,cch);
-  CHECK_POINTER(pchBuffer);
-  CHECK_POINTER(pchTransfer);
+  rcCode=0;
+  if (!pchBuffer || !pchTransfer)
+    {
+      if (pchBuffer) free(pchBuffer);
+      if (pchTransfer) free(pchTransfer);
+      rcCode=SetError(this, PANIC_COMM, "no memory in RegCheck()");
+    }
   bOk=true;
-  for (i=0; i<cch; i++)
+  for (i=0; !rcCode && i<cch; i++)
     {
       pchBuffer[i]=(char)(ulValue&0x00FF);
       ulValue=(ulValue>>8);
     }
-  if (!bOk)
-    Panic(PANIC_COMM,"error in reg out: %d,%d,%08X",iRegister,cch,ulValue);
-  i=usb_control_msg(hScanner,  /* handle */
-        0xC0,                  /* request type */
-	0x00,                  /* request */
-	iRegister,             /* value */
-	0,                     /* index */
-	pchTransfer, cch,      /* bytes, size */
-	10000);                /* TO, jiffies... */
-  if (i<0)
-    Panic(PANIC_COMM,"error during register read");
-  if (memcmp(pchTransfer,pchBuffer,cch))
+  if (!rcCode)
+    {
+      if (!bOk)
+	rcCode=SetError(this,PANIC_COMM,"error in reg out: %d,%d,%08X",iRegister,cch,ulValue);
+      else
+	{
+	  i=usb_control_msg(this->hScanner,  /* handle */
+		    0xC0,                  /* request type */
+		    0x00,                  /* request */
+		    iRegister,             /* value */
+		    0,                     /* index */
+		    pchTransfer, cch,      /* bytes, size */
+		    10000);                /* TO, jiffies... */
+	  if (i<0)
+	    rcCode=SetError(this,PANIC_COMM,"error during register check");
+	}
+    }
+  if (!rcCode && memcmp(pchTransfer,pchBuffer,cch))
     {
       DumpBuffer(stdout,pchTransfer,cch);
-      Panic(PANIC_COMM,"check register failed for %d,%d,%08X",
-	    iRegister,cch,ulValue);
+      rcCode=SetError(this,PANIC_COMM,"check register failed for %d,%d,%08X",
+		      iRegister,cch,ulValue);
     }
   free(pchTransfer); free(pchBuffer);
-  return 0;
+  return rcCode;
 }
 
 /* **********************************************************************
@@ -113,14 +130,16 @@ cchRead=BulkRead(fh,cchBulk)
 
 ********************************************************************** */
 
-int BulkRead(FILE *fhOut, unsigned int cchBulk)
+int BulkRead(TInstance *this, FILE *fhOut, unsigned int cchBulk)
 {
-  int   cchRead;
+  int   cchRead,rc;
   char *pchBuffer;
+  INST_ASSERT();
   pchBuffer=(char*)malloc(cchBulk);
   CHECK_POINTER(pchBuffer);
   cchRead=0;
-  while (cchBulk)
+  rc=0;
+  while (!rc && cchBulk)
     {
       int cchChunk;
       int cchReal;
@@ -128,7 +147,7 @@ int BulkRead(FILE *fhOut, unsigned int cchBulk)
       cchChunk=cchBulk;
       if (cchChunk>0x1000)
 	cchChunk=0x1000;
-      cchReal=usb_bulk_read(hScanner,
+      cchReal=usb_bulk_read(this->hScanner,
 			    0x82,
 			    pchBuffer+cchRead,
 			    cchChunk,
@@ -142,18 +161,21 @@ int BulkRead(FILE *fhOut, unsigned int cchBulk)
 	    break;
 	}
       else
-	Panic(PANIC_COMM,"bulk read of %d bytes failed: %s",
+	{
+	  rc=SetError(this,PANIC_COMM,"bulk read of %d bytes failed: %s",
 	      cchChunk,usb_strerror());
+	  continue;
+	}
     }
   dprintf(DEBUG_COMM,"writing %d bytes\n",cchRead);
-  if (fhOut)
+  if (fhOut && !rc)
     {
       fwrite(pchBuffer,1,cchRead,fhOut);
       free(pchBuffer);
       if (ferror(fhOut))
-	Panic(DEBUG_COMM,"scan file write failed: %s",strerror(errno));
+	rc=SetError(this,DEBUG_COMM,"scan file write failed: %s",strerror(errno));
     }
-  return cchRead;
+  return rc ? rc : cchRead;
 }
 
 /* **********************************************************************
@@ -162,14 +184,16 @@ cchRead=BulkReadBuffer(puchBuffer, cchBulk)
 
 ********************************************************************** */
 
-int BulkReadBuffer(unsigned char *puchBufferOut, unsigned int cchBulk)
+int BulkReadBuffer(TInstance *this, unsigned char *puchBufferOut, unsigned int cchBulk)
 {
-  int   cchRead;
+  int   cchRead,rc;
   char *pchBuffer;
+  INST_ASSERT();
   pchBuffer=(char*)malloc(cchBulk);
   CHECK_POINTER(pchBuffer);
   cchRead=0;
-  while (cchBulk)
+  rc=0;
+  while (!rc && cchBulk)
     {
       int cchChunk;
       int cchReal;
@@ -177,7 +201,7 @@ int BulkReadBuffer(unsigned char *puchBufferOut, unsigned int cchBulk)
       cchChunk=cchBulk;
       if (cchChunk>0x1000)
 	cchChunk=0x1000;
-      cchReal=usb_bulk_read(hScanner,
+      cchReal=usb_bulk_read(this->hScanner,
 			    0x82,
 			    pchBuffer+cchRead,
 			    cchChunk,
@@ -191,14 +215,14 @@ int BulkReadBuffer(unsigned char *puchBufferOut, unsigned int cchBulk)
 	    break;
 	}
       else
-	Panic(PANIC_COMM,"bulk read of %d bytes failed: %s",
+	rc=SetError(this,PANIC_COMM,"bulk read of %d bytes failed: %s",
 	      cchChunk,usb_strerror());
     }
   dprintf(DEBUG_COMM,"writing %d bytes\n",cchRead);
   
-  if (puchBufferOut)
+  if (!rc && puchBufferOut)
     memcpy(puchBufferOut,pchBuffer,cchRead);
-  return cchRead;
+  return rc ? rc : cchRead;
 }
 
 /* **********************************************************************
@@ -209,28 +233,31 @@ Read register in big endian (INTEL-) format.
 
 ********************************************************************** */
 
-unsigned int RegRead(int iRegister, int cch)
+unsigned int RegRead(TInstance *this, int iRegister, int cch)
 {
   char        *pchTransfer;
   int          i;
   unsigned int n;
+  INST_ASSERT();
   if (cch<1 || cch>4)
-    Panic(PANIC_INTERN,"unsupported control read size %d",cch);
+    return SetError(this,PANIC_INTERN,"unsupported control read size %d",cch);
   pchTransfer=calloc(1,cch);
   CHECK_POINTER(pchTransfer);
-  i=usb_control_msg(hScanner,  /* handle */
+  i=usb_control_msg(this->hScanner,  /* handle */
         0xC0,                  /* request type */
 	0x00,                  /* request */
 	iRegister,             /* value */
 	0,                     /* index */
 	pchTransfer, cch,      /* bytes, size */
 	10000);                /* TO, jiffies... */
-  if (i<0)
-    Panic(PANIC_COMM,"error during register read");
-  n=0;
-  for (i=cch-1; i>=0; i--)
-    n=(n<<8)|(unsigned char)pchTransfer[i];
-  free(pchTransfer);
-  return n;
+  if (i>=0)
+    {
+      n=0;
+      for (i=cch-1; i>=0; i--)
+	n=(n<<8)|(unsigned char)pchTransfer[i];
+      free(pchTransfer);
+      return n;
+    }
+  return SetError(this,PANIC_COMM,"error during register read");
 }
 

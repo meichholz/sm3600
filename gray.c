@@ -163,10 +163,9 @@ There is some space for optimisation and possibly a code split, if we
 really know, what we are doing. (eichholz, 12.4.2001).
 */
 
-void DoScanGray(FILE *fh, int nResolution,
-		int xBorder, int yBorder,
-		int cxPixel, int cyPixel)
+int DoScanGray(TInstance *this)
 {
+  int    cxPixel,cyPixel; /* real pixel */
   int    cxWindow,cxMax; /* in real pixels */
   int    cyTotalPath;    /* from bed start to window end in 600 dpi */
   int    nFixAspect;     /* aspect ratio in percent, 75-100 */
@@ -175,10 +174,12 @@ void DoScanGray(FILE *fh, int nResolution,
   short         **ppchLines; /* for halftone error diffusion */
   int             i;
   puchRegs=NULL;
+  cxPixel=this->param.cx*this->param.res/1200;
+  cyPixel=this->param.cy*this->param.res/1200;
   if (bVerbose)
     fprintf(stderr,"scanning %d by %d in gray\n",cxPixel,cyPixel);
   nFixAspect=100;
-  switch (nResolution)
+  switch (this->param.res)
   {
   case 75:  nFixAspect=75;
             puchRegs=uchRegs075; break;
@@ -187,50 +188,53 @@ void DoScanGray(FILE *fh, int nResolution,
   case 300: puchRegs=uchRegs300; break;
   case 600: puchRegs=uchRegs600; break;
   }
-  cyTotalPath = yBorder*600/nResolution;
-  DoJog(cyTotalPath);
-  cyTotalPath += cyPixel*600/nResolution; /* for jogging back */
+  cyTotalPath = this->param.y/2;
+  DoJog(this,cyTotalPath);
+  INST_ASSERT();
+  cyTotalPath += this->param.cy/2; /* for jogging back */
   
   /*
     regular scan is asynchronously, that is,
     the scanning is issued, and the driver does bulk reads,
     until there are no data left.
   */
-  RegWriteArray(R_ALL, NUM_SCANREGS, puchRegs);
-  RegWrite(R_SPOS, 2, xBorder*600/nResolution+calibration.xMargin);
-  RegWrite(R_SLEN, 2, (cyPixel+1)*600/nResolution);
-  if (optQuality==fast) { }
+  RegWriteArray(this,R_ALL, NUM_SCANREGS, puchRegs); INST_ASSERT();
+  RegWrite(this,R_SPOS, 2, this->param.x/2+this->calibration.xMargin); INST_ASSERT();
+  RegWrite(this,R_SLEN, 2, (cyPixel+1)*600/this->param.res); INST_ASSERT();
+  if (this->quality==fast) { }
 
   /* cxPixel is the number os pixels, we *want* (after interpolation)
      cxMax is the number of pixels, we *need* (before interpolation)
      cxWindow is the scan width in 600 dpi, we have to request */
 
   cxMax=cxPixel*100/nFixAspect;
-  cxWindow=cxPixel*600/nResolution;
-  RegWrite(R_SWID, 2, cxWindow);
+  cxWindow=this->param.cx/2;
+  RegWrite(this,R_SWID, 2, cxWindow); INST_ASSERT();
 
   /* for halftone dithering we need one history line */
   pchBuf=malloc(0x8000);
   ppchLines=calloc(2,sizeof(short *));
-  if (!pchBuf || !ppchLines) Panic(PANIC_RUNTIME,"no buffers available");
+  if (!pchBuf || !ppchLines)
+    return SetError(this,PANIC_RUNTIME,"no buffers available");
   for (i=0; i<2; i++)
     {
       ppchLines[i]=calloc(cxMax+1,sizeof(short)); /* 1 dummy at right edge */
-      if (!ppchLines[i]) Panic(PANIC_RUNTIME,"no buffers available");
+      if (!ppchLines[i])
+	return SetError(this,PANIC_RUNTIME,"no buffers available");
     }
 
   /* start the unit, when all buffers are available */
 
-  RegWrite(R_CTL, 1, 0x39);
-  RegWrite(R_CTL, 1, 0x79);
-  RegWrite(R_CTL, 1, 0xF9);
+  RegWrite(this,R_CTL, 1, 0x39); INST_ASSERT();
+  RegWrite(this,R_CTL, 1, 0x79); INST_ASSERT();
+  RegWrite(this,R_CTL, 1, 0xF9); INST_ASSERT();
 
-  if (fh && !bWriteRaw)
+  if (this->fhScan && !this->bWriteRaw)
     {
-      if (optMode==gray)
- 	fprintf(fh,"P5\n%d %d\n255\n",cxPixel,cyPixel);
+      if (this->mode==gray)
+ 	fprintf(this->fhScan,"P5\n%d %d\n255\n",cxPixel,cyPixel);
       else
-	fprintf(fh,"P4\n%d %d\n",cxPixel,cyPixel);
+	fprintf(this->fhScan,"P4\n%d %d\n",cxPixel,cyPixel);
     }
 
   /* the line rebuffering code is a stripped down version of the color
@@ -251,19 +255,21 @@ void DoScanGray(FILE *fh, int nResolution,
     iLine=0;
     do {
       iChunk++;
-      if (!bWriteRaw)
+      if (!this->bWriteRaw)
 	{
 	  iTo=0;
 	  while (iFrom<cchBulk)
 	    ppchLines[0][iTo++] += 10*pchBuf[iFrom++];
 	}
       
-      cchBulk=BulkReadBuffer(pchBuf,0x8000);
-      FixExposure(pchBuf,cchBulk,param.nBrightness,param.nContrast);
+      cchBulk=BulkReadBuffer(this,pchBuf,0x8000); INST_ASSERT();
+      FixExposure(pchBuf,cchBulk,
+		  this->param.nBrightness,
+		  this->param.nContrast);
       dprintf(DEBUG_SCAN,"bulk#%d, got %d bytes...\n",iChunk,cchBulk);
 
-      if (bWriteRaw)
-	fwrite(pchBuf,1,cchBulk,fh);
+      if (this->bWriteRaw)
+	fwrite(pchBuf,1,cchBulk,this->fhScan);
       else
 	{
 	  iFrom=0;
@@ -285,15 +291,15 @@ void DoScanGray(FILE *fh, int nResolution,
 		  nInterpolator-=100;
 		  cxToWrite--;
 		  /* dprintf(DEBUG_SCAN," i=%d",iTo); */
-		  if (optMode==gray)
+		  if (this->mode==gray)
 		    {
 		      char ch=ppchLines[0][iTo]/10;
-		      fwrite(&ch,1,1,fh);
+		      fwrite(&ch,1,1,this->fhScan);
 		    }
 		  else
 		    {
 		      unsigned char chBit; /* 1=white */
-		      if (optMode==line)
+		      if (this->mode==line)
 			chBit=(ppchLines[0][iTo]<LINE_THRESHOLD);
 		      else
 		        {
@@ -319,13 +325,13 @@ void DoScanGray(FILE *fh, int nResolution,
 		      iDot++;
 		      if (iDot==8)
 			{
-			  fwrite(&chBits,1,1,fh);
+			  fwrite(&chBits,1,1,this->fhScan);
 			  iDot=0; chBits=0;
 			}
 		    } /* gray pixel postprocessing */
 		} /* line postprocessing */
 	      if (iDot)
-		fwrite(&chBits,1,1,fh);
+		fwrite(&chBits,1,1,this->fhScan);
 	      /* swap the history lines and clear the preread buffer*/
 	      {
 		short *p=ppchLines[0];
@@ -344,6 +350,7 @@ void DoScanGray(FILE *fh, int nResolution,
   free(ppchLines);
   free(pchBuf);
   /* move slider back to start */
-  DoJog(-cyTotalPath);
+  INST_ASSERT();
+  return DoJog(this,-cyTotalPath);
 }
 

@@ -25,7 +25,7 @@ No idea, hoiw to achieve this, for now...
 
 ********************************************************************** */
 
-void DoOriginate()
+int DoOriginate(TInstance *this)
 {
   int    iStripe;
   TBool  bHolesOk;
@@ -34,17 +34,12 @@ void DoOriginate()
   if (bVerbose)
     fprintf(stderr,"carriage return...\n");
   dprintf(DEBUG_ORIG,"originate 1...\n");
-#ifdef ORIGINATE_INIT_JOG
-  /* part job: switch on the lamp and move
-     approx. 4 mm. forward (100 units, 4.23 mm). */
-  DoJog(100);
-  dprintf(DEBUG_ORIG,"originate 2...\n");
-#endif
 
   /* This moves make some steps (a third of the initial one) backwards.
      Three times goes nearly back to the starting point (-1 mm) */
-  RegWrite(0x34, 1, 0x63);    /* #2493[062.5] */
-  RegWrite(0x49, 1, 0x96);    /* #2494[062.5] */
+  RegWrite(this,0x34, 1, 0x63);    /* #2493[062.5] */
+  RegWrite(this,0x49, 1, 0x96);    /* #2494[062.5] */
+  INST_ASSERT();
   {
     unsigned char uchRegs2495[]={
       0x00 /*0x01*/, 0x00 /*0x02*/, 0x3F /*0x03*/,
@@ -72,9 +67,10 @@ void DoOriginate()
       0x03 /*R_SPD*/, 0x01 /*0x44*/, 0x00 /*0x45*/,
       0x59 /*!!R_CTL!!*/, 0xC0 /*0x47*/, 0x40 /*0x48*/,
       0x96 /*!!0x49!!*/, 0xD8 /*0x4A*/ };
-    RegWriteArray(R_ALL, 74, uchRegs2495);
+    RegWriteArray(this,R_ALL, 74, uchRegs2495);
   }    /* #2495[062.5] */
 
+  INST_ASSERT();
   do {
     int            anLine[CCH_BONSAI]; /* summm */
     unsigned char  achLine[CCH_BONSAI+1];
@@ -84,16 +80,20 @@ void DoOriginate()
     long           lSum;
     
     /*     dprintf(DEBUG_SCAN,"originate-%d...",iStripe); */
-    RegWrite(R_CTL, 1, 0x59);    /* #2496[062.5] */
-    RegWrite(R_CTL, 1, 0xD9);    /* #2497[062.5] */
-    WaitWhileScanning(5);
-    cchBulk=2*RegRead(R_STAT, 2);
+    RegWrite(this,R_CTL, 1, 0x59);    /* #2496[062.5] */
+    RegWrite(this,R_CTL, 1, 0xD9);    /* #2497[062.5] */
+    i=WaitWhileScanning(this,5); if (i) return i;
+    
+    cchBulk=2*RegRead(this,R_STAT, 2);
     if (cchBulk!=2*MAX_PIXEL_PER_SCANLINE)
-      Panic(PANIC_COMM,"illegal scan line with reported");
+      return SetError(this,PANIC_COMM,"illegal scan line with reported");
     puchBuffer=(unsigned char*)calloc(1,cchBulk);
     CHECK_POINTER(puchBuffer);
-    if (BulkReadBuffer(puchBuffer, cchBulk)!=cchBulk)
-      Panic(PANIC_COMM,"truncated 10200-bulk");
+    if (BulkReadBuffer(this,puchBuffer, cchBulk)!=cchBulk)
+    {
+      free(puchBuffer);
+      return SetError(this,PANIC_COMM,"truncated 10200-bulk");
+    }
     lSum=0;
     memset(anLine,0,sizeof(anLine));
     for (i=0; i<cchBulk; i++)
@@ -144,14 +144,14 @@ void DoOriginate()
     lMedian=lSum/cchBulk;
     if (bHolesOk)
       {
-	calibration.xMargin=axHoles[0]-480;           /* left bed corner */
-	calibration.nHoleGray=puchBuffer[axHoles[0]]; /* black reference */
+	this->calibration.xMargin=axHoles[0]-480;           /* left bed corner */
+	this->calibration.nHoleGray=puchBuffer[axHoles[0]]; /* black reference */
       }
     dprintf(DEBUG_ORIG,"~ %s - %d\n",
 	    achLine,
 	    lMedian);
     free(puchBuffer);
-    WaitWhileBusy(2);
+    i=WaitWhileBusy(this,2); if (i) return i;
   } while (lMedian<CHASSIS_GRAY || !bHolesOk);
   
   dprintf(DEBUG_ORIG,"originate 3...\n");
@@ -183,20 +183,23 @@ void DoOriginate()
       0x03 /*R_SPD*/, 0x01 /*0x44*/, 0x00 /*0x45*/,
       0x59 /*R_CTL*/, 0xC0 /*0x47*/, 0x40 /*0x48*/,
       0x96 /*0x49*/, 0xD8 /*0x4A*/ };
-    RegWriteArray(R_ALL, 74, uchRegs2551);
+    RegWriteArray(this,R_ALL, 74, uchRegs2551);
   }    /* #2551[064.4] */
-  RegWrite(0x34, 1, 0x63);
-  RegWrite(0x49, 1, 0x96);
+  RegWrite(this,0x34, 1, 0x63);
+  RegWrite(this,0x49, 1, 0x96);
+  INST_ASSERT();
   for (iStripe=0; iStripe<3; iStripe++)
     {
-      int cchBulk;
-      RegWrite(R_CTL, 1, 0x59);
-      RegWrite(R_CTL, 1, 0xD9);
-      WaitWhileScanning(5);
-      cchBulk=RegRead(R_STAT, 2);
-      BulkRead(NULL, 2*cchBulk);
-      WaitWhileBusy(2);
+      int cchBulk,i;
+      RegWrite(this,R_CTL, 1, 0x59);
+      RegWrite(this,R_CTL, 1, 0xD9);
+      i=WaitWhileScanning(this,5); if (i) return i;
+      cchBulk=RegRead(this,R_STAT, 2);
+      BulkRead(this,NULL, 2*cchBulk);
+      WaitWhileBusy(this,2);
+      INST_ASSERT();
     }
+  return 0;
 }
 
 /* **********************************************************************
@@ -207,17 +210,18 @@ The distance is given in 600 DPI.
 
 ********************************************************************** */
 
-void DoJog(int nDistance)
+int DoJog(TInstance *this, int nDistance)
 {
   int cSteps;
   int nSpeed,nRest;
   dprintf(DEBUG_SCAN,"jogging %d units...\n",nDistance);
-  if (!nDistance) return;
-  RegWrite(0x34, 1, 0x63);
-  RegWrite(0x49, 1, 0x96);
-  WaitWhileBusy(2);
-  RegWrite(0x34, 1, 0x63);
-  RegWrite(0x49, 1, 0x9E); /* that is a difference! */
+  if (!nDistance) return 0;
+  RegWrite(this,0x34, 1, 0x63);
+  RegWrite(this,0x49, 1, 0x96);
+  WaitWhileBusy(this,2);
+  RegWrite(this,0x34, 1, 0x63);
+  RegWrite(this,0x49, 1, 0x9E); /* that is a difference! */
+  INST_ASSERT();
   cSteps=(nDistance>0) ? nDistance : -nDistance;
   {
     unsigned char uchRegs2587[]={
@@ -246,40 +250,43 @@ void DoJog(int nDistance)
       0x03 /*R_SPD*/, 0x01 /*0x44*/, 0x00 /*0x45*/,
       0x79 /*!!R_CTL!!*/, 0xC0 /*0x47*/, 0x40 /*0x48*/,
       0x9E /*!!0x49!!*/, 0xD8 /*0x4A*/ };
-    RegWriteArray(R_ALL, 74, uchRegs2587);
+    RegWriteArray(this,R_ALL, 74, uchRegs2587);
   }    /* #2587[065.4] */
-  RegWrite(R_STPS,2,(cSteps-1));
+  INST_ASSERT();
+  RegWrite(this,R_STPS,2,(cSteps-1));
   /* do some magic for slider acceleration */
   if (cSteps>600) /* only large movements are accelerated */
     {
-      RegWrite(0x34, 1, 0xC3);
-      RegWrite(0x47, 2, 0xA000);    /* initial speed */
+      RegWrite(this,0x34, 1, 0xC3);
+      RegWrite(this,0x47, 2, 0xA000);    /* initial speed */
     }
   /* start back or forth movement */
   if (nDistance>0)
     {
-      RegWrite(R_CTL, 1, 0x39);    /* #2588[065.4] */
-      RegWrite(R_CTL, 1, 0x79);    /* #2589[065.4] */
-      RegWrite(R_CTL, 1, 0xF9);    /* #2590[065.4] */
+      RegWrite(this,R_CTL, 1, 0x39);    /* #2588[065.4] */
+      RegWrite(this,R_CTL, 1, 0x79);    /* #2589[065.4] */
+      RegWrite(this,R_CTL, 1, 0xF9);    /* #2590[065.4] */
     }
   else
     {
-      RegWrite(R_CTL, 1, 0x59);
-      RegWrite(R_CTL, 1, 0xD9);
+      RegWrite(this,R_CTL, 1, 0x59);
+      RegWrite(this,R_CTL, 1, 0xD9);
     }
+  INST_ASSERT();
   /* accelerate the slider each 100 us */
   if (cSteps>600)
     {
       nRest=cSteps;
       for (nSpeed=0x9800; nRest>600 && nSpeed>=0x4000; nSpeed-=0x800)
 	{
-	  nRest=RegRead(R_POS, 2);
+	  nRest=RegRead(this,R_POS, 2);
 	  usleep(100);
 	  /* perhaps 40C0 is the fastest possible value */
-	  RegWrite(0x47, 2, nSpeed>0x4000 ? nSpeed : 0x40C0);
+	  RegWrite(this,0x47, 2, nSpeed>0x4000 ? nSpeed : 0x40C0);
 	}
     }
+  INST_ASSERT();
   usleep(100);
-  WaitWhileBusy(100);
+  return WaitWhileBusy(this,100);
 }
 
