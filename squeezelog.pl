@@ -1,6 +1,6 @@
 #!/usr/bin/perl -wT
 use strict;
-# $Id: squeezelog.pl,v 1.5 2001/05/26 21:04:20 eichholz Exp $
+# $Id: squeezelog.pl,v 1.6 2001/05/26 21:37:25 eichholz Exp $
 #
 # Originally, this script should compact USB-SNOOPY's log files for protocol
 # analysis. Is it designed to preserve as much information as is "possible".
@@ -31,114 +31,6 @@ my $sOptBulkEncoding = "hex";
 my $bOptMarkChanged = 0;
 my ($nFrom,$nTo) = (0,100000);
 
-while (defined $ARGV[0])
-  {
-    $_=shift @ARGV;
-    if ($_ eq "-fu") { $sOptFormat="usb-robot"; }
-    elsif (/^-fd/) { $sOptFormat="new-robot"; }
-    elsif (/^-fp/) { $sOptFormat="plain"; }
-    elsif (/^-fc/) { $sOptFormat="c"; }
-    elsif (/^-fr/) { $sOptFormat="register"; }
-    elsif (/^-m/) { $nFrom=shift @ARGV; }
-    elsif (/^-n/) { $nTo=shift @ARGV; }
-    elsif (/^-c/) { $bOptMarkChanged=1; }
-    else { print STDERR "unknown argument \"$_\"\n"; exit 1; }
-  }
-
-unless (defined $sOptFormat)
-{
-print STDERR <<eom;
-usage: squeezelog.pl -f<format> < snoopyfile
-
-formats are:
-	-fr : register transfer analysis
-	-fc : c code generation
-	-fd : dirty-robot-input format
-	-fu : usb-robot-input format
-options are:
-	-m : set lowest URB
-	-n : set highest URB
-        -c : mark changed registers in set
-
-(C) Marian Eichholz 2001
-eom
-	exit 1;
-}
-
-# ======================================== global variables
-
-my ($nIndex,$sTime,$iLast,@aArgs,$bValid,$sDirection,
-    $sFunc,$nLength,$nReq,$nVal,$sInOut,$iURB);
-
-my $nLine=0;
-my $bFirst=1;     # must be present BEFORE the helper
-my $bInitPhase=1; # initialization phase (no data available)
-
-# ======================================================================
-
-sub Clear {
-  $bValid=0;
-  $sDirection="?";
-  $sFunc=0;
-  $nLength=-1;
-  $nReq=-1;
-  $nVal=-1;
-  $sTime="?.?";
-  $nIndex=0;
-  $sInOut="?";
-  @aArgs=();
-}
-
-# ======================================================================
-
-sub FlushNewRobot {
-  $_=shift;
-  $bFirst=0;
-  if ($sFunc eq "VENDOR_DEVICE")
-    {
-      my $chDir=lc(substr($sInOut,0,1));
-      if ($sDirection eq ">")
-	{
-	  $bInitPhase=0;
-	  printf "c%s%04X;%02X;%04X;%04X;%04X\n",
-	  $chDir,$iURB,$nReq,$nVal,
-	  0x40+($sInOut eq "in" ? 0x80 : 0 ),
-	  $nLength;
-	}
-      # outgoing parameters */
-      foreach (@aArgs)
-	{
-	  s/ //g;
-	  printf "d%s%04X;%s",$chDir,$iURB,uc($_);
-	}
-    } # VENDOR
-  elsif ($sFunc eq "BULK_OR_INTERRUPT_TRANSFER")
-    {
-      if ($sDirection eq ">")
-	{
-	  $bInitPhase=0;
-	  printf "bi%04X;%02X;%04X\n",$iURB,0x82,$nLength;
-	}
-    }
-  if ($sDirection eq "<" and @aArgs)
-    {
-      return if $bInitPhase;
-      # each returning data comes as returning CONTROL message */
-      my $i;
-      for ($i=0; $i<=$#aArgs; $i++)
-	{
-	  $_=$aArgs[$i];
-	  s/ //g;
-	  print $i!=$#aArgs ? 'd' : 'D';
-	  printf "i%04X;%s",$iURB,uc($_);
-	}
-    }
-}
-
-# ======================================================================
-
-my $bVendorPending=0;
-my $nRegister;
 my %hRegNames=qw(
 01 Xstart1
 02 Xstart2 
@@ -227,6 +119,116 @@ my %hRegNames=qw(
 55 FIFOstat2
 );
 
+while (defined $ARGV[0])
+  {
+    $_=shift @ARGV;
+    if ($_ eq "-fu") { $sOptFormat="usb-robot"; }
+    elsif (/^-fd/) { $sOptFormat="new-robot"; }
+    elsif (/^-fp/) { $sOptFormat="plain"; }
+    elsif (/^-fc/) { $sOptFormat="c"; }
+    elsif (/^-fr/) { $sOptFormat="register"; }
+    elsif (/^-m/) { $nFrom=shift @ARGV; }
+    elsif (/^-n/) { $nTo=shift @ARGV; }
+    elsif (/^-c/) { $bOptMarkChanged=1; }
+    elsif (/^-r/) { %hRegNames=(); }
+    else { print STDERR "unknown argument \"$_\"\n"; exit 1; }
+  }
+
+unless (defined $sOptFormat)
+{
+print STDERR <<eom;
+usage: squeezelog.pl -f<format> < snoopyfile
+
+formats are:
+	-fr : register transfer analysis
+	-fc : c code generation
+	-fd : dirty-robot-input format
+	-fu : usb-robot-input format
+options are:
+	-m : set lowest URB
+	-n : set highest URB
+        -c : mark changed registers in set
+        -r : no register naming for C code
+
+(C) Marian Eichholz 2001
+eom
+	exit 1;
+}
+
+# ======================================== global variables
+
+my ($nIndex,$sTime,$iLast,@aArgs,$bValid,$sDirection,
+    $sFunc,$nLength,$nReq,$nVal,$sInOut,$iURB);
+
+my $nLine=0;
+my $bFirst=1;     # must be present BEFORE the helper
+my $bInitPhase=1; # initialization phase (no data available)
+
+# ======================================================================
+
+sub Clear {
+  $bValid=0;
+  $sDirection="?";
+  $sFunc=0;
+  $nLength=-1;
+  $nReq=-1;
+  $nVal=-1;
+  $sTime="?.?";
+  $nIndex=0;
+  $sInOut="?";
+  @aArgs=();
+}
+
+# ======================================================================
+
+sub FlushNewRobot {
+  $_=shift;
+  $bFirst=0;
+  if ($sFunc eq "VENDOR_DEVICE")
+    {
+      my $chDir=lc(substr($sInOut,0,1));
+      if ($sDirection eq ">")
+	{
+	  $bInitPhase=0;
+	  printf "c%s%04X;%02X;%04X;%04X;%04X\n",
+	  $chDir,$iURB,$nReq,$nVal,
+	  0x40+($sInOut eq "in" ? 0x80 : 0 ),
+	  $nLength;
+	}
+      # outgoing parameters */
+      foreach (@aArgs)
+	{
+	  s/ //g;
+	  printf "d%s%04X;%s",$chDir,$iURB,uc($_);
+	}
+    } # VENDOR
+  elsif ($sFunc eq "BULK_OR_INTERRUPT_TRANSFER")
+    {
+      if ($sDirection eq ">")
+	{
+	  $bInitPhase=0;
+	  printf "bi%04X;%02X;%04X\n",$iURB,0x82,$nLength;
+	}
+    }
+  if ($sDirection eq "<" and @aArgs)
+    {
+      return if $bInitPhase;
+      # each returning data comes as returning CONTROL message */
+      my $i;
+      for ($i=0; $i<=$#aArgs; $i++)
+	{
+	  $_=$aArgs[$i];
+	  s/ //g;
+	  print $i!=$#aArgs ? 'd' : 'D';
+	  printf "i%04X;%s",$iURB,uc($_);
+	}
+    }
+}
+
+# ======================================================================
+
+my $bVendorPending=0;
+my $nRegister;
 sub FlushRegisterStyle {
   $_=shift;
   $bFirst=0;

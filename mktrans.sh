@@ -37,7 +37,7 @@ for NAME in $NAMES ; do
   if [ -r $DOS/temp/$NAME.log ]; then
         echo "$NAME..."
 	cp $DOS/temp/$NAME.log  $LOGS || exit 1
-	squeezelog.pl -fc < $LOGS/$NAME.log >data/$NAME.c
+	squeezelog.pl -r -fc < $LOGS/$NAME.log >data/$NAME.c
 	squeezelog.pl -fr < $LOGS/$NAME.log >data/$NAME.txt
         dumpscanctl.pl < data/$NAME.txt > data/ctlblocks/$NAME.txt
         dumpscanctl.pl < data/$NAME.c > data/ctlblocks/$NAME.c

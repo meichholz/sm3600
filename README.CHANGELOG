@@ -8,6 +8,7 @@ removed the "(lamp)" from Reg 44 descriptor
 New file: COPYING (from sane-backends).
 New file: README.FIRST.
 Expanded README.SANE.
+Added "-r"-option to squeezelog.pl
 
 !! "squeezelog.pl" may be buggy !!
 
