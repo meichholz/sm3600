@@ -3,7 +3,7 @@
 
 /*
 
- $Id: scantool.h,v 1.8 2001/03/27 22:34:05 eichholz Exp $
+ $Id: scantool.h,v 1.9 2001/03/29 22:01:51 eichholz Exp $
 
  common declarations and definitions.
 
@@ -104,6 +104,8 @@ GLOBAL TCalibration       calibration;
 /* WORD */
 #define R_STPS   0x06
 /* WORD */
+#define R_YRES   0x08
+/* WORD */
 #define R_SLEN   0x0A
 /* WORD*/
 #define R_INIT   0x12
@@ -138,8 +140,6 @@ void DoInit(void);
 int WaitWhileBusy(int cSecs);
 int WaitWhileScanning(int cSecs);
 void DoJog(int nDistance);
-void DoOriginate(void);
-void DoScanGray(FILE *fh, int cRows);
 void DoLampSwitch(int nPattern);
 void DoCalibration(void);
 
@@ -150,5 +150,18 @@ int RegCheck(int iRegister, int cch, unsigned long ulValue);
 int BulkRead(FILE *fhOut, unsigned int cchBulk);
 int BulkReadBuffer(unsigned char *puchBufferOut, unsigned int cchBulk);
 unsigned int RegRead(int iRegister, int cch);
+
+/* gray.c */
+void DoScanGray(FILE *fh, int nResolution,
+		int xBorder, int yBorder,
+		int cxPixel, int cyPixel);
+
+/* color.c */
+void DoScanColor(FILE *fh, int nResolution,
+		int xBorder, int yBorder,
+		int cxPixel, int cyPixel);
+
+/* homerun.c */
+void DoOriginate(void);
 
 #endif

@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+29.3.2001
+
+Code split up to central function. Grayscale support for 600, 300 and 100 dpi.
+Grayscale seems to be very complicated in the control bits.
+
 28.3.2001
 
 New origination algorithm based on the structure of the markers in the

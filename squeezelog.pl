@@ -1,12 +1,13 @@
 #!/usr/bin/perl -wT
 use strict;
-# $Id: squeezelog.pl,v 1.2 2001/03/24 01:19:44 eichholz Exp $
+# $Id: squeezelog.pl,v 1.3 2001/03/29 22:01:51 eichholz Exp $
 #
 # Originally, this script should compact USB-SNOOPY's log files for protocol
 # analysis. Is it designed to preserve as much information as is "possible".
 #
 # It has support for human analysis as well as roboted protocol replay.
 #
+#        consmetic in C code and optional marking
 # 0.14 : C-code-generation. New output format flags.
 # 0.11 : Scanmaker-specific human format
 # 0.10 : me-robot-length with 4 digits, URB index, end-of-data-detection
@@ -24,6 +25,7 @@ use strict;
 
 my $sOptFormat;
 my $sOptBulkEncoding = "hex";
+my $bOptMarkChanged = 0;
 my ($nFrom,$nTo) = (0,100000);
 
 while (defined $ARGV[0])
@@ -36,6 +38,7 @@ while (defined $ARGV[0])
     elsif (/^-fr/) { $sOptFormat="register"; }
     elsif (/^-m/) { $nFrom=shift @ARGV; }
     elsif (/^-n/) { $nTo=shift @ARGV; }
+    elsif (/^-c/) { $bOptMarkChanged=1; }
     else { print STDERR "unknown argument \"$_\"\n"; exit 1; }
   }
 
@@ -52,6 +55,7 @@ formats are:
 options are:
 	-m : set lowest URB
 	-n : set highest URB
+        -c : mark changed registers in set
 
 (C) Marian Eichholz 2001
 eom
@@ -260,11 +264,13 @@ sub FlushCCode {
 	      my $sVal=substr($sReg,2*$i,2);
 	      my $sMark="";
 	      $sMark="!!"
-		if defined($aLastRegSet[$i]) and $sVal ne $aLastRegSet[$i];
+		if $bOptMarkChanged
+		  and defined($aLastRegSet[$i])
+		    and $sVal ne $aLastRegSet[$i];
 	      print "\n  " if !($i % 3);
 	      $sRegName= (defined $hRegNames{$sRegName})
 		? "R_".$hRegNames{$sRegName} : "0x$sRegName";
-	      printf " 0x%s /*%s%s%s*/",$sVal,$sMark,$sRegName,$sMark;
+	      printf " /*%s%s%s*/ 0x%s",$sMark,$sRegName,$sMark,$sVal;
 	      $aLastRegSet[$i]=$sVal;
 	      print "," if $i<$nLength-1;
 	    }
