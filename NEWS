@@ -1,3 +1,11 @@
+New on 16.4.2004
+
+* A MaxOS/X - user spotted portability issues in gain correction.
+* case gray level constant set from 100 -> 75 (should relay homerun)
+* fixed the off by one in PBM line count
+* incorporated the corrected SANE copyright lines
+* commited to SANE-CVS 1.0.13
+
 New on 16.12.2001
 
 * scantool support for (PCL) encoder
