@@ -85,7 +85,7 @@ typedef enum { false, true } TBool;
 
 typedef SANE_Status TState;
 
-typedef enum { unknown, sm3600, sm3700 } TModel;
+typedef enum { unknown, sm3600, sm3700, sm3750 } TModel;
 
 typedef struct {
   TBool         bCalibrated;

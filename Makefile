@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.18 2002/02/11 08:10:13 eichholz Exp $
+# $Id: Makefile,v 1.19 2002/04/15 21:33:29 eichholz Exp $
 #
 # -------------------------------------------------------------------
 #
@@ -13,7 +13,7 @@ BINDIR=		/usr/local/bin
 MANDIR=		/usr/local/man
 
 SANE_SRC=	/packin/sane-backends-1.0.4
-SANE_CVS=       /packin/sane/sane-backends
+SANE_CVS=       /var/src/sane/sane-backends
 
 SANE_INCLUDE=	$(SANE_SRC)/include
 SANE_LIBDIR=	/usr/lib/sane
@@ -50,7 +50,7 @@ SCANTOOL_H=	sm3600.h sm3600-scantool.h
 
 # ======================================================================
 
-default: testenc
+default: bin
 
 .c.o :
 	@echo "compiling $* "
@@ -113,40 +113,6 @@ sanetest:
 
 # ======================================================================
 
-# insane SANE stuff
-
-sanemod: libsane-$(NAME).la
-
-libsane-$(NAME).la : $(NAME).lo $(NAME)-s.lo
-	$(LIBTOOL) --mode=link $(CC) -export-dynamic -o $@ $($*_LIBS) \
-	$(LDFLAGS) $(SANE_LIBS) $^ \
-	-rpath $(SANE_EXECDIR) \
-	-version-info $(V_MAJOR):$(V_REV):$(V_MINOR)
-
-$(NAME)-s.lo : $(NAME)-s.c
-	$(LIBTOOL) --mode=compile $(COMPILE) -DSTUBS -DBACKEND_NAME=$* $<
-
-$(NAME).lo: $(NAME).c
-	$(LIBTOOL) --mode=compile $(COMPILE) -DBACKEND_NAME=$* \
-	-DV_MAJOR=$(V_MAJOR) -DV_MINOR=$(V_MINOR) -DV_REV=$(V_REV) \
-	-DLIBDIR=$(SANE_LIB) $<
-
-$(NAME)-s.c: $(SANE_STUB)
-	rm -f $@
-	ln -s $(SANE_STUB) $@
-
-libsane-$(NAME).so : libsane-$(NAME).la
-	$(LIBTOOL) --mode=install install \
-	libsane-$(NAME).la \
-	$(SANE_EXECDIR)/libsane-$(NAME).so
-
-install-sane: libsane-$(NAME).la libsane-$(NAME).so
-	install $(NAME).conf $(SANE_CONFDIR)
-
-.PRECIOUS: %-s.c %-s.lo %.lo dll-preload.c
-
-# ======================================================================
-
 $(SCANTOOL_MODS) : $(SCANTOOL_H)
 
 scantool:	$(SCANTOOL_MODS)
@@ -194,7 +160,9 @@ install: install-scantool
 
 install-scantool:	scantool
 	@install -m 755 scantool $(BINDIR) 
+	@install -m 755 scancopy.sh $(BINDIR)/scancopy
 	@install -m 644 scantool.man $(MANDIR)/man1/scantool.1
+
 
 getif:
 	ssh -l root localhost chown -R marian /proc/bus/usb/001

@@ -21,6 +21,10 @@ Vendor     Product id:     Remark:
 --------   --------------  -----------
 .br
 Microtek   ScanMaker 3600  all modes ok
+.br
+Microtek   ScanMaker 3700  reported to work
+.br
+Microtek   ScanMaker 3750  reported to work
 .RE
 .PP
 If you own a Microtek scanner with the M011 chip other than the ones

@@ -1,3 +1,7 @@
+2002-04-15  Marian Eichholz <eichholz@computer.org>
+	* Included ID for SM 3750i, thanks Andrea Mazzoleni <am@mediacom.it>
+	* patched into SANE-CVS
+
 2002-02-10  Marian Eichholz <eichholz@computer.org>
 	* Fixed border clipping in g4-encoder.
 	* scantool.man manpage completed

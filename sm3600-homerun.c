@@ -196,6 +196,7 @@ static TLineType GetLineType(TInstance *this)
 	  this->calibration.yMargin=413;
 	  break;
 	case sm3700:
+	case sm3750: /* basically unknown sub-brand */
 	default:
 	  this->calibration.xMargin=axHoles[0]-462;
 	  this->calibration.yMargin=330;
@@ -291,6 +292,7 @@ TState DoCalibration(TInstance *this)
       cyGap=10;
       break;
     case sm3700: /* in fact, the 3600 calibration should do!!! */
+    case sm3750:
     default:
       yStart=100;  /* 54 is perimeter */
       cStripes=MAX_CALIB_STRIPES;  

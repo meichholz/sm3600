@@ -46,7 +46,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: sm3600-scanmtek.c,v 1.4 2001/09/30 20:38:07 eichholz Exp $
+$Id: sm3600-scanmtek.c,v 1.5 2002/04/15 21:33:29 eichholz Exp $
 
 ====================================================================== */
 
@@ -61,6 +61,7 @@ static struct {
   { sm3600, 0x40FF },
   { sm3700, 0x40B8 },
   { sm3700, 0x40CB },
+  { sm3750, 0x40dd },
   { sm3600, 0x40FF }, /* unknown */
   { unknown, 0x0000 } };
 

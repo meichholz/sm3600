@@ -9,14 +9,16 @@
 # ======================================================================
 
 RESO=600
+BRIGHTNESS=""
 
 while [ -n "$1" ]; do
   case "$1" in
     -c|-fast) RESO=300 ;;
+    -b) BRIGHTNESS="-b $2" ; shift ;;
     -v) VERBOSE="$1" ;;
     --debug) VERBOSE="-v" ; DEBUG="$2" ; shift ;;
     -h*) cat <<EOF
-usage: scancopy [-c] [-v] [-debug MODE] [-h]
+usage: scancopy [-c|-fast] [-v] [b BRIGHT] [-debug MODE] [-h]
 EOF
     exit 0
     ;;
@@ -25,7 +27,9 @@ EOF
   shift
 done
 
-SCANBASE="scantool $VERBOSE -p c"
+SCANBASE="scantool -p c $VERBOSE $BRIGHTNESS"
+
+echo "calling $SCANBASE"
 
 (
 echo -e -n '\033%-12345X'	# UEL

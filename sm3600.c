@@ -360,7 +360,7 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback authCB)
 
   DBG_INIT();
 
-  authCB++; /* compiler */
+  authCB=authCB; /* compiler */
 
   DBG(DEBUG_VERBOSE,"SM3600 init\n");
   if (version_code)

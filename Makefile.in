@@ -1,4 +1,4 @@
-# $Id: Makefile.in,v 1.36 2002/02/11 08:10:13 eichholz Exp $
+# $Id: Makefile.in,v 1.37 2002/04/15 21:33:29 eichholz Exp $
 #
 # -------------------------------------------------------------------
 #
@@ -13,7 +13,7 @@ BINDIR=		@PREFIX@/bin
 MANDIR=		@PREFIX@/man
 
 SANE_SRC=	/packin/sane-backends-1.0.4
-SANE_CVS=       /packin/sane/sane-backends
+SANE_CVS=       /var/src/sane/sane-backends
 
 SANE_INCLUDE=	$(SANE_SRC)/include
 SANE_LIBDIR=	/usr/lib/sane
@@ -162,7 +162,7 @@ install-scantool:	scantool
 	@install -m 755 scantool $(BINDIR) 
 	@install -m 755 scancopy.sh $(BINDIR)/scancopy
 	@install -m 644 scantool.man $(MANDIR)/man1/scantool.1
-	
+
 
 getif:
 	ssh -l root localhost chown -R marian /proc/bus/usb/001
