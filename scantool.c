@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scantool.c,v 1.17 2001/04/11 21:35:59 eichholz Exp $
+$Id: scantool.c,v 1.18 2001/04/13 12:08:55 eichholz Exp $
 
 (C) Marian Eichholz 2001
 
@@ -10,7 +10,7 @@ $Id: scantool.c,v 1.17 2001/04/11 21:35:59 eichholz Exp $
 
 #include "scantool.h"
 
-#define REVISION "$Revision: 1.17 $"
+#define REVISION "$Revision: 1.18 $"
 
 #define USAGE \
 "usage: %s <outfile> <resolution> <x> <y> <w> <h>" \
@@ -65,6 +65,24 @@ static void TellRevision(void)
 
 /* **********************************************************************
 
+ExitCheck(pinst)
+
+********************************************************************** */
+
+void ExitCheck(TInstance *this)
+{
+  if (!this->nErrorState) return;
+  fprintf(stderr,"fatal:%s [%s] (aborting)\n",
+	  this->szErrorReason ? this->szErrorReason  : "unknown reason",
+	  achErrorMessages[this->nErrorState]);
+  if (this->hScanner) usb_close(this->hScanner);
+  if (this->fhLog) fclose(this->fhLog);
+  if (this->fhScan) fclose(this->fhScan);
+  exit(this->nErrorState);
+}
+
+/* **********************************************************************
+
 OpenScanner(pDevice)
 
 Just a funny Macro for setting up the interface and USB configuration.
@@ -75,7 +93,7 @@ static int OpenScanner(TInstance *this,
 		       struct usb_device *pScanner)
 {
   int rc;
-  if (bVerbose) fprintf(stderr,"opening scanner...\n");
+  if (this->bVerbose) fprintf(stderr,"opening scanner...\n");
 
   this->hScanner=usb_open(pScanner);
   if (!this->hScanner)
@@ -195,7 +213,7 @@ TState FindScanner(TInstance *this, struct usb_device ** ppdevOut)
   if (usb_find_busses())
     return SetError(this,SANE_STATUS_IO_ERROR, "no USB found");
   usb_find_devices();
-  if (bVerbose) fprintf(stderr,"scanning for scanner...\n");
+  if (this->bVerbose) fprintf(stderr,"scanning for scanner...\n");
   if (!usb_busses)
     return SetError(this,SANE_STATUS_IO_ERROR,"no usb bus found");
   for (pbus = usb_busses; pbus; pbus = pbus->next)
@@ -257,7 +275,7 @@ int main(int cArg, char * const ppchArg[])
 	  printf(USAGE,PROG_NAME);
 	  exit(0);
 	  break;
-        case 'v': bVerbose=true; break;
+        case 'v': this->bVerbose=true; break;
         case 'i': bInteractive=true; break;
 	case 'V': TellRevision(); exit(0); break;
 	case 'l': szLogFile=strdup(optarg); break;

@@ -31,7 +31,7 @@ TState DoOriginate(TInstance *this)
   TBool  bHolesOk;
   long   lMedian;
   
-  if (bVerbose)
+  if (this->bVerbose)
     fprintf(stderr,"carriage return...\n");
   dprintf(DEBUG_ORIG,"originate 1...\n");
 

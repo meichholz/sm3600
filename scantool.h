@@ -74,46 +74,4 @@ GLOBAL TInstance          devInstance;
 
 /* ====================================================================== */
 
-#define USB_CHUNK_SIZE 0x8000
-
-/* scanutil.c */
-void ExitCheck(TInstance *this);
-int SetError(TInstance *this, int nError, const char *szFormat, ...);
-void dprintf(unsigned long ulType, const char *szFormat, ...);
-void DumpBuffer(FILE *fh, const char *pch, int cch);
-void FixExposure(unsigned char *pchBuf,
-		 int cchBulk,
-		 int nBrightness,
-		 int nContrast);
-TState FreeState(TInstance *this, TState nReturn);
-TState EndScan(TInstance *this);
-TState ReadChunk(TInstance *this, unsigned char *achOut,
-		 int cchMax, int *pcchRead);
-TState DoScanFile(TInstance *this);
-
-
-/* scanmtek.c */
-TState DoInit(TInstance *this);
-TState WaitWhileBusy(TInstance *this,int cSecs);
-TState WaitWhileScanning(TInstance *this,int cSecs);
-TState DoJog(TInstance *this,int nDistance);
-TState DoLampSwitch(TInstance *this,int nPattern);
-TState DoCalibration(TInstance *this);
-
-/* scanusb.c */
-TState RegWrite(TInstance *this,int iRegister, int cb, unsigned long ulValue);
-TState RegWriteArray(TInstance *this,int iRegister, int cb, unsigned char *pchBuffer);
-TState RegCheck(TInstance *this,int iRegister, int cch, unsigned long ulValue);
-int BulkRead(TInstance *this,FILE *fhOut, unsigned int cchBulk);
-int BulkReadBuffer(TInstance *this,unsigned char *puchBufferOut, unsigned int cchBulk); /* gives count */
-unsigned int RegRead(TInstance *this,int iRegister, int cch);
-
-/* gray.c */
-TState StartScanGray(TInstance *this);
-/* color.c */
-TState StartScanColor(TInstance *this);
-
-/* homerun.c */
-TState DoOriginate(TInstance *this);
-
 #endif

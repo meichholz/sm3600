@@ -33,6 +33,9 @@ Start: 2.4.2001
 #include "sane/sanei_config.h"
 #define SM3600_CONFIG_FILE "sm3600.conf"
 
+/* prevent inclusion of scantool.h */
+#define SCANTOOL_H
+
 #include "sm3600.h"
 
 unsigned long ulDebugMask;
@@ -41,6 +44,14 @@ int num_devices;
 static SM3600_Device  *first_dev;
 static SM3600_Scanner *first_handle;
 
+/* ====================================================================== */
+
+#include "sm3600/scanutil.c"
+#include "sm3600/scanusb.c"
+#include "sm3600/scanmtek.c"
+#include "sm3600/homerun.c"
+#include "sm3600/gray.c"
+#include "sm3600/color.c"
 
 /* ====================================================================== */
 

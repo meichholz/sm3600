@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scanutil.c,v 1.6 2001/04/11 21:35:59 eichholz Exp $
+$Id: scanutil.c,v 1.7 2001/04/13 12:08:55 eichholz Exp $
 
 ====================================================================== */
 
@@ -18,7 +18,7 @@ flag "ulType".
 
 ********************************************************************** */
 
-void dprintf(unsigned long ulType, const char *szFormat, ...)
+void debug_printf(unsigned long ulType, const char *szFormat, ...)
 {
   va_list ap;
   if ((ulDebugMask & ulType)!=ulType) return;
@@ -30,25 +30,6 @@ void dprintf(unsigned long ulType, const char *szFormat, ...)
   vfprintf(stderr,szFormat,ap);
   va_end(ap);
 }
-
-/* **********************************************************************
-
-ExitCheck(pinst)
-
-********************************************************************** */
-
-void ExitCheck(TInstance *this)
-{
-  if (!this->nErrorState) return;
-  fprintf(stderr,"fatal:%s [%s] (aborting)\n",
-	  this->szErrorReason ? this->szErrorReason  : "unknown reason",
-	  achErrorMessages[this->nErrorState]);
-  if (this->hScanner) usb_close(this->hScanner);
-  if (this->fhLog) fclose(this->fhLog);
-  if (this->fhScan) fclose(this->fhScan);
-  exit(this->nErrorState);
-}
-
 
 /* **********************************************************************
 
@@ -229,7 +210,8 @@ TState DoScanFile(TInstance *this)
   char   achBuf[APP_CHUNK_SIZE];
   cx=this->param.cx*this->param.res/1200;
   cy=this->param.cy*this->param.res/1200;
-  if (bVerbose)
+  rc=SANE_STATUS_GOOD; /* make compiler happy */
+  if (this->bVerbose)
     fprintf(stderr,"scanning %d by %d in gray\n",cx,cy);
   if (this->fhScan && !this->bWriteRaw)
    {
@@ -254,11 +236,12 @@ TState DoScanFile(TInstance *this)
       rc=ReadChunk(this,achBuf,APP_CHUNK_SIZE,&cch);
       if (cch>0 && this->fhScan && cch<=APP_CHUNK_SIZE)
 	{
-	  fwrite(achBuf,1,cch,this->fhScan);
+	  if (!this->bWriteRaw)
+	    fwrite(achBuf,1,cch,this->fhScan);
 	  lcchRead+=cch;
 	}
      }
-  if (bVerbose)
+  if (this->bVerbose)
     fprintf(stderr,"read %ld image byte(s)\n",lcchRead);
   EndScan(this);
   INST_ASSERT();
