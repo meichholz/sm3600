@@ -55,7 +55,10 @@ typedef enum { color, gray, line, halftone } TMode;
 #define CHECK_POINTER(p) \
 if (!p) return SetError(this,SANE_STATUS_NO_MEM,"memory failed in %d",__LINE__)
 
-typedef struct {
+typedef struct TInstance *PTInstance;
+typedef TState (*TReadLineCB)(PTInstance);
+
+typedef struct TScanState {
   TBool           bCanceled;
   TBool           bScanning;    /* block is active? */
   TBool           bLastBulk;    /* EOF announced */
@@ -69,12 +72,15 @@ typedef struct {
   int             cyTotalPath;  /* from bed start to window end in 600 dpi */
   int             nFixAspect;   /* aspect ratio in percent, 75-100 */
   int             cBacklog;     /* depth of ppchLines */
+  int             ySensorSkew;  /* distance in pixel between sensors */
+  char           *szOrder;      /* 123 or 231 or whatever */
   unsigned char  *pchBuf;       /* bulk transfer buffer */
   short         **ppchLines;    /* for error diffusion and color corr. */
   unsigned char  *pchLineOut;   /* read() interface */
+  TReadLineCB     ReadProc;     /* line getter callback */
 } TScanState;
 
-typedef struct {
+typedef struct TInstance {
   TState             nErrorState;
   char              *szErrorReason;
   TBool              bSANE;

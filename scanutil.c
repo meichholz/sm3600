@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scanutil.c,v 1.5 2001/04/10 22:23:00 eichholz Exp $
+$Id: scanutil.c,v 1.6 2001/04/11 21:35:59 eichholz Exp $
 
 ====================================================================== */
 
@@ -127,3 +127,142 @@ void FixExposure(unsigned char *pchBuf,
 
 
 
+/* **********************************************************************
+
+FreeState()
+
+Frees all dynamical memory for scan buffering.
+
+********************************************************************** */
+
+TState FreeState(TInstance *this, TState nReturn)
+{
+  int i;
+  if (this->state.ppchLines)
+    {
+      for (i=this->state.cBacklog-1; i<=0; i--)
+	{
+	  if (this->state.ppchLines[i])
+	    free(this->state.ppchLines[i]);
+	}
+      free(this->state.ppchLines);
+    }
+  if (this->state.pchLineOut) free(this->state.pchLineOut);
+  if (this->state.pchBuf)     free(this->state.pchBuf);
+  this->state.pchBuf    =NULL;
+  this->state.pchLineOut=NULL;
+  this->state.ppchLines =NULL;
+  return nReturn;
+}
+
+/* ======================================================================
+
+EndScan()
+
+====================================================================== */
+
+TState EndScan(TInstance *this)
+{
+  if (!this->state.bScanning) return SANE_STATUS_GOOD;
+  /* move slider back to start */
+  this->state.bScanning=false;
+  FreeState(this,0);
+  INST_ASSERT();
+  return DoJog(this,-this->state.cyTotalPath);
+}
+
+/* ======================================================================
+
+ReadChunk()
+
+====================================================================== */
+
+TState ReadChunk(TInstance *this, unsigned char *achOut,
+		 int cchMax, int *pcchRead)
+{
+  /* have we to copy more than we have? */
+  /* can the current line fill the buffer ? */
+  *pcchRead=0;
+  INST_ASSERT();
+  while (this->state.iReadPos + cchMax > this->state.cchLineOut)
+    {
+      int rc;
+      /* copy rest of the line into target */
+      int cch = this->state.cchLineOut - this->state.iReadPos;
+      memcpy(achOut,
+	     this->state.pchLineOut+this->state.iReadPos,
+	     cch);
+      cchMax-=cch; /* advance parameters */
+      achOut+=cch;
+      (*pcchRead)+=cch;
+      this->state.iReadPos=0;
+      rc=(*(this->state.ReadProc))(this);
+      if (rc!=SANE_STATUS_GOOD)
+	return rc; /* may be EOF, then: good and away! */
+    }
+  if (!cchMax) return SANE_STATUS_GOOD; /* now everything fits! */
+  (*pcchRead) += cchMax;
+  memcpy(achOut,
+	 this->state.pchLineOut+this->state.iReadPos,
+	 cchMax);
+  this->state.iReadPos += cchMax;
+  return SANE_STATUS_GOOD;
+}
+
+#ifdef INSANE_VERSION
+
+/* ======================================================================
+
+DoScanFile()
+
+Top level caller for scantool.
+
+====================================================================== */
+
+#define APP_CHUNK_SIZE   1024
+
+TState DoScanFile(TInstance *this)
+{
+  int    cx,cy;
+  long   lcchRead;
+  TState rc;
+  char   achBuf[APP_CHUNK_SIZE];
+  cx=this->param.cx*this->param.res/1200;
+  cy=this->param.cy*this->param.res/1200;
+  if (bVerbose)
+    fprintf(stderr,"scanning %d by %d in gray\n",cx,cy);
+  if (this->fhScan && !this->bWriteRaw)
+   {
+      switch (this->mode)
+	{
+	case color: fprintf(this->fhScan,"P6\n%d %d\n255\n",cx,cy);
+	            rc=StartScanColor(this);
+	            break;
+	case gray:  fprintf(this->fhScan,"P5\n%d %d\n255\n",cx,cy);
+	            rc=StartScanGray(this);
+                    break;
+	default:    fprintf(this->fhScan,"P4\n%d %d\n",cx,cy);
+	            rc=StartScanGray(this);
+                    break;
+	}
+    }
+  lcchRead=0L;
+  while (!rc)
+    {
+      int cch;
+      cch=0;
+      rc=ReadChunk(this,achBuf,APP_CHUNK_SIZE,&cch);
+      if (cch>0 && this->fhScan && cch<=APP_CHUNK_SIZE)
+	{
+	  fwrite(achBuf,1,cch,this->fhScan);
+	  lcchRead+=cch;
+	}
+     }
+  if (bVerbose)
+    fprintf(stderr,"read %ld image byte(s)\n",lcchRead);
+  EndScan(this);
+  INST_ASSERT();
+  return SANE_STATUS_GOOD;
+}
+
+#endif

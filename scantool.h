@@ -74,6 +74,7 @@ GLOBAL TInstance          devInstance;
 
 /* ====================================================================== */
 
+#define USB_CHUNK_SIZE 0x8000
 
 /* scanutil.c */
 void ExitCheck(TInstance *this);
@@ -84,6 +85,12 @@ void FixExposure(unsigned char *pchBuf,
 		 int cchBulk,
 		 int nBrightness,
 		 int nContrast);
+TState FreeState(TInstance *this, TState nReturn);
+TState EndScan(TInstance *this);
+TState ReadChunk(TInstance *this, unsigned char *achOut,
+		 int cchMax, int *pcchRead);
+TState DoScanFile(TInstance *this);
+
 
 /* scanmtek.c */
 TState DoInit(TInstance *this);
@@ -102,9 +109,9 @@ int BulkReadBuffer(TInstance *this,unsigned char *puchBufferOut, unsigned int cc
 unsigned int RegRead(TInstance *this,int iRegister, int cch);
 
 /* gray.c */
-TState DoScanGray(TInstance *this);
+TState StartScanGray(TInstance *this);
 /* color.c */
-TState DoScanColor(TInstance *this);
+TState StartScanColor(TInstance *this);
 
 /* homerun.c */
 TState DoOriginate(TInstance *this);

@@ -10,17 +10,96 @@ color scan routine
 
 #include "scantool.h"
 
-/* **********************************************************************
-
-DoScanColor()
-
-********************************************************************** */
-
 #define ORDER_RGB             "012"
 #define ORDER_BRG             "120"
 
+/* **********************************************************************
+
+ReadNextColorLine()
+
+********************************************************************** */
+
+TState ReadNextColorLine(PTInstance this)
+{
+  int           iWrite,i;
+  int           iRead; /* read position in raw line */
+  int           nInterpolator;
+  int           iOffsetR,iOffsetG,iOffsetB;
+  short        *pchLineSwap;
+  TBool         bVisible;
+
+  bVisible=false;
+  do {
+      iWrite=0;
+      while (iWrite<3*this->state.cxMax) /* max 1 time in reality */
+	{
+	  while (iWrite<3*this->state.cxMax &&
+		 this->state.iBulkReadPos<this->state.cchBulk)
+	    this->state.ppchLines[0][iWrite++] =
+	      this->state.pchBuf[this->state.iBulkReadPos++];
+	  if (iWrite<3*this->state.cxMax) /* we need an additional chunk */
+	    {
+	      if (this->state.bLastBulk)
+		return SANE_STATUS_EOF;
+	      this->state.cchBulk=BulkReadBuffer(this,this->state.pchBuf,
+						 USB_CHUNK_SIZE);
+	      dprintf(DEBUG_SCAN,"bulk read: %d byte(s), line #%d\n",
+		      this->state.cchBulk, this->state.iLine);
+	      if (this->bWriteRaw)
+		fwrite(this->state.pchBuf,1,this->state.cchBulk,this->fhScan);
+	      INST_ASSERT();
+	      FixExposure(this->state.pchBuf,this->state.cchBulk,
+			  this->param.nBrightness,
+			  this->param.nContrast);
+	      if (this->state.cchBulk!=USB_CHUNK_SIZE)
+		this->state.bLastBulk=true;
+	      this->state.iBulkReadPos=0;
+	    }
+	} /* while raw line buffer acquiring */
+      this->state.iLine++;
+      if (this->state.iLine>2*this->state.ySensorSkew)
+	{
+	  bVisible=true;
+	  iOffsetR=(this->state.szOrder[0]-'0')*this->state.cxMax;
+	  iOffsetG=(this->state.szOrder[1]-'0')*this->state.cxMax;
+	  iOffsetB=(this->state.szOrder[2]-'0')*this->state.cxMax;
+	  for (nInterpolator=100, iWrite=0, iRead=0;
+	       iRead<3*this->state.cxMax && iWrite<this->state.cchLineOut;
+	       iRead++)
+	    {
+	      nInterpolator+=this->state.nFixAspect;
+	      if (nInterpolator<100) continue; /* res. reduction */
+	      nInterpolator-=100;
+	      /* dprintf(DEBUG_SCAN," i=%d",iTo); */
+	      /* the first scan lines only fill the line backlog buffer */
+	      {
+		/* dprintf(DEBUG_SCAN,"assembling line %d\n",++this->state.iLine); */
+		this->state.pchLineOut[iWrite++]=
+		  this->state.ppchLines[2*this->state.ySensorSkew][iRead+iOffsetR];
+		this->state.pchLineOut[iWrite++]=
+		  this->state.ppchLines[2*this->state.ySensorSkew][iRead+iOffsetG];
+		this->state.pchLineOut[iWrite++]=
+		  this->state.ppchLines[2*this->state.ySensorSkew][iRead+iOffsetB];
+	      }
+	    }
+	} /* if visible line */
+      /* cycle backlog buffers */
+      pchLineSwap=this->state.ppchLines[this->state.cBacklog-1];
+      for (i=this->state.cBacklog-2; i>=0; i--)
+	this->state.ppchLines[i+1]=this->state.ppchLines[i];
+      this->state.ppchLines[0]=pchLineSwap;
+  } while (!bVisible);
+  return SANE_STATUS_GOOD;
+}
+
+/* ======================================================================
+
+StartScanColor()
+
+====================================================================== */
+
 /* Parameter are in resolution units! */
-TState DoScanColor(TInstance *this)
+TState StartScanColor(TInstance *this)
 {
 
   /* live could be easy: Simple calculate a window, start the scan,
@@ -31,35 +110,33 @@ TState DoScanColor(TInstance *this)
      order. And they have a skew of 2/300 inch , given by the slider
      construction.  Thus, we have to deal with several buffers, some
      interpolation, and related management stuff. */
+  int             i;
+  int             cxWindow;
+  if (this->state.bScanning)
+    return SetError(this,SANE_STATUS_DEVICE_BUSY,"scan active");
+  memset(&(this->state),0,sizeof(this->state));
+  this->state.cxPixel   =this->param.cx*this->param.res/1200;
+  this->state.cyPixel   =this->param.cy*this->param.res/1200;
+  this->state.nFixAspect=100;
+  this->state.ReadProc  =ReadNextColorLine;
+  this->state.ySensorSkew=0;
 
-  int    cxPixel,cyPixel; /* real units */
-  int    cxWindow,cxMax; /* in real pixels */
-  int    cyTotalPath;    /* from bed start to window end in 600 dpi */
-  int    nFixAspect;     /* aspect ratio in percent, 75-100 */
-  char **ppchLines;      /* backlog triple stripe line buffers */
-  char  *szOrder;        /* ORDER_XXX "012" or "120" */
-  char  *pchBuf;         /* bulk transfer buffer */
-  int    cBackLog;       /* depth of ppchLines */
-  int    ySensorSkew;    /* distance from sensor to sensor in scan lines */
-  cxPixel=this->param.cx*this->param.res/1200;
-  cyPixel=this->param.cy*this->param.res/1200;
-  if (bVerbose)
-    fprintf(stderr,"scanning %d by %d in color\n",cxPixel,cyPixel);
-  nFixAspect=100;
-  ySensorSkew=0;
   switch (this->param.res)
     {
-    case 75:  nFixAspect=75; break;
-    case 200: ySensorSkew=1; break;
-    case 300: ySensorSkew=2; break;
-    case 600: ySensorSkew=4; break;
+    case 75:  this->state.nFixAspect=75; break;
+    case 200: this->state.ySensorSkew=1; break;
+    case 300: this->state.ySensorSkew=2; break;
+    case 600: this->state.ySensorSkew=4; break;
     }
-  /* since we need 2*ySensorSkew additional scan lines for de-skewing of
+  /* since we need 2*this->state.ySensorSkew additional scan lines for de-skewing of
      the sensor lines, we enlarge the window and shorten the initial movement
      accordingly */
-  cyTotalPath = this->param.y/2-(2*ySensorSkew)*600/this->param.res;
-  DoJog(this,cyTotalPath); INST_ASSERT();
-  cyTotalPath += (cyPixel+2*ySensorSkew)*600/this->param.res; /* for jogging back */
+  this->state.cyTotalPath =
+    this->param.y/2-(2*this->state.ySensorSkew)*600/this->param.res;
+  DoJog(this,this->state.cyTotalPath); INST_ASSERT();
+  this->state.cyTotalPath += 
+    (this->state.cyPixel+2*this->state.ySensorSkew)
+    *600/this->param.res; /* for jogging back */
 
   /*
     regular scan is asynchronously, that is,
@@ -96,20 +173,20 @@ TState DoScanColor(TInstance *this)
       0x9E /*0x49*/, 0x8C /*0x4A*/ };
     RegWriteArray(this,R_ALL, NUM_SCANREGS, uchRegs);
     RegWrite(this,R_SPOS, 2, this->param.x/2 + this->calibration.xMargin);
-    RegWrite(this,R_SLEN, 2, (cyPixel+2*ySensorSkew)*600/this->param.res);
-    szOrder=ORDER_BRG; 
+    RegWrite(this,R_SLEN, 2, (this->state.cyPixel+2*this->state.ySensorSkew)*600/this->param.res);
+    this->state.szOrder=ORDER_BRG; 
     RegWrite(this,R_CCAL, 3, this->calibration.rgbBias); INST_ASSERT(); /* 0xBBGGRR */
-    cxMax=cxPixel;
+    this->state.cxMax=this->state.cxPixel;
     cxWindow=this->param.cx/2;
     switch (this->param.res)
       {
       case 75:
 	RegWrite(this,R_XRES,1, 0x20); /* ups, can  do only 100 dpi horizontal */
-	cxMax=cxPixel*100/75;
-	RegWrite(this,R_SWID, 2, 0xC000 | cxMax*6);
+	this->state.cxMax=this->state.cxPixel*100/75;
+	RegWrite(this,R_SWID, 2, 0xC000 | this->state.cxMax*6);
 	RegWrite(this,0x34, 1, 0x83); /* halfs the vertical resolution */
 	RegWrite(this,0x47,1,0xC0); /* reduces the speed a bit */
-	szOrder=ORDER_BRG;
+	this->state.szOrder=ORDER_BRG;
 	break;
       case 100:
 	RegWrite(this,R_XRES,1, 0x20);
@@ -132,7 +209,7 @@ TState DoScanColor(TInstance *this)
 	RegWrite(this,R_SWID, 2, 0x4000 | cxWindow);
 	RegWrite(this,0x34, 1, 0x03); /* halfs the vertical resolution */
 	RegWrite(this,0x47,1,0xC0); /* reduces the speed a bit */
-	szOrder=ORDER_RGB;
+	this->state.szOrder=ORDER_RGB;
 	break;
       case 600:
 	RegWrite(this,R_XRES,1, 0x3F);
@@ -146,110 +223,40 @@ TState DoScanColor(TInstance *this)
       }
   }
 
-  cBackLog=1+2*ySensorSkew; /* enough for 1/100 inch sensor distance */
-  ppchLines=calloc(cBackLog,sizeof(char*));
-  pchBuf=malloc(0x8000);
-  if (!ppchLines || !pchBuf)
+  /* enough for 1/100 inch sensor distance */
+  this->state.cBacklog=1+2*this->state.ySensorSkew;
+
+  /* allocate raw line buffers */
+  this->state.ppchLines=calloc(this->state.cBacklog,sizeof(short*));
+  this->state.pchBuf=malloc(0x8000);
+  if (!this->state.ppchLines || !this->state.pchBuf)
+    return FreeState(this,SetError(this,
+				   SANE_STATUS_NO_MEM,"no buffers available"));
+
+  for (i=0; i<this->state.cBacklog; i++)
   {
-    free(pchBuf); free(ppchLines);
-    return SetError(this,SANE_STATUS_NO_MEM,"no buffers available");
+    this->state.ppchLines[i]=calloc(1,3*this->state.cxMax*sizeof(short)); /* must be less than 0x8000 */
+    if (!this->state.ppchLines[i])
+      return FreeState(this,
+		       SetError(this,SANE_STATUS_NO_MEM,
+				"no line buffer available"));
   }
+
+  /* calculate and prepare intermediate line transfer buffer */
+  
+  this->state.cchLineOut=3*this->state.cxPixel;
+  this->state.pchLineOut = malloc(this->state.cchLineOut);
+  if (!this->state.pchLineOut)
+  return FreeState(this,SetError(this,
+				   SANE_STATUS_NO_MEM,
+				   "no buffers available"));
 
   RegWrite(this,R_CTL, 1, 0x39);    /* #1532[005.0] */
   RegWrite(this,R_CTL, 1, 0x79);    /* #1533[005.0] */
   RegWrite(this,R_CTL, 1, 0xF9);    /* #1534[005.0] */
-
-  if (this->fhScan && !this->bWriteRaw)
-    fprintf(this->fhScan,"P6\n%d %d\n255\n",cxPixel,cyPixel);
-  {
-    int iFrom,iTo,iChunk,cchBulk,iLine;
-    
-    for (iLine=0; iLine<cBackLog; iLine++)
-      {
-	ppchLines[iLine]=calloc(1,3*cxMax); /* must be less than 0x8000 */
-	if (!ppchLines[iLine])
-	  {
-	    free(pchBuf); free(ppchLines);
-	    /* TODO: free all previous buffers */
-	    return SetError(this,SANE_STATUS_NO_MEM,
-			    "no line buffer available");
-	  }
-      }
-    iChunk=0;
-    cchBulk=0;
-    iTo=0;
-    iFrom=cchBulk; /* no rest */
-    iLine=0;
-    do {
-      /* "flush" rest of last buffer run */
-      iChunk++;
-      if (!this->bWriteRaw)
-	{
-	  iTo=0;
-	  while (iFrom<cchBulk)
-	    ppchLines[0][iTo++]=pchBuf[iFrom++];
-	}
-      /* read new buffer */
-      cchBulk=BulkReadBuffer(this,pchBuf,0x8000);
-      FixExposure(pchBuf,cchBulk,
-		  this->param.nBrightness,
-		  this->param.nContrast);
-
-      dprintf(DEBUG_SCAN,"bulk#%d, got %d bytes...\n",iChunk,cchBulk);
-
-      if (this->bWriteRaw)
-	fwrite(pchBuf,1,cchBulk,this->fhScan);
-      else
-	{
-	  /* a few calculations are cached here to save CPU cycles */
-	  int iOffsetR,iOffsetG,iOffsetB;
-	  iOffsetR=(szOrder[0]-'0')*cxMax;
-	  iOffsetG=(szOrder[1]-'0')*cxMax;
-	  iOffsetB=(szOrder[2]-'0')*cxMax;
-	  iFrom=0;
-	  while (iFrom+3*cxMax<=cchBulk) /* rest of line complete in buffer */
-	    {
-	      char *pchLineSwap;
-	      int   cxToWrite=cxPixel;
-	      /* iTo starts with buffer offset from copy above */
-	      while (iTo<3*cxMax) /* whole line or rest */
-		ppchLines[0][iTo++]=pchBuf[iFrom++];
-	      /* re-assemble pchLine */
-	      pchLineSwap=ppchLines[cBackLog-1];
-	      iLine++;
-	      /* the first scan lines only fill the line backlog buffer */
-	      if (iLine>2*ySensorSkew)
-		{
-		  /* dprintf(DEBUG_SCAN,"assembling line %d\n",++iLine); */
-		  int nInterpolator=100;
-		  for (iTo=0; iTo<cxMax && cxToWrite>0; iTo++)
-		    {
-		      nInterpolator+=nFixAspect;
-		      if (nInterpolator<100) continue; /* res. reduction */
-		      nInterpolator-=100;
-		      cxToWrite--;
-		      fwrite(ppchLines[2*ySensorSkew]+iTo+iOffsetR,
-			     1,1,this->fhScan);
-		      fwrite(ppchLines[ySensorSkew]+iTo+iOffsetG,
-			     1,1,this->fhScan);
-		      fwrite(ppchLines[0]+iTo+iOffsetB,1,1,this->fhScan);
-		    }
-		}
-	      /* cycle backlog buffers */
-	      for (iTo=cBackLog-2; iTo>=0; iTo--)
-		ppchLines[iTo+1]=ppchLines[iTo];
-	      ppchLines[0]=pchLineSwap;
-	      iTo=0; /* reset buffer offset */
-	    } /* while pixels available */
-	} /* ! this->bWriteRaw */
-      /* Rest from iFrom is to be written into next line buffer */
-    } while (cchBulk==0x8000);
-  } /* color descrambling */
-  /* free all dynamic space */
-  for (cxMax=0; cxMax<cBackLog; free(ppchLines[cxMax++]));
-  free(pchBuf); free(ppchLines);
   INST_ASSERT();
-  /* move slider back to start */
-  return DoJog(this,-cyTotalPath);
+
+  this->state.bScanning = true;
+  return SANE_STATUS_GOOD;
 }
 

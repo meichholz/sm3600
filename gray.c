@@ -155,13 +155,11 @@ static unsigned char uchRegs600[]={
 
 /* ======================================================================
 
-ScanNextLine()
+ReadNextGrayLine()
 
 ====================================================================== */
 
-#define USB_CHUNK_SIZE 0x8000
-
-TState ReadNextGrayLine(TInstance *this)
+TState ReadNextGrayLine(PTInstance this)
 {
   int           iWrite;
   int           iDot;
@@ -261,88 +259,6 @@ TState ReadNextGrayLine(TInstance *this)
   return SANE_STATUS_GOOD;
 }
 
-/* **********************************************************************
-
-FreeState()
-
-Frees all dynamical memory for scan buffering.
-
-********************************************************************** */
-
-TState FreeState(TInstance *this, TState nReturn)
-{
-  int i;
-  if (this->state.ppchLines)
-    {
-      for (i=this->state.cBacklog-1; i<=0; i--)
-	{
-	  if (this->state.ppchLines[i])
-	    free(this->state.ppchLines[i]);
-	}
-      free(this->state.ppchLines);
-    }
-  if (this->state.pchLineOut) free(this->state.pchLineOut);
-  if (this->state.pchBuf)     free(this->state.pchBuf);
-  this->state.pchBuf    =NULL;
-  this->state.pchLineOut=NULL;
-  this->state.ppchLines =NULL;
-  return nReturn;
-}
-
-/* ======================================================================
-
-EndScan()
-
-====================================================================== */
-
-TState EndScan(TInstance *this)
-{
-  if (!this->state.bScanning) return SANE_STATUS_GOOD;
-  /* move slider back to start */
-  this->state.bScanning=false;
-  FreeState(this,0);
-  INST_ASSERT();
-  return DoJog(this,-this->state.cyTotalPath);
-}
-
-/* ======================================================================
-
-ReadChunk()
-
-====================================================================== */
-
-TState ReadChunk(TInstance *this, unsigned char *achOut,
-		 int cchMax, int *pcchRead)
-{
-  /* have we to copy more than we have? */
-  /* can the current line fill the buffer ? */
-  *pcchRead=0;
-  INST_ASSERT();
-  while (this->state.iReadPos + cchMax > this->state.cchLineOut)
-    {
-      int rc;
-      /* copy rest of the line into target */
-      int cch = this->state.cchLineOut - this->state.iReadPos;
-      memcpy(achOut,
-	     this->state.pchLineOut+this->state.iReadPos,
-	     cch);
-      cchMax-=cch; /* advance parameters */
-      achOut+=cch;
-      (*pcchRead)+=cch;
-      this->state.iReadPos=0;
-      rc=ReadNextGrayLine(this); /* TODO: in color, too! */
-      if (rc!=SANE_STATUS_GOOD)
-	return rc; /* may be EOF, then: good and away! */
-    }
-  if (!cchMax) return SANE_STATUS_GOOD; /* now everything fits! */
-  (*pcchRead) += cchMax;
-  memcpy(achOut,
-	 this->state.pchLineOut+this->state.iReadPos,
-	 cchMax);
-  this->state.iReadPos += cchMax;
-  return SANE_STATUS_GOOD;
-}
-
 /* ======================================================================
 
 StartScanGray()
@@ -358,9 +274,10 @@ TState StartScanGray(TInstance *this)
     return SetError(this,SANE_STATUS_DEVICE_BUSY,"scan active");
   memset(&(this->state),0,sizeof(this->state));
   puchRegs=NULL;
-  this->state.cxPixel=this->param.cx*this->param.res/1200;
-  this->state.cyPixel=this->param.cy*this->param.res/1200;
+  this->state.cxPixel   =this->param.cx*this->param.res/1200;
+  this->state.cyPixel   =this->param.cy*this->param.res/1200;
   this->state.nFixAspect=100;
+  this->state.ReadProc  =ReadNextGrayLine;
   switch (this->param.res)
   {
   case 75:  this->state.nFixAspect=75;
@@ -411,12 +328,6 @@ TState StartScanGray(TInstance *this)
 				       SANE_STATUS_NO_MEM,"no buffers available"));
     }
 
-  /* start the unit, when all buffers are available */
-
-  RegWrite(this,R_CTL, 1, 0x39); INST_ASSERT();
-  RegWrite(this,R_CTL, 1, 0x79); INST_ASSERT();
-  RegWrite(this,R_CTL, 1, 0xF9); INST_ASSERT();
-
   /* calculate and prepare intermediate line transfer buffer */
 
   this->state.cchLineOut=(this->mode==gray)
@@ -429,57 +340,13 @@ TState StartScanGray(TInstance *this)
 				   SANE_STATUS_NO_MEM,
 				   "no buffers available"));
 
+  /* start the unit, when all buffers are available */
+
+  RegWrite(this,R_CTL, 1, 0x39); INST_ASSERT();
+  RegWrite(this,R_CTL, 1, 0x79); INST_ASSERT();
+  RegWrite(this,R_CTL, 1, 0xF9); INST_ASSERT();
+
   this->state.bScanning = true;
   return SANE_STATUS_GOOD;
 }
 
-#ifdef INSANE_VERSION
-
-/* ======================================================================
-
-DoScanGray()
-
-Top level caller for scantool.
-
-====================================================================== */
-
-#define APP_CHUNK_SIZE   10
-
-TState DoScanGray(TInstance *this)
-{
-  int    cx,cy;
-  long   lcchRead;
-  TState rc;
-  char   achBuf[APP_CHUNK_SIZE];
-  cx=this->param.cx*this->param.res/1200;
-  cy=this->param.cy*this->param.res/1200;
-  if (bVerbose)
-    fprintf(stderr,"scanning %d by %d in gray\n",cx,cy);
-  if (this->fhScan && !this->bWriteRaw)
-    {
-      if (this->mode==gray)
- 	fprintf(this->fhScan,"P5\n%d %d\n255\n",cx,cy);
-      else
-	fprintf(this->fhScan,"P4\n%d %d\n",cx,cy);
-    }
-  rc=StartScanGray(this);
-  lcchRead=0L;
-  while (!rc)
-    {
-      int cch;
-      cch=0;
-      rc=ReadChunk(this,achBuf,APP_CHUNK_SIZE,&cch);
-      if (cch>0 && this->fhScan && cch<=APP_CHUNK_SIZE)
-	{
-	  fwrite(achBuf,1,cch,this->fhScan);
-	  lcchRead+=cch;
-	}
-     }
-  if (bVerbose)
-    fprintf(stderr,"read %ld image byte(s)\n",lcchRead);
-  EndScan(this);
-  INST_ASSERT();
-  return SANE_STATUS_GOOD;
-}
-
-#endif

@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scantool.c,v 1.16 2001/04/10 22:23:00 eichholz Exp $
+$Id: scantool.c,v 1.17 2001/04/11 21:35:59 eichholz Exp $
 
 (C) Marian Eichholz 2001
 
@@ -10,7 +10,7 @@ $Id: scantool.c,v 1.16 2001/04/10 22:23:00 eichholz Exp $
 
 #include "scantool.h"
 
-#define REVISION "$Revision: 1.16 $"
+#define REVISION "$Revision: 1.17 $"
 
 #define USAGE \
 "usage: %s <outfile> <resolution> <x> <y> <w> <h>" \
@@ -136,8 +136,8 @@ static int RunDialog(TInstance *this)
 	case 'h': this->param.cy=nParam; nParam=0; nSign=1; break;
 	case 'r': this->param.res=nParam; nParam=0; nSign=1; break;
 	case 'i': DoInit(this); break;
-	case 'g': DoScanGray(this); break;
-	case 'c': DoScanColor(this); break;
+	case 'g': this->mode=gray; DoScanFile(this); break;
+	case 'c': this->mode=color; DoScanFile(this); break;
 	case 'o': DoOriginate(this); break;
 	case 'j': DoJog(this, nParam*nSign); break;
 	case 'l': DoLampSwitch(this, nParam); break;
@@ -173,18 +173,7 @@ static int ScanToFile(TInstance *this)
   DoJog(this,100);
   DoOriginate(this);
   DoJog(this,this->calibration.yMargin);
-
-  switch (this->mode)
-    {
-    case color:
-      DoScanColor(this);
-      break;
-    case gray:
-    case line:
-    case halftone:
-      DoScanGray(this);
-      break;
-    }
+  DoScanFile(this);
   INST_ASSERT();
   return DoJog(this,-this->calibration.yMargin);
 }
