@@ -3,7 +3,7 @@
 
 /*
 
- $Id: scantool.h,v 1.3 2001/03/24 17:02:48 eichholz Exp $
+ $Id: scantool.h,v 1.4 2001/03/24 20:56:21 eichholz Exp $
 
  common declarations and definitions.
 
@@ -43,6 +43,14 @@
 
 typedef enum { false, true } TBool;
 
+typedef struct {
+  int x;
+  int y;
+  int cx;
+  int cy;
+  int res; /* like all parameters in 1/1200 inch */
+} TScanParam;
+
 #define ERR_FAILED -1
 #define OK         0
 
@@ -65,6 +73,8 @@ GLOBAL char               *szLogFile;
 GLOBAL char               *szScanFile;
 GLOBAL FILE               *fhLog;
 GLOBAL FILE               *fhScan;
+
+GLOBAL TScanParam         param;
 
 /* ====================================================================== */
 

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.3 2001/03/24 17:02:48 eichholz Exp $
+# $Id: Makefile,v 1.4 2001/03/24 20:56:21 eichholz Exp $
 #
 # -------------------------------------------------------------------
 #
@@ -40,7 +40,12 @@ test:	scantool initbus
 	./scantool -i -d 1 temp.out
 
 testscan: scantool initbus
-	./scantool -v -d 1 /tmp/scan.pnm
+	./scantool -v -d 1 /tmp/scan.pnm 300 600 300 2400 3600
+	xv /tmp/scan.pnm
+
+testraw: scantool initbus
+	echo -e "P5\n300 100\n255" >/tmp/scan.pnm
+	./scantool -v -d 1 -d r /tmp/scan.pnm
 	xv /tmp/scan.pnm
 
 dist:	clean

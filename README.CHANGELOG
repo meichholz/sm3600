@@ -1,6 +1,14 @@
 CHANGELOG
 =========
 
+======= 0.27 -> 1.3 (CVS)
+
+- Configure-like script. "clean" and "distclean" are different.
+  Fixes for my own distribution environment.
+- "-d r" option triggers bWriteRaw. Raw write appends to scan file.
+- Makefile has "testraw" mode.
+- Full parameter interface to color scan. Parameter in 1/1200 inch.
+
 ======= 0.27
 
 Different numbering due to CVS hosting at sourceforge (1.1.1.1).

@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scanmtek.c,v 1.1 2001/03/23 21:58:35 eichholz Exp $
+$Id: scanmtek.c,v 1.2 2001/03/24 20:56:21 eichholz Exp $
 
 ====================================================================== */
 
@@ -106,6 +106,7 @@ void DoJog(int nDistance)
 {
   int cSteps;
   dprintf(DEBUG_SCAN,"jogging %d units...\n",nDistance);
+  if (!nDistance) return;
   RegWrite(0x34, 1, 0x63);
   RegWrite(0x49, 1, 0x96);
   WaitWhileBusy(2);

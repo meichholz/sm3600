@@ -1,10 +1,25 @@
 Register map for the Microtek 3600
 ==================================
 
-$Id: README.REGISTERS,v 1.1 2001/03/23 21:58:31 eichholz Exp $
+$Id: README.REGISTERS,v 1.2 2001/03/24 20:56:21 eichholz Exp $
 
 Here are the registers, as far as I know them. All multi-byte registers are
 bigendian, the least significant byte first (aka "Intel byte sex").
+
+Register 01h-02h
+----------------
+
+Start of horizontal window in 1/600 inch. The glass starts at 0x00FB.
+
+Register 04h-05h
+----------------
+
+Horizontal window width in units of 1/600 inch.  Register 05h has
+special bits in the top nybble. 40h is a good start. Other values
+(0x80) don't schange the resolution, but lead to strange interlaces in
+the color output.
+
+Needs further exploration.
 
 Register 06h-07h
 ----------------
@@ -18,6 +33,12 @@ The minimum distance is 1/600 inch, which is value=0.
 Value=1 means 2/600 inch, respectively.
 
 Ermm... THIS IS NOT CORRECT! I CANNOT GET ANYTHING < 1/300 INCH.
+
+Register 0Ah-0Bh
+----------------
+
+Vertical scan length in units of 1/600 inch. Apparently You have to
+add 1 more step (600/resolution) to get the corerct count of lines.
 
 Register 32h-33h
 ----------------
