@@ -352,28 +352,19 @@ TState StartScanGray(TInstance *this)
   RegWrite(this,0x40,1,0x20); /* FIFO at   0x08000 */
   UploadGammaTable(this,0,this->agammaY); INST_ASSERT();
 
-#define GAIN_CORRECTION
-#ifdef GAIN_CORRECTION
+#ifndef SM3600_NO_GAIN_CORRECTION
   RegWrite(this,0x3D,1,0x0F | 0x80); /* 10XXXXXX : one offset table */
   RegWrite(this,0x3F,1,0x08); /* 16KB gain at 0x02000 */
   {
     unsigned short uwGain[8192];
     int i,iOff;
-    int nAvg=0;
 
     /*
       Oopsi: correction data starts at the left of the scanning window!
     */
     iOff=this->param.x/2+this->calibration.xMargin;
-    if (iOff<8) iOff=8;
     for (i=iOff; i<MAX_PIXEL_PER_SCANLINE; i++)
-      {
-	int ii;
-	nAvg=0;
-	for (ii=0; ii<8; ii++)
-	  nAvg+=this->calibration.achStripeY[i-ii];
-	uwGain[i-iOff]=nAvg<<1;
-      }
+      uwGain[i-iOff]=this->calibration.achStripeY[i]<<4;
     for (i=0; i<0x4000; i+=0x1000)
       MemWriteArray(this,(0x2000+i)>>1,0x1000,(unsigned char*)&uwGain[i>>1]);
   }

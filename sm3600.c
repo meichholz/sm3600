@@ -61,7 +61,7 @@ Start: 2.4.2001
 
 #include <usb.h>
 
-#define BUILD	2
+#define BUILD	3
 
 #ifndef BACKEND_NAME
 #define BACKEND_NAME sm3600

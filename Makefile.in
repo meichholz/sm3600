@@ -1,4 +1,4 @@
-# $Id: Makefile.in,v 1.27 2001/05/28 21:33:16 eichholz Exp $
+# $Id: Makefile.in,v 1.28 2001/05/29 20:17:20 eichholz Exp $
 #
 # -------------------------------------------------------------------
 #
@@ -11,6 +11,8 @@ NAME=		sm3600
 USBDIR=		@USBDIR@
 
 SANE_SRC=	/packin/sane-backends-1.0.4
+SANE_CVS=       /packin/sane/sane-backends
+
 SANE_INCLUDE=	$(SANE_SRC)/include
 SANE_LIBDIR=	/usr/lib/sane
 SANE_CONFDIR=	/etc/sane.d
@@ -63,8 +65,8 @@ test:	scantool initbus
 testscan: scantool initbus
 #	./scantool -d 25 -v -m color -b 0 -c 0 /tmp/scan.pnm 600 000 000 3600 1400
 #	./scantool -d 1 -v -m gray -b 0 -c 0 /tmp/scan.pnm 200 300 300 3620 1200
-#	./scantool -d 64 -v -m gray -b 0 -c 0 /tmp/scan.pnm 600 000 300 10200 1200
-	./scantool -d 64 -v -m color -b 0 -c 0 /tmp/scan.pnm 200 000 300 10200 300
+	./scantool -d 64 -v -m gray -b 0 -c 0 /tmp/scan.pnm 200 000 300 10200 1200
+#	./scantool -d 64 -v -m color -b 0 -c 0 /tmp/scan.pnm 200 000 300 10200 300
 #	./scantool -d 1 -v -m line -b 30 /tmp/scan.pnm 200 000 000 3600 4800
 #	./scantool -d 1 -v -m halftone -b 30 -c 50 /tmp/scan.pnm 300 000 000 3600 4800
 	xv /tmp/scan.pnm
@@ -79,6 +81,10 @@ dist:	clean
 	sh mkdist.sh microtek3600
 
 sane:
+	cp sm3600-*.c sm3600-*.h sm3600.c sm3600.h $(SANE_CVS)/backend
+	cp sane-sm3600.man $(SANE_CVS)/doc
+
+sane104:
 	ssh -l root localhost make -C $(SANE_SRC)/backend
 	ssh -l root localhost make -C $(SANE_SRC)/backend install >/dev/null
 

@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+29.6.2001
+
+Changed calibration scan to median smoothing. No horizontal smoothing.
+Looks goooood!
+
 28.6.2001
 
 Increased MAX_PIXEL_PER_SCANLINE to 5300 (seems to be a real limit?).
