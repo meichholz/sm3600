@@ -3,6 +3,11 @@ CHANGELOG
 
 15.5.2001
 
+!! Changes for sane-backend-integration according to Henning.
+!! You have to update the backend-directory !!
+
+Added a .desc and a Manpage.
+
 Fixed the cancellation stuff.
 
 10.5.2001

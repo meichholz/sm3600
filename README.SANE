@@ -9,7 +9,14 @@ First, extract and prepare the SANE backend-package. I used version 1.0.4.
 Modify the SANE package:
 
 	ln -s $SRC/sm3600.* backend/
-	ln -s $SRC backend/sm3600
+	ln -s $SRC/*.man doc/
+	for i in scantool.h color.c homerun.c scanutil.c gray.c \
+		scanmtek.c scanusb.c
+		do
+			ln -s $SRC/$i backend/sm3600-$i
+		done
+
+
 
 In <backend/Makefile.in> include the "sm3600" module to
 PRELOADABLE_BACKENDS, and make comments to every unneeded module to
