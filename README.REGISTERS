@@ -1,31 +1,66 @@
 Register map for the Microtek 3600
 ==================================
 
-$Id: README.REGISTERS,v 1.5 2001/03/25 18:01:29 eichholz Exp $
+$Id: README.REGISTERS,v 1.6 2001/04/02 08:43:50 glennr Exp $
 
 Here are the registers, as far as I know them. All multi-byte registers are
 bigendian, the least significant byte first (aka "Intel byte sex").
 
+We can divide the registers into several groups that are used for different purposes.
+
+Registers 0x01 - 0x0a are used to set the scan window and resolution.
+Registers 0x42 - 0x4a are used to control the scanner head movement.
+Registers 0x52 - 0x55 are used to read status information 
+
+Of the other registers some are known
+
+
+Scan window and resolution
+
 Register 01h-02h
 ----------------
 
-Start of horizontal window in 1/600 inch. The glass starts at 0x00FB.
+Scan window horizontal offset in 1/600 inch.
+
+On Marian's scanner the glass starts at 0x00FB and on Glenn's
+scanner it starts at around 0x0064.
+
+What is the maximum value that this parameter can take?
 
 Register 03h
 ------------
 
-Sets the horizontal resultion.
-300 dpi needs 2Ah
-600 dpi needs 3Fh
+Horizontal detector mask.
+
+Appears to contain a mask that is used to set the horizontal resolution.
+Only the lower 6 bits are used, bit 6 and 7 are always 0.  
+
+If the mask has a value of 1 then the detector is used, 0 means it
+isn't used.
+
+100 ppi needs 20h = 100000
+200 ppi needs 24h = 100100
+300 dpi needs 2Ah = 101010
+600 dpi needs 3Fh = 111111
+
+These resolutions appear to be the only horizontal resolutions that
+are supported.
+
 
 Register 04h-05h
 ----------------
 
-Horizontal window width in units of 1/600 inch.
+Lower 14 bits give the scan window width in units of 1/600 inch.
 
-Register 05h has special bits in the top nybble:
+The LSB of the window is in reg 0x04 and the MSB is in (reg 0x05)&0x3f
+(i.e. the lower 6 bits of reg 5).
+
+Register 05h has special bits in the top 2 bits and these seem
+to be a continuation of the pattern in registers 0x08 and 0x09.
+
 Most values (0x80) don't change the resolution,
-but lead to strange interlaces in the color output. The register seem to be
+but lead to strange interlaces in the color output.
+The register seem to be
 correlated to reg 08h/09h.
 
 300 dpi need 40h
@@ -36,11 +71,17 @@ Needs further exploration.
 Register 06h-07h
 ----------------
 
-Movement length in units of 1/600 inch, minus 1.
-The distance is given in an absolute way.
-The direction is controlled with register 4h.
+Scan window vertical offset in units of 1/600 inch.
 
-The maximum distance from start is about 7600 units.
+This parameter is used by the windows driver to jog the scanner head
+to the correct position.
+
+The value is the required distance minus 1 and is relative to the home
+position.
+
+The direction is controlled with register 4?h.
+
+The maximum distance from start is about 7600 units (12.67").
 The minimum distance is 1/600 inch, which is value=0.
 Value=1 means 2/600 inch, respectively.
 
@@ -53,8 +94,12 @@ Correlated to vertical resolution. Works with high nybble of 05h.
 300 dpi need FFFFh
 600 dpi need 6A6Ah
 
+My logs show this the other way round, ie 300 ppi = 6A6A.
+
 Register 0Ah-0Bh
 ----------------
+
+Scan window height.
 
 Vertical scan length in units of 1/600 inch. Apparently You have to
 add 1 more step (600/resolution) to get the correct count of lines.
@@ -67,6 +112,8 @@ it is initialised to 1540h by the driver.
 
 But with my scanner there are values of 60h in 12h, too. So this is
 at least questionable...
+
+GR-Also I sometimes see 1542 in the last block before a 100 or 200 dpi scan.
 
 Register 2Fh
 ------------
