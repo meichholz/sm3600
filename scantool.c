@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scantool.c,v 1.29 2001/09/30 19:44:27 eichholz Exp $
+$Id: scantool.c,v 1.30 2001/09/30 20:38:07 eichholz Exp $
 
 (C) Marian Eichholz 2001
 
@@ -10,7 +10,7 @@ $Id: scantool.c,v 1.29 2001/09/30 19:44:27 eichholz Exp $
 
 #include "sm3600-scantool.h"
 
-#define REVISION "$Revision: 1.29 $"
+#define REVISION "$Revision: 1.30 $"
 
 #define USAGE \
 "usage: %s <outfile> <resolution> <x> <y> <w> <h>" \
@@ -24,7 +24,7 @@ $Id: scantool.c,v 1.29 2001/09/30 19:44:27 eichholz Exp $
 "\n\t-m : mode for 'color', 'gray', 'line' or 'halftone'"\
 "\n\t-p : paper preset for 'a4', 'letter', 'fax'"\
 "\n\t-q : set overall quality to 'fast', 'high' or 'best'"\
-"\n\t-O : skip initial slider returning"\
+"\n\t-O : skip initial slider returning and calibration"\
 "\n"\
 "\n\t-d : set debug <flags> and r(aw) write mode"\
 "\n"\
@@ -272,18 +272,18 @@ TState FindScanner(TInstance *this, struct usb_device ** ppdevOut)
       dprintf(DEBUG_DEVSCAN, "scanning bus %s\n", pbus->dirname);
       for (pdev=pbus->devices; pdev; pdev  = pdev->next)
 	{
-	  unsigned short *pidProduct;
+	  TModel model;
 	  dprintf(DEBUG_DEVSCAN, "found dev %04X/%04X\n",
 		  pdev->descriptor.idVendor,
 		  pdev->descriptor.idProduct);
-	  /* the loop is not SO effective, but straight! */
-	  for (pidProduct=aidProduct; *pidProduct; pidProduct++)
-	      if (pdev->descriptor.idVendor  ==  SCANNER_VENDOR &&
-		  pdev->descriptor.idProduct == *pidProduct)
-		{
-		  *ppdevOut=pdev;
-		  return SANE_STATUS_GOOD;
-		}
+	  model=GetScannerModel(pdev->descriptor.idVendor,
+				pdev->descriptor.idProduct);
+	  if (model!=unknown)
+	    {
+	      this->model=model;
+	      *ppdevOut=pdev;
+	      return SANE_STATUS_GOOD;
+	    }
 	}
     }
   return SetError(this,SANE_STATUS_UNSUPPORTED,"no ScanMaker connected");

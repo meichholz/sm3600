@@ -167,6 +167,7 @@ TOptionValue;
 typedef struct TDevice {
   struct TDevice        *pNext;
   struct usb_device     *pdev;
+  TModel                 model;
   SANE_Device            sane;
 } TDevice;
 
@@ -193,6 +194,7 @@ typedef struct TInstance {
   TBool              bOptSkipOriginate;
   TQuality           quality;
   TMode              mode;
+  TModel             model;
   usb_dev_handle    *hScanner;
   FILE              *fhLog;
   FILE              *fhScan;
@@ -276,6 +278,8 @@ __SM3600EXPORT__ TState DoInit(TInstance *this);
 __SM3600EXPORT__ TState DoReset(TInstance *this);
 __SM3600EXPORT__ TState WaitWhileBusy(TInstance *this,int cSecs);
 __SM3600EXPORT__ TState WaitWhileScanning(TInstance *this,int cSecs);
+__SM3600EXPORT__ TState GetScannerModel(unsigned short idVendor, unsigned short idProduct);
+
 #ifdef INSANE_VERSION
 __SM3600EXPORT__ TState DoLampSwitch(TInstance *this,int nPattern);
 #endif

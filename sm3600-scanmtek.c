@@ -46,18 +46,35 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: sm3600-scanmtek.c,v 1.3 2001/07/30 07:48:11 eichholz Exp $
+$Id: sm3600-scanmtek.c,v 1.4 2001/09/30 20:38:07 eichholz Exp $
 
 ====================================================================== */
 
 #include "sm3600-scantool.h"
 
-unsigned short aidProduct[] = {
-  0x40B3, 0x40CA, 0x40FF /* not official */, /* ScanMaker 3600 */
-  0x40B8, 0x40CB, /* ScanMaker 3700 */
-  0x40FF, /* unofficial, reported my Nate */
-  /* SM3750 unknown */
-  0x0 };
+static struct {
+  TModel         model;
+  unsigned short idProduct;
+ } aScanners[]={
+  { sm3600, 0x40B3 },
+  { sm3600, 0x40CA },
+  { sm3600, 0x40FF },
+  { sm3700, 0x40B8 },
+  { sm3700, 0x40CB },
+  { sm3600, 0x40FF }, /* unknown */
+  { unknown, 0x0000 } };
+
+__SM3600EXPORT__
+TModel GetScannerModel(unsigned short idVendor,
+		       unsigned short idProduct)
+{
+  int i;
+  if (idVendor!=SCANNER_VENDOR) return unknown;
+  for (i=0; aScanners[i].model!=unknown; i++)
+    if (aScanners[i].idProduct==idProduct)
+      return aScanners[i].model;
+  return unknown;
+}
 
 /* **********************************************************************
 

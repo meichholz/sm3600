@@ -326,7 +326,7 @@ InitOptions(TInstance *this)
 }
 
 static SANE_Status
-RegisterSaneDev (struct usb_device *pdevUSB, char *szName){
+RegisterSaneDev (struct usb_device *pdevUSB, TModel model, char *szName){
   TDevice * q;
 
   errno = 0;
@@ -342,6 +342,7 @@ RegisterSaneDev (struct usb_device *pdevUSB, char *szName){
   q->sane.type   = "flatbed scanner";
 
   q->pdev=pdevUSB;
+  q->model=model;
 
   ++num_devices;
   q->pNext = pdevFirst; /* link backwards */
@@ -387,20 +388,19 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback authCB)
       DBG(DEBUG_JUNK,"scanning bus %s\n", pbus->dirname);
       for (pdev=pbus->devices; pdev; pdev  = pdev->next)
 	{
-	  unsigned short *pidProduct;
+	  TModel model;
 	  iDev++;
 	  DBG(DEBUG_JUNK,"found dev %04X/%04X\n",
 		  pdev->descriptor.idVendor,
 		  pdev->descriptor.idProduct);
-	  /* the loop is not SO effective, but straight! */
-	  for (pidProduct=aidProduct; *pidProduct; pidProduct++)
-	      if (pdev->descriptor.idVendor  ==  SCANNER_VENDOR &&
-		  pdev->descriptor.idProduct == *pidProduct)
-		{
-		  char ach[100];
-		  sprintf(ach,"bus%d;dev%d",iBus,iDev);
-		  RegisterSaneDev(pdev,ach);
-		}
+	  model=GetScannerModel(pdev->descriptor.idVendor,
+				       pdev->descriptor.idProduct);
+	  if (model!=unknown)
+	    {
+	      char ach[100];
+	      sprintf(ach,"%d/%d",iBus,iDev);
+	      RegisterSaneDev(pdev,model,ach);
+	    }
 	}
     }
   return SANE_STATUS_GOOD;
@@ -478,6 +478,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle *handle)
   ResetCalibration(this); /* do not release memory */
   this->pNext=pinstFirst; /* register open handle */
   pinstFirst=this;
+  this->model=pdev->model; /* memorize model */
   /* open and prepare USB scanner handle */
   this->hScanner=usb_open(pdev->pdev);
   if (!this->hScanner)
