@@ -77,9 +77,9 @@ TState ReadNextColorLine(PTInstance this)
 		this->state.pchLineOut[iWrite++]=
 		  this->state.ppchLines[2*this->state.ySensorSkew][iRead+iOffsetR];
 		this->state.pchLineOut[iWrite++]=
-		  this->state.ppchLines[2*this->state.ySensorSkew][iRead+iOffsetG];
+		  this->state.ppchLines[1*this->state.ySensorSkew][iRead+iOffsetG];
 		this->state.pchLineOut[iWrite++]=
-		  this->state.ppchLines[2*this->state.ySensorSkew][iRead+iOffsetB];
+		  this->state.ppchLines[0*this->state.ySensorSkew][iRead+iOffsetB];
 	      }
 	    }
 	} /* if visible line */

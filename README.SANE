@@ -18,6 +18,8 @@ speed up things.
 Don't forget to include "-lusb" to the BACKENDLIBS.
 I have no idea yet how to to this with "configure".
 
+Integrate dependency for "sanei_constraint_value.lo" into Makefile.in.
+
 Reconfigure everything after You modified the Makefile.in.
 
 Include an "sm3600" line to the dll.conf in the source code. This is

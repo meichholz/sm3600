@@ -1,4 +1,4 @@
-# $Id: Makefile.in,v 1.16 2001/04/11 21:35:59 eichholz Exp $
+# $Id: Makefile.in,v 1.17 2001/04/15 21:28:22 eichholz Exp $
 #
 # -------------------------------------------------------------------
 #
@@ -58,7 +58,7 @@ test:	scantool initbus
 	./scantool -i -d 5 temp.out
 
 testscan: scantool initbus
-	./scantool -d 1 -v -m color -b 30 -c 30 /tmp/scan.pnm 200 000 000 3600 5400
+	./scantool -d 1 -v -m color -b 30 -c 30 /tmp/scan.pnm 600 000 000 1600 1400
 #	./scantool -d 1 -v -m gray -b 20 -c 50 /tmp/scan.pnm 300 000 000 3600 5400
 #	./scantool -d 1 -v -m line -b 30 /tmp/scan.pnm 200 000 000 3600 4800
 #	./scantool -d 1 -v -m halftone -b 30 -c 50 /tmp/scan.pnm 300 000 000 3600 4800
@@ -173,7 +173,7 @@ robot:
 
 
 clean:
-	rm -rf data/*~ data/ctlblocks/*~ temp.* .libs \
+	rm -rf data/*~ data/ctlblocks/*~ temp.* .libs initbus \
 	*.lo *.la dll-preload.c *-s.c *.so *.o *~ t $(BINARIES) \
 	DEADJOE || true
 

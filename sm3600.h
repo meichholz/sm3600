@@ -22,6 +22,11 @@ Start: 2.4.2001
 #define DEBUG_DEVSCAN  0x0012
 #define DEBUG_REPLAY   0x0014
 
+#define DEBUG_CRITICAL 1
+#define DEBUG_VERBOSE  2
+#define DEBUG_INFO     3
+#define DEBUG_JUNK     5
+
 #define USB_TIMEOUT_JIFFIES  2000
 
 #define SCANNER_VENDOR     0x05DA
@@ -84,7 +89,33 @@ typedef struct TScanState {
   TReadLineCB     ReadProc;     /* line getter callback */
 } TScanState;
 
+
+#ifndef INSANE_VERSION
+
+#define NUM_OPTIONS 12
+
+typedef union
+  {  
+    SANE_Word w;
+    SANE_Word *wa;              /* word array */
+    SANE_String s;
+  }
+TOptionValue;
+
+typedef struct TDevice {
+  struct TDevice        *pNext;
+  struct usb_device     *pdev;
+  SANE_Device            sane;
+} TDevice;
+
+#endif
+
 typedef struct TInstance {
+#ifndef INSANE_VERSION
+  struct TInstance         *pNext;
+  SANE_Option_Descriptor    aoptDesc[NUM_OPTIONS];
+  TOptionValue              aoptVal[NUM_OPTIONS];
+#endif
   TState             nErrorState;
   char              *szErrorReason;
   TBool              bSANE;
@@ -99,30 +130,6 @@ typedef struct TInstance {
   FILE              *fhScan;
   TScanState         state;
 } TInstance;
-
-#ifndef INSANE_VERSION
-
-typedef struct SM3600_Device {
-  struct SM3600_Device  *next;
-  struct usb_device     *pdev;
-  SANE_Device            sane;
-
-} SM3600_Device;
-
-typedef struct SM3600_Scanner
-  {
-    struct SM3600_Scanner *next;
-
-    /*
-    SANE_Option_Descriptor opt[NUM_OPTIONS];
-    Option_Value val[NUM_OPTIONS];
-    V4L_Resolution resolution;
-    SANE_Parameters params;
-    */
-    SANE_String_Const devicename; /* Name of the Device */
-  } SM3600_Scanner;
-
-#endif
 
 #define TRUE  1
 #define FALSE 0

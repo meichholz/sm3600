@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+15.4.2001
+
+First integration of options. It's still formal. The options are not evaluated.
+Brightness, Contrast and Gamma control still missing.
+Regression fix of color-de-blurring.
+
 11.4.2001
 
 Color scan procedure changed to new model. Unified start/read/stop

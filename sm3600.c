@@ -16,22 +16,22 @@ Start: 2.4.2001
 
 #include <usb.h>
 
-#include <sane/sane.h>
-
 #ifndef BACKEND_NAME
 #define BACKEND_NAME sm3600
 #endif
 
-#include <sane/config.h>
-
-#include "sane/sanei_backend.h"
-
 #ifndef PATH_MAX
-# define PATH_MAX       1024
+#define PATH_MAX       1024
 #endif
 
-#include "sane/sanei_config.h"
 #define SM3600_CONFIG_FILE "sm3600.conf"
+
+#include <sane/sane.h>
+#include <sane/config.h>
+#include <sane/sanei.h>
+#include <sane/sanei_backend.h>
+#include <sane/sanei_config.h>
+#include <sane/saneopts.h>
 
 /* prevent inclusion of scantool.h */
 #define SCANTOOL_H
@@ -41,7 +41,8 @@ Start: 2.4.2001
 unsigned long ulDebugMask;
 
 int num_devices;
-static SM3600_Device  *first_dev;
+static TDevice  *pdevFirst;
+static TInstance      *pinstFirst;
 
 /* ====================================================================== */
 
@@ -54,11 +55,147 @@ static SM3600_Device  *first_dev;
 
 /* ====================================================================== */
 
-static SANE_Status
-RegisterSaneDev (struct usb_device *pdevUSB, int nBus, int nDev)
+/* ======================================================================
+
+Initialise SANE options
+
+====================================================================== */
+
+typedef enum { optCount,
+	       optGroupMode, optMode, optResolution, optPreview, optGrayPreview,
+	       optGroupGeometry,optTLX, optTLY, optBRX, optBRY,
+	       optGroupEnhancement,
+	       optLast } TOptionIndex;
+
+static const SANE_String_Const aScanModes[]= {  "color", "gray", "lineart",
+						"halftone", NULL };
+
+static const SANE_Range rangeXmm = { SANE_FIX(0), SANE_FIX(210), SANE_FIX(0.1) };
+
+static const SANE_Range rangeYmm = { SANE_FIX(0), SANE_FIX(295), SANE_FIX(0.1) };
+
+static const SANE_Int setResolutions[] = { 6, 75,100,150,200,300,600 };
+
+SANE_Status
+InitOptions(TInstance *this)
 {
-  SM3600_Device * q;
-  char ach[100];
+  TOptionIndex iOpt;
+  if (optLast!=NUM_OPTIONS)
+    {
+      DBG(1,"NUM_OPTIONS does not fit!");
+      return SANE_STATUS_INVAL;
+    }
+  memset(this->aoptDesc,0,sizeof(this->aoptDesc));
+  memset(this->aoptVal,0,sizeof(this->aoptVal));
+  for (iOpt=optCount; iOpt!=optLast; iOpt++)
+    {
+      static char *achNamesXY[]= {
+	SANE_NAME_SCAN_TL_X,	SANE_NAME_SCAN_TL_Y,
+	SANE_NAME_SCAN_BR_X,	SANE_NAME_SCAN_BR_Y };
+      static char *achTitlesXY[]= {
+	SANE_TITLE_SCAN_TL_X,	SANE_TITLE_SCAN_TL_Y,
+	SANE_TITLE_SCAN_BR_X,	SANE_TITLE_SCAN_BR_Y };
+      static char *achDescXY[]= {
+	SANE_DESC_SCAN_TL_X,	SANE_DESC_SCAN_TL_Y,
+	SANE_DESC_SCAN_BR_X,	SANE_DESC_SCAN_BR_Y };
+      static double afFullBed[] = { 20.0,30.0, 50.0, 80.0 }; /* TODO: calculate exactly! */
+      static const SANE_Range *aRangesXY[] = { &rangeXmm,&rangeYmm,&rangeXmm,&rangeYmm };
+      SANE_Option_Descriptor *pdesc;
+      TOptionValue           *pval;
+      /* shorthands */
+      pdesc=this->aoptDesc+iOpt;
+      pval=this->aoptVal+iOpt;
+      /* default */
+      pdesc->size=sizeof(SANE_Word);
+      pdesc->cap=SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+
+      /*
+	Some hints:
+	*every* field needs a constraint, elseway there will be a warning.
+	*/
+    
+      switch (iOpt)
+	{
+	case optCount:
+	  pdesc->title  =SANE_TITLE_NUM_OPTIONS;
+	  pdesc->desc   =SANE_DESC_NUM_OPTIONS;
+	  pdesc->cap    =SANE_CAP_SOFT_DETECT;
+	  pval->w       =(SANE_Word)optLast;
+	  break;
+	case optGroupMode:
+	  pdesc->title="Mode";
+	  pdesc->desc ="";
+	  pdesc->type = SANE_TYPE_GROUP;
+	  pdesc->cap  = SANE_CAP_ADVANCED;
+	  break;
+	case optMode:
+	  pdesc->name   =SANE_NAME_SCAN_MODE;
+	  pdesc->title  =SANE_TITLE_SCAN_MODE;
+	  pdesc->desc   ="Select the scan mode";
+	  pdesc->type   =SANE_TYPE_STRING;
+	  pdesc->size   =20;
+	  pdesc->constraint_type = SANE_CONSTRAINT_STRING_LIST;
+	  pdesc->constraint.string_list = aScanModes;
+	  pval->s       = strdup(aScanModes[color]);
+	  break;
+	case optResolution:
+	  pdesc->name   =SANE_NAME_SCAN_RESOLUTION;
+	  pdesc->title  =SANE_TITLE_SCAN_RESOLUTION;
+	  pdesc->desc   =SANE_DESC_SCAN_RESOLUTION;
+	  pdesc->type   =SANE_TYPE_INT;
+	  pdesc->unit   =SANE_UNIT_DPI;
+	  pdesc->constraint_type = SANE_CONSTRAINT_WORD_LIST;
+	  pdesc->constraint.word_list = setResolutions;
+	  pval->w       =75;
+	  break;
+	case optPreview:
+	  pdesc->name   =SANE_NAME_PREVIEW;
+	  pdesc->title  =SANE_TITLE_PREVIEW;
+	  pdesc->desc   =SANE_DESC_PREVIEW;
+	  pdesc->type   =SANE_TYPE_BOOL;
+	  pval->w       =SANE_FALSE;
+	  break;
+	case optGrayPreview:
+	  pdesc->name   =SANE_NAME_GRAY_PREVIEW;
+	  pdesc->title  =SANE_TITLE_GRAY_PREVIEW;
+	  pdesc->desc   =SANE_DESC_GRAY_PREVIEW;
+	  pdesc->type   =SANE_TYPE_BOOL;
+	  pval->w       =SANE_FALSE;
+	  break;
+	case optGroupGeometry:
+	  pdesc->title="Geometry";
+	  pdesc->desc ="";
+	  pdesc->type = SANE_TYPE_GROUP;
+	  pdesc->constraint_type=SANE_CONSTRAINT_NONE;
+	  pdesc->cap  = SANE_CAP_ADVANCED;
+	  break;
+	case optTLX: case optTLY: case optBRX: case optBRY:
+	  pdesc->name   =achNamesXY[iOpt-optTLX];
+	  pdesc->title  =achTitlesXY[iOpt-optTLX];
+	  pdesc->desc   =achDescXY[iOpt-optTLX];
+	  pdesc->type   =SANE_TYPE_FIXED;
+	  pdesc->unit   =SANE_UNIT_MM; /* arghh */
+	  pdesc->constraint_type =SANE_CONSTRAINT_RANGE;
+	  pdesc->constraint.range=aRangesXY[iOpt-optTLX];
+	  pval->w       =SANE_FIX(afFullBed[iOpt-optTLX]);
+	  break;
+	case optGroupEnhancement:
+	  pdesc->title="Enhancement";
+	  pdesc->desc ="";
+	  pdesc->type = SANE_TYPE_GROUP;
+	  pdesc->constraint_type=SANE_CONSTRAINT_NONE;
+	  pdesc->cap  = SANE_CAP_ADVANCED;
+	  break;
+	case optLast: /* not reached */
+	  break;
+	}
+    }
+  return SANE_STATUS_GOOD;
+}
+
+static SANE_Status
+RegisterSaneDev (struct usb_device *pdevUSB, char *szName){
+  TDevice * q;
 
   errno = 0;
 
@@ -67,8 +204,7 @@ RegisterSaneDev (struct usb_device *pdevUSB, int nBus, int nDev)
     return SANE_STATUS_NO_MEM;
 
   memset (q, 0, sizeof (*q)); /* clear every field */
-  sprintf(ach,"bus %d, dev %d",nBus,nDev);
-  q->sane.name   = strdup (ach);
+  q->sane.name   = strdup (szName);
   q->sane.vendor = "Microtek";
   q->sane.model  = "ScanMaker 3600";
   q->sane.type   = "flatbed scanner";
@@ -76,8 +212,8 @@ RegisterSaneDev (struct usb_device *pdevUSB, int nBus, int nDev)
   q->pdev=pdevUSB;
 
   ++num_devices;
-  q->next = first_dev; /* link backwards */
-  first_dev = q;
+  q->pNext = pdevFirst; /* link backwards */
+  pdevFirst = q;
 
   return SANE_STATUS_GOOD;
 }
@@ -87,7 +223,7 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback authCB)
 {
   struct usb_bus    *pbus;
   struct usb_device *pdev;
-  int                iBus;
+  int                iBus,rc;
 
   DBG_INIT();
 
@@ -96,32 +232,39 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback authCB)
   if (version_code)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, 0);
 
-  DBG(1,"SM3600 init\n");
-  first_dev=NULL;
+  DBG(DEBUG_VERBOSE,"SM3600 init\n");
+  pdevFirst=NULL;
 
-  if (usb_find_busses())
+  usb_init();
+  rc=usb_find_busses();
+  if (rc)
     return SANE_STATUS_GOOD;
   usb_find_devices();
   if (!usb_busses) return SANE_STATUS_IO_ERROR;
   iBus=0;
+  DBG(DEBUG_INFO,"starting bus scan\n");
   for (pbus = usb_busses; pbus; pbus = pbus->next)
     {
       int iDev=0;
       iBus++;
       /* 0.1.3b no longer has a "busnum" member */
-      DBG(3,"scanning bus %s\n", pbus->dirname);
+      DBG(DEBUG_JUNK,"scanning bus %s\n", pbus->dirname);
       for (pdev=pbus->devices; pdev; pdev  = pdev->next)
 	{
 	  unsigned short *pidProduct;
 	  iDev++;
-	  DBG(3,"found dev %04X/%04X\n",
+	  DBG(DEBUG_JUNK,"found dev %04X/%04X\n",
 		  pdev->descriptor.idVendor,
 		  pdev->descriptor.idProduct);
 	  /* the loop is not SO effective, but straight! */
 	  for (pidProduct=aidProduct; *pidProduct; pidProduct++)
 	      if (pdev->descriptor.idVendor  ==  SCANNER_VENDOR &&
 		  pdev->descriptor.idProduct == *pidProduct)
-		RegisterSaneDev(pdev,iBus,iDev);
+		{
+		  char ach[100];
+		  sprintf(ach,"bus%d;dev%d",iBus,iDev);
+		  RegisterSaneDev(pdev,ach);
+		}
 	}
     }
   return SANE_STATUS_GOOD;
@@ -130,11 +273,11 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback authCB)
 void
 sane_exit (void)
 {
-  SM3600_Device *dev, *next;
+  TDevice *dev, *next;
 
-  for (dev = first_dev; dev; dev = next)
+  for (dev = pdevFirst; dev; dev = dev->pNext)
     {
-      next = dev->next;
+      next = dev->pNext;
       free ((void *) dev->sane.name);
       free (dev->pdev);
       free (dev);
@@ -145,7 +288,7 @@ SANE_Status sane_get_devices (const SANE_Device *** device_list,
 			      SANE_Bool local_only)
 {
   static const SANE_Device ** devlist = 0;
-  SM3600_Device *dev;
+  TDevice *dev;
   int i;
 
   local_only = TRUE; /* Avoid compile warning */
@@ -158,7 +301,7 @@ SANE_Status sane_get_devices (const SANE_Device *** device_list,
     return SANE_STATUS_NO_MEM;
 
   i = 0;
-  for (dev = first_dev; i < num_devices; dev = dev->next)
+  for (dev = pdevFirst; i < num_devices; dev = dev->pNext)
     devlist[i++] = &dev->sane;
   devlist[i++] = 0;
 
@@ -168,32 +311,164 @@ SANE_Status sane_get_devices (const SANE_Device *** device_list,
 
 SANE_Status sane_open (SANE_String_Const devicename, SANE_Handle *handle)
 {
-  return SANE_STATUS_GOOD;
+  TDevice   *pdev;
+  TInstance *this;
+  DBG(1,"opening %s\n",devicename);
+  if (devicename[0]) /* selected */
+    {
+      for (pdev=pdevFirst; pdev; pdev=pdev->pNext)
+	if (!strcmp(devicename,pdev->sane.name))
+	  break;
+      /* no dynamic post-registration */
+    }
+  else
+    pdev=pdevFirst;
+  if (!pdev)
+    return SANE_STATUS_INVAL;
+  this = (TInstance*) calloc(1,sizeof(TInstance));
+  if (!this) return SANE_STATUS_NO_MEM;
+  *handle = (SANE_Handle)this;
+  
+  this->pNext=pinstFirst; /* register open handle */
+  pinstFirst=this;
+
+  return InitOptions(this);
 }
 
 void sane_close (SANE_Handle handle)
 {
+  TInstance *this,*pParent,*p;
+  this=(TInstance*)handle;
+  pParent=NULL;
+  /* search lsit predecessor */
+  for (p=pinstFirst; p; p=p->pNext)
+    {
+      if (p==this) break;
+      pParent=p;
+    }
+  
+  if (!p)
+    {
+      DBG(1,"invalid handle in close()\n");
+      return;
+    }
+
+  if (this->state.bScanning)
+    /* TODO: Hard-Cancel scanning */
+    ;
+  
+
+  /* delete instance from instance list */
+  if (pParent)
+    pParent->pNext=this->pNext;
+  else
+    pinstFirst=this->pNext;
 }
 
 const SANE_Option_Descriptor *
-sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
+sane_get_option_descriptor (SANE_Handle handle, SANE_Int iOpt)
 {
+  TInstance *this=(TInstance*)handle;
+  if (iOpt<NUM_OPTIONS)
+    return this->aoptDesc+iOpt;
   return NULL;
 }
 
-SANE_Status sane_control_option (SANE_Handle handle, SANE_Int option,
-				 SANE_Action action, void *val, SANE_Int *info)
+SANE_Status sane_control_option (SANE_Handle handle, SANE_Int iOpt,
+				 SANE_Action action, void *pVal, 
+				 SANE_Int *pnInfo)
 {
-  return SANE_STATUS_GOOD;
+  SANE_Word   cap;
+  SANE_Status rc;
+  TInstance *this;
+  this=(TInstance*)handle;
+  rc=SANE_STATUS_GOOD;
+  if (pnInfo)
+    *pnInfo=0;
+
+  if (this->state.bScanning)
+    return SANE_STATUS_DEVICE_BUSY;
+  if (iOpt>=NUM_OPTIONS)
+    return SANE_STATUS_INVAL;
+
+  cap=this->aoptDesc[iOpt].cap;
+  
+  switch (action)
+    {
+
+      /* ------------------------------------------------------------ */
+
+    case SANE_ACTION_GET_VALUE:
+      switch ((TOptionIndex)iOpt)
+	{
+	case optCount:
+	case optPreview:
+	case optGrayPreview:
+	case optResolution:
+	case optTLX: case optTLY: case optBRX: case optBRY:
+	  *(SANE_Word*)pVal = this->aoptVal[iOpt].w;
+	  return SANE_STATUS_GOOD;
+	case optMode:
+	  strcpy(pVal,this->aoptVal[iOpt].s);
+	  return SANE_STATUS_GOOD;
+	default:
+	  return SANE_STATUS_INVAL;
+	}
+      break;
+
+      /* ------------------------------------------------------------ */
+
+    case SANE_ACTION_SET_VALUE:
+      if (!SANE_OPTION_IS_SETTABLE(cap))
+	return SANE_STATUS_INVAL;
+      rc=sanei_constrain_value(this->aoptDesc+iOpt,pVal,pnInfo);
+      if (rc!=SANE_STATUS_GOOD)
+	return rc;
+      switch ((TOptionIndex)iOpt)
+	{
+	case optResolution:
+	case optTLX: case optTLY: case optBRX: case optBRY:
+	  if (pnInfo) (*pnInfo) |= SANE_INFO_RELOAD_PARAMS;
+	  /* fall through side effect free */
+	case optPreview:
+	case optGrayPreview:
+	  this->aoptVal[iOpt].w = *(SANE_Word*)pVal;
+	  return SANE_STATUS_GOOD;
+	case optMode:
+	  if (pnInfo) (*pnInfo) |= SANE_INFO_RELOAD_PARAMS; /* and OPTIONS? */
+	  strcpy(this->aoptVal[iOpt].s,pVal);
+	  return SANE_STATUS_GOOD;
+	default:
+	  return SANE_STATUS_INVAL;
+	}
+      break;
+    case SANE_ACTION_SET_AUTO:
+      return SANE_STATUS_UNSUPPORTED;
+    } /* switch action */
+  
+  return rc;
 }
 
-SANE_Status sane_get_parameters (SANE_Handle handle, SANE_Parameters *params)
+SANE_Status sane_get_parameters (SANE_Handle handle, SANE_Parameters *p)
 {
+  /* extremly important for xscanimage */
+  TInstance *this;
+  this=(TInstance*)handle;
+  p->format=SANE_FRAME_GRAY; /* or RGB */
+  p->lines=100;
+  p->depth=24;
+  p->pixels_per_line=100;
+  p->bytes_per_line=107/8;
+  p->last_frame=SANE_TRUE;
   return SANE_STATUS_GOOD;
 }
 
 SANE_Status sane_start (SANE_Handle handle)
 {
+  TInstance *this;
+  this=(TInstance*)handle;
+  /* do some magic */
+  this++;
   return SANE_STATUS_GOOD;
 }
 
@@ -205,5 +480,23 @@ SANE_Status sane_read (SANE_Handle handle, SANE_Byte *buf, SANE_Int max_len,
 
 void sane_cancel (SANE_Handle handle)
 {
+  TInstance *this;
+  this=(TInstance*)handle;
+  this->state.bCanceled=true;
 }
 
+SANE_Status
+sane_set_io_mode(SANE_Handle h, SANE_Bool m)
+{
+  h++;
+  if (m==SANE_TRUE) /* no non-blocking-mode */
+    return SANE_STATUS_UNSUPPORTED;
+  return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+sane_get_select_fd(SANE_Handle handle, SANE_Int *fd)
+{
+  handle++; fd++;
+  return SANE_STATUS_UNSUPPORTED; /* we have no file IO */
+}
