@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scantool.c,v 1.21 2001/04/19 22:40:16 eichholz Exp $
+$Id: scantool.c,v 1.22 2001/04/21 22:30:13 eichholz Exp $
 
 (C) Marian Eichholz 2001
 
@@ -10,7 +10,7 @@ $Id: scantool.c,v 1.21 2001/04/19 22:40:16 eichholz Exp $
 
 #include "scantool.h"
 
-#define REVISION "$Revision: 1.21 $"
+#define REVISION "$Revision: 1.22 $"
 
 #define USAGE \
 "usage: %s <outfile> <resolution> <x> <y> <w> <h>" \
@@ -24,6 +24,7 @@ $Id: scantool.c,v 1.21 2001/04/19 22:40:16 eichholz Exp $
 "\n\t-m : mode for 'color', 'gray', 'line' or 'halftone'"\
 "\n\t-p : paper preset for 'a4', 'letter', 'fax'"\
 "\n\t-q : set overall quality to 'fast', 'high' or 'best'"\
+"\n\t-O : skip initial slider returning"\
 "\n"\
 "\n\t-d : set debug <flags> and r(aw) write mode"\
 "\n"\
@@ -184,8 +185,11 @@ static int ScanToFile(TInstance *this)
   /* fprintf(stderr,"Verbose 1 = %d\n",this->bVerbose); */
   rc=SANE_STATUS_GOOD;
   if (rc==SANE_STATUS_GOOD) rc=DoInit(this);
-  if (rc==SANE_STATUS_GOOD) rc=DoJog(this,200); 
-  if (rc==SANE_STATUS_GOOD) rc=DoOriginate(this); 
+  if (!this->bOptSkipOriginate)
+    {
+      if (rc==SANE_STATUS_GOOD) rc=DoJog(this,200); 
+      if (rc==SANE_STATUS_GOOD) rc=DoOriginate(this); 
+    }
   if (rc==SANE_STATUS_GOOD) rc=DoJog(this,this->calibration.yMargin);
   if (rc==SANE_STATUS_GOOD) rc=DoScanFile(this);
   if (rc==SANE_STATUS_GOOD) rc=DoJog(this,-this->calibration.yMargin);
@@ -263,7 +267,7 @@ int main(int cArg, char * const ppchArg[])
 
   this->quality=fast;
   this->mode=color;
-  while (EOF!=(chOpt=getopt(cArg,ppchArg,"Vvhid:l:o:p:q:m:c:b:")))
+  while (EOF!=(chOpt=getopt(cArg,ppchArg,"VOvhid:l:o:p:q:m:c:b:")))
     {
       switch (chOpt)
 	{
@@ -275,6 +279,7 @@ int main(int cArg, char * const ppchArg[])
         case 'i': bInteractive=true; break;
 	case 'V': TellRevision(); exit(0); break;
 	case 'l': szLogFile=strdup(optarg); break;
+	case 'O': this->bOptSkipOriginate=true; break;
 	case 'p': /* preset */
 	  switch (tolower(*optarg))
 	    {

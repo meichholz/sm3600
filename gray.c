@@ -167,7 +167,10 @@ TState ReadNextGrayLine(PTInstance this)
   int           iRead; /* read position in raw line */
   int           nInterpolator;
 
+  for (iWrite=0; iWrite<this->state.cchLineOut;
+       this->state.pchLineOut[iWrite++]=(iWrite&10) ? 0xFF : 0x55); /* blur buffer */
   iWrite=0;
+
   while (iWrite<this->state.cxMax) /* max 1 time in reality */
     {
       while (iWrite<this->state.cxMax &&
@@ -272,7 +275,7 @@ TState StartScanGray(TInstance *this)
   int             i;
   if (this->state.bScanning)
     return SetError(this,SANE_STATUS_DEVICE_BUSY,"scan active");
-  memset(&(this->state),0,sizeof(this->state));
+  memset(&(this->state),0,sizeof(TScanState));
   this->state.ReadProc  =ReadNextGrayLine;
   puchRegs=NULL;
   switch (this->param.res)

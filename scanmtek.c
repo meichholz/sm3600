@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scanmtek.c,v 1.12 2001/04/19 22:40:16 eichholz Exp $
+$Id: scanmtek.c,v 1.13 2001/04/21 22:30:13 eichholz Exp $
 
 ====================================================================== */
 
@@ -122,7 +122,6 @@ DoCalibration
 
 TState DoCalibration(TInstance *this)
 {
-  int cchBulk;
   return WaitWhileBusy(this,1);
 }
 

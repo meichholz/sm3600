@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scanutil.c,v 1.10 2001/04/20 22:59:58 eichholz Exp $
+$Id: scanutil.c,v 1.11 2001/04/21 22:30:13 eichholz Exp $
 
 ====================================================================== */
 
@@ -147,7 +147,7 @@ TState EndScan(TInstance *this)
   if (!this->state.bScanning) return SANE_STATUS_GOOD;
   /* move slider back to start */
   this->state.bScanning=false;
-  /*  FreeState(this,0); */
+  FreeState(this,0);
   INST_ASSERT();
   return DoJog(this,-this->state.cyTotalPath);
 }
@@ -175,6 +175,9 @@ TState ReadChunk(TInstance *this, unsigned char *achOut,
       memcpy(achOut,
 	     this->state.pchLineOut+this->state.iReadPos,
 	     cch);
+
+      /* memset(achOut,0x55,cch); */
+
       cchMax-=cch; /* advance parameters */
       achOut+=cch;
       (*pcchRead)+=cch;
@@ -190,6 +193,9 @@ TState ReadChunk(TInstance *this, unsigned char *achOut,
   memcpy(achOut,
 	 this->state.pchLineOut+this->state.iReadPos,
 	 cchMax);
+
+  /* memset(achOut,0xF0,cchMax); */
+
   this->state.iReadPos += cchMax;
   return SANE_STATUS_GOOD;
 }
@@ -265,6 +271,8 @@ TState DoScanFile(TInstance *this)
   while (!rc)
     {
       int cch;
+      for (cch=0; cch<APP_CHUNK_SIZE;
+	   achBuf[cch++]=(cch&10) ? 0xFF : 0x55); /* blur buffer */
       cch=0;
       rc=ReadChunk(this,achBuf,APP_CHUNK_SIZE,&cch);
       if (cch>0 && this->fhScan && cch<=APP_CHUNK_SIZE)

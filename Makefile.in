@@ -1,4 +1,4 @@
-# $Id: Makefile.in,v 1.19 2001/04/19 22:40:16 eichholz Exp $
+# $Id: Makefile.in,v 1.20 2001/04/21 22:30:13 eichholz Exp $
 #
 # -------------------------------------------------------------------
 #
@@ -26,7 +26,7 @@ V_REV=		4
 CCFLAGS=	-g -DPROG_NAME=\"$*\" -I $(USBDIR)/include -I $(SANE_INCLUDE) \
 		-fno-common -Wall -O2
 LDFLAGS=	-g -L$(USBDIR)/lib -L$(SANE_LIBDIR)
-LIBS=		-lusb -lefence
+LIBS=		-lusb @USE_EFENCE@
 
 CC=		gcc
 COMPILE=	$(CC) -c $(CCFLAGS) 
@@ -50,6 +50,8 @@ default: testscan
 
 bin:	$(BINARIES)
 
+$(SCANTOOL_MODS) : sm3600.h scantool.h
+
 all:	bin
 
 # ======================================================================
@@ -59,7 +61,7 @@ test:	scantool initbus
 
 testscan: scantool initbus
 #	./scantool -d 25 -v -m color -b 30 -c 30 /tmp/scan.pnm 75 000 000 3600 1400
-	./scantool -d 1 -v -m gray -b 20 -c 50 /tmp/scan.pnm 75 000 000 3620 1200
+	./scantool -d 1 -v -m gray -b 20 -c 50 /tmp/scan.pnm 75 300 300 3620 1200
 #	./scantool -d 1 -v -m line -b 30 /tmp/scan.pnm 200 000 000 3600 4800
 #	./scantool -d 1 -v -m halftone -b 30 -c 50 /tmp/scan.pnm 300 000 000 3600 4800
 	xv /tmp/scan.pnm
@@ -147,6 +149,12 @@ copy:	initbus scantool
 	pnmtops -dpi 300 -center -scale 0.25 -width 8.26 -height 11.6 | \
 	lpr
 #	ee /tmp/scan.pnm
+
+fax:	initbus scantool
+	@scantool -O -p fax -m h -b 60 -c 100 - | \
+	pnmtops -dpi 200 -center -scale 0.25 -width 8.26 -height 11.6 \
+	> ~/data/faxout/new.ps
+
 
 install: install-sane
 

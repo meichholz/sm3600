@@ -53,8 +53,6 @@ static TInstance      *pinstFirst;
 #include "sm3600/gray.c"
 #include "sm3600/color.c"
 
-/* ====================================================================== */
-
 /* ======================================================================
 
 Initialise SANE options
@@ -307,10 +305,9 @@ void
 sane_exit (void)
 {
   TDevice   *dev, *next;
-  TInstance *this;
 
   /* free all bound resources and instances */
-  while ((this=pinstFirst))
+  while (pinstFirst)
     sane_close((SANE_Handle)pinstFirst); /* free all resources */
   
   /* free all device descriptors */
@@ -323,8 +320,9 @@ sane_exit (void)
     }
 }
 
-SANE_Status sane_get_devices (const SANE_Device *** device_list,
-			      SANE_Bool local_only)
+SANE_Status
+sane_get_devices (const SANE_Device *** device_list,
+		  SANE_Bool local_only)
 {
   static const SANE_Device ** devlist = 0;
   TDevice *dev;
@@ -348,7 +346,8 @@ SANE_Status sane_get_devices (const SANE_Device *** device_list,
   return SANE_STATUS_GOOD;
 }
 
-SANE_Status sane_open (SANE_String_Const devicename, SANE_Handle *handle)
+SANE_Status
+sane_open (SANE_String_Const devicename, SANE_Handle *handle)
 {
   TDevice    *pdev;
   TInstance  *this;
@@ -391,7 +390,8 @@ SANE_Status sane_open (SANE_String_Const devicename, SANE_Handle *handle)
   return InitOptions(this);
 }
 
-void sane_close (SANE_Handle handle)
+void
+sane_close (SANE_Handle handle)
 {
   TInstance *this,*pParent,*p;
   this=(TInstance*)handle;
@@ -440,9 +440,10 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int iOpt)
   return NULL;
 }
 
-SANE_Status sane_control_option (SANE_Handle handle, SANE_Int iOpt,
-				 SANE_Action action, void *pVal, 
-				 SANE_Int *pnInfo)
+SANE_Status
+sane_control_option (SANE_Handle handle, SANE_Int iOpt,
+		     SANE_Action action, void *pVal, 
+		     SANE_Int *pnInfo)
 {
   SANE_Word   cap;
   SANE_Status rc;
@@ -545,16 +546,16 @@ SetupInternalParameters(TInstance *this)
   return SANE_STATUS_GOOD;
 }
 
-SANE_Status sane_get_parameters (SANE_Handle handle, SANE_Parameters *p)
+SANE_Status
+sane_get_parameters (SANE_Handle handle, SANE_Parameters *p)
 {
   /* extremly important for xscanimage */
   TInstance *this;
   this=(TInstance*)handle;
   SetupInternalParameters(this);
-  DBG(DEBUG_INFO,"getting parameters...\n");
   GetAreaSize(this);
   p->pixels_per_line=this->state.cxPixel;
-  p->lines=this->state.cyPixel;
+  p->lines=this->state.cyPixel+2; /* TODO: +2 protects against SEGV */
   p->last_frame=SANE_TRUE;
   switch (this->mode)
     {
@@ -575,10 +576,12 @@ SANE_Status sane_get_parameters (SANE_Handle handle, SANE_Parameters *p)
       p->bytes_per_line=(p->pixels_per_line+7)/8;
       break;
     }      
+  DBG(DEBUG_INFO,"getting parameters (%d,%d)...\n",p->bytes_per_line,p->lines);
   return SANE_STATUS_GOOD;
 }
 
-SANE_Status sane_start (SANE_Handle handle)
+SANE_Status
+sane_start (SANE_Handle handle)
 {
   TInstance    *this;
   SANE_Status   rc;
@@ -599,9 +602,10 @@ SANE_Status sane_start (SANE_Handle handle)
   return rc;
 }
 
-SANE_Status sane_read (SANE_Handle handle, SANE_Byte *puchBuffer,
-		       SANE_Int cchMax,
-		       SANE_Int *pcchRead)
+SANE_Status
+sane_read (SANE_Handle handle, SANE_Byte *puchBuffer,
+	   SANE_Int cchMax,
+	   SANE_Int *pcchRead)
 {
   SANE_Status    rc;
   TInstance     *this;
@@ -610,6 +614,7 @@ SANE_Status sane_read (SANE_Handle handle, SANE_Byte *puchBuffer,
   if (!this->state.bScanning) return SANE_STATUS_IO_ERROR;
   if (this->state.bCanceled) return SANE_STATUS_CANCELLED;
   rc=ReadChunk(this,puchBuffer,cchMax,pcchRead);
+  DBG(DEBUG_INFO,"... line %d (%d/%d)...\n",this->state.iLine,*pcchRead,rc);
   if (rc!=SANE_STATUS_GOOD)
     *pcchRead=0;
   else
@@ -617,7 +622,8 @@ SANE_Status sane_read (SANE_Handle handle, SANE_Byte *puchBuffer,
   return rc;
 }
 
-void sane_cancel (SANE_Handle handle)
+void
+sane_cancel (SANE_Handle handle)
 {
   TInstance *this;
   this=(TInstance*)handle;

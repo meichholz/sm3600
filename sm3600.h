@@ -126,6 +126,7 @@ typedef struct TInstance {
   TScanParam         param;
   TBool              bWriteRaw;
   TBool              bVerbose;
+  TBool              bOptSkipOriginate;
   TQuality           quality;
   TMode              mode;
   usb_dev_handle    *hScanner;

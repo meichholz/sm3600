@@ -1,7 +1,10 @@
 CHANGELOG
 =========
 
+21.4.2001
 
+New Feature in scantool: -O disables the initial DoOriginate()-game.
+Some experimental Blurrers and Grayers inserted for debugging.
 
 20.4.2001
 

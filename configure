@@ -3,12 +3,14 @@
 use strict;
 
 my $usbdir="/usr/local";
+my $sEfence="";
 
 my $usage=<<"EOS";
 usage configure {option}
 
 Environment:
   --usbdir=DIR            read usb.h from DIR [$usbdir]
+  --with-efence           link efence
 
 Other:
   --help                  print this page
@@ -18,6 +20,7 @@ while (defined $ARGV[0])
 {
   $_=shift @ARGV;
   if (/^--usbdir=(.*)/) { $usbdir=$1; }
+  elsif (/^--with-efence/) { $sEfence="-lefence"; }
   else { print $usage; exit 0; }
 }
 
@@ -29,6 +32,7 @@ print "writing Makefile...\n";
 while (<INFILE>)
   {
     s/\@USBDIR\@/$usbdir/g;
+    s/\@USE_EFENCE\@/$sEfence/g;
     print OUTFILE;
 }
 
