@@ -3,7 +3,7 @@
 
 /*
 
- $Id: scantool.h,v 1.4 2001/03/24 20:56:21 eichholz Exp $
+ $Id: scantool.h,v 1.5 2001/03/24 22:42:45 eichholz Exp $
 
  common declarations and definitions.
 
@@ -84,6 +84,7 @@ GLOBAL TScanParam         param;
 
 /* WORD */
 #define R_SPOS   0x01
+#define R_XRES   0x03
 /* WORD */
 #define R_SWID   0x04
 /* WORD */

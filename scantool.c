@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scantool.c,v 1.4 2001/03/24 20:56:21 eichholz Exp $
+$Id: scantool.c,v 1.5 2001/03/24 22:42:45 eichholz Exp $
 
 (C) Marian Eichholz 2001
 
@@ -14,7 +14,7 @@ $Id: scantool.c,v 1.4 2001/03/24 20:56:21 eichholz Exp $
 
 #include "scantool.h"
 
-#define REVISION "$Revision: 1.4 $"
+#define REVISION "$Revision: 1.5 $"
 
 #define USAGE \
 "usage: %s <outfile> <resolution> <x> <y> <w> <h>" \
@@ -138,9 +138,24 @@ void DoScanColor(FILE *fh, int nResolution,
     
     RegWriteArray(R_ALL, NUM_SCANREGS, uchRegs);
     RegWrite(R_SPOS, 2, xBorder*600/nResolution+XMARGIN);
-    RegWrite(R_SWID, 2, (0x40<<8) | (cxPixel*600/nResolution));
     RegWrite(R_SLEN, 2, (cyPixel+1)*600/nResolution);
     szOrder=ORDER_RGB; 
+    RegWrite(R_CCAL, 3, 0xFFFFFF); /* 0xBBGGRR */
+    switch (nResolution)
+      {
+      case 300:
+	RegWrite(R_XRES,1, 0x2A);
+	RegWrite(0x08,2, 0x6A6A);
+	RegWrite(R_SWID, 2, 0x4000 | (cxPixel*600/nResolution));
+	szOrder=ORDER_RGB; 
+	break;
+      case 600:
+	RegWrite(R_XRES,1, 0x3F);
+	RegWrite(0x08,2, 0xFFFF);
+	RegWrite(R_SWID, 2, 0xC000 | (cxPixel*600/nResolution));
+	szOrder=ORDER_BRG; 
+	break;
+      }
   }
 
   RegWrite(R_CTL, 1, 0x39);    /* #1532[005.0] */
@@ -413,6 +428,16 @@ int main(int cArg, char * const ppchArg[])
 	case 4: param.cx=strtoul(ppchArg[optind+iOpt],NULL,10); break;
 	case 5: param.cy=strtoul(ppchArg[optind+iOpt],NULL,10); break;
 	}
+    }
+
+  switch (param.res)
+    {
+    case 100:
+    case 300:
+    case 600:
+      break; /* ok */
+    default:
+      Panic(PANIC_SETUP,"unsupported resulution requested");
     }
 
   

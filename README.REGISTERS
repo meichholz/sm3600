@@ -1,7 +1,7 @@
 Register map for the Microtek 3600
 ==================================
 
-$Id: README.REGISTERS,v 1.2 2001/03/24 20:56:21 eichholz Exp $
+$Id: README.REGISTERS,v 1.3 2001/03/24 22:42:45 eichholz Exp $
 
 Here are the registers, as far as I know them. All multi-byte registers are
 bigendian, the least significant byte first (aka "Intel byte sex").
@@ -11,13 +11,25 @@ Register 01h-02h
 
 Start of horizontal window in 1/600 inch. The glass starts at 0x00FB.
 
+Register 03h
+------------
+
+Sets the horizontal resultion.
+300 dpi needs 2Ah
+600 dpi needs 3Fh
+
 Register 04h-05h
 ----------------
 
-Horizontal window width in units of 1/600 inch.  Register 05h has
-special bits in the top nybble. 40h is a good start. Other values
-(0x80) don't schange the resolution, but lead to strange interlaces in
-the color output.
+Horizontal window width in units of 1/600 inch.
+
+Register 05h has special bits in the top nybble:
+Most values (0x80) don't change the resolution,
+but lead to strange interlaces in the color output. The register seem to be
+correlated to reg 08h/09h.
+
+300 dpi need 40h
+600 dpi need C0h.
 
 Needs further exploration.
 
@@ -34,11 +46,36 @@ Value=1 means 2/600 inch, respectively.
 
 Ermm... THIS IS NOT CORRECT! I CANNOT GET ANYTHING < 1/300 INCH.
 
+Register 08h-09h
+----------------
+
+Correlated to vertical resolution. Works with high nybble of 05h.
+300 dpi need FFFFh
+600 dpi need 6A6Ah
+
 Register 0Ah-0Bh
 ----------------
 
 Vertical scan length in units of 1/600 inch. Apparently You have to
-add 1 more step (600/resolution) to get the corerct count of lines.
+add 1 more step (600/resolution) to get the correct count of lines.
+
+Register 2Fh
+------------
+
+Brightness for red channel. 00h=darkest, FFh=brightest.
+
+
+Register 30h
+------------
+
+Brightness for green channel. 00h=darkest, FFh=brightest.
+
+
+Register 31h
+------------
+
+Brightness for blue channel. 00h=darkest, FFh=brightest.
+
 
 Register 32h-33h
 ----------------
