@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scantool.c,v 1.15 2001/04/07 23:16:43 eichholz Exp $
+$Id: scantool.c,v 1.16 2001/04/10 22:23:00 eichholz Exp $
 
 (C) Marian Eichholz 2001
 
@@ -10,7 +10,7 @@ $Id: scantool.c,v 1.15 2001/04/07 23:16:43 eichholz Exp $
 
 #include "scantool.h"
 
-#define REVISION "$Revision: 1.15 $"
+#define REVISION "$Revision: 1.16 $"
 
 #define USAGE \
 "usage: %s <outfile> <resolution> <x> <y> <w> <h>" \
@@ -79,7 +79,7 @@ static int OpenScanner(TInstance *this,
 
   this->hScanner=usb_open(pScanner);
   if (!this->hScanner)
-    return SetError(this,PANIC_SETUP, "cannot open scanner device");
+    return SetError(this,SANE_STATUS_IO_ERROR, "cannot open scanner device");
   dprintf(DEBUG_DEVSCAN,"scanner is open\n");
   rc=0;
 
@@ -93,7 +93,7 @@ static int OpenScanner(TInstance *this,
     {
       rc=usb_set_configuration(this->hScanner, 1); /* 0 or 1 ? */
       if (rc<0)
-	return SetError(this,PANIC_SETUP,"set USB config: %s",usb_strerror());
+	return SetError(this,SANE_STATUS_IO_ERROR,"set USB config: %s",usb_strerror());
     }
   return 0;
 }
@@ -167,7 +167,7 @@ Do some funny things with the given scanner and see if it crashes.
 static int ScanToFile(TInstance *this)
 {
   if (!this->fhScan)
-    return SetError(this,PANIC_SETUP,"test scan file not given");
+    return SetError(this,SANE_STATUS_INVAL,"test scan file not given");
 
   DoInit(this);
   DoJog(this,100);
@@ -198,15 +198,17 @@ Enumerate USB devices and look for the Microtek-3600 signature.
 
 ********************************************************************** */
 
-int FindScanner(TInstance *this, struct usb_device ** ppdevOut)
+TState FindScanner(TInstance *this, struct usb_device ** ppdevOut)
 {
   struct usb_bus    *pbus;
   struct usb_device *pdev;
   *ppdevOut=NULL;
-  if (usb_find_busses()) return SetError(this,PANIC_SETUP, "no USB found");
+  if (usb_find_busses())
+    return SetError(this,SANE_STATUS_IO_ERROR, "no USB found");
   usb_find_devices();
   if (bVerbose) fprintf(stderr,"scanning for scanner...\n");
-  if (!usb_busses) return SetError(this,PANIC_SETUP,"no usb bus found");
+  if (!usb_busses)
+    return SetError(this,SANE_STATUS_IO_ERROR,"no usb bus found");
   for (pbus = usb_busses; pbus; pbus = pbus->next)
     {
       /* 0.1.3b no longer has a "busnum" member */
@@ -218,16 +220,16 @@ int FindScanner(TInstance *this, struct usb_device ** ppdevOut)
 		  pdev->descriptor.idVendor,
 		  pdev->descriptor.idProduct);
 	  /* the loop is not SO effective, but straight! */
-	  for (pidProduct=aidProduct; pidProduct; pidProduct++)
+	  for (pidProduct=aidProduct; *pidProduct; pidProduct++)
 	      if (pdev->descriptor.idVendor  ==  SCANNER_VENDOR &&
 		  pdev->descriptor.idProduct == *pidProduct)
 		{
 		  *ppdevOut=pdev;
-		  return 0;
+		  return SANE_STATUS_GOOD;
 		}
 	}
     }
-  return SetError(this,PANIC_RUNTIME,"no ScanMaker connected");
+  return SetError(this,SANE_STATUS_UNSUPPORTED,"no ScanMaker connected");
 }
 
 /* ============================== MAIN ============================== */
@@ -344,7 +346,7 @@ int main(int cArg, char * const ppchArg[])
     case 600:
       break; /* ok */
     default:
-      SetError(this,PANIC_SETUP,"unsupported resolution requested");
+      SetError(this,SANE_STATUS_INVAL,"unsupported resolution requested");
     }
 
   
@@ -362,7 +364,7 @@ int main(int cArg, char * const ppchArg[])
     {
       this->fhLog=fopen(szLogFile,"a+");
       if (!this->fhLog)
-	SetError(this,PANIC_SETUP,"cannot open log file \%s\": %s",
+	SetError(this,SANE_STATUS_IO_ERROR,"cannot open log file \%s\": %s",
 	      szLogFile,strerror(errno));
     }
   ExitCheck(this);
@@ -370,7 +372,7 @@ int main(int cArg, char * const ppchArg[])
     {
       this->fhScan=fopen(szScanFile, this->bWriteRaw ? "a" : "w");
       if (!this->fhScan)
-	SetError(this,PANIC_SETUP,"cannot create scan file \"%s\": %s",
+	SetError(this,SANE_STATUS_IO_ERROR,"cannot create scan file \"%s\": %s",
 	      szScanFile,strerror(errno));
     }
   else

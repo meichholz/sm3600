@@ -20,7 +20,7 @@ DoScanColor()
 #define ORDER_BRG             "120"
 
 /* Parameter are in resolution units! */
-int DoScanColor(TInstance *this)
+TState DoScanColor(TInstance *this)
 {
 
   /* live could be easy: Simple calculate a window, start the scan,
@@ -152,7 +152,7 @@ int DoScanColor(TInstance *this)
   if (!ppchLines || !pchBuf)
   {
     free(pchBuf); free(ppchLines);
-    return SetError(this,PANIC_RUNTIME,"no buffers available");
+    return SetError(this,SANE_STATUS_NO_MEM,"no buffers available");
   }
 
   RegWrite(this,R_CTL, 1, 0x39);    /* #1532[005.0] */
@@ -171,7 +171,8 @@ int DoScanColor(TInstance *this)
 	  {
 	    free(pchBuf); free(ppchLines);
 	    /* TODO: free all previous buffers */
-	    return SetError(this,PANIC_RUNTIME,"no line buffer available");
+	    return SetError(this,SANE_STATUS_NO_MEM,
+			    "no line buffer available");
 	  }
       }
     iChunk=0;

@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scanmtek.c,v 1.9 2001/04/07 23:16:43 eichholz Exp $
+$Id: scanmtek.c,v 1.10 2001/04/10 22:23:00 eichholz Exp $
 
 ====================================================================== */
 
@@ -16,7 +16,7 @@ Replay the first initialisation block (no slider movement).
 
 ********************************************************************** */
 
-int DoInit(TInstance *this)
+TState DoInit(TInstance *this)
 {
   unsigned char uchRegs2466[]={
       0x00 /*0x01*/, 0x00 /*0x02*/, 0x3F /*0x03*/,
@@ -56,7 +56,7 @@ NOTE: Semantics changed: 0 on success, -1 else
 
 ********************************************************************** */
 
-int WaitWhileBusy(TInstance *this, int cSecs)
+TState WaitWhileBusy(TInstance *this, int cSecs)
 {
   int cTimeOut=cSecs*10;
   int value;
@@ -68,7 +68,7 @@ int WaitWhileBusy(TInstance *this, int cSecs)
       else
 	return 0;
     }
-  return SetError(this,PANIC_COMM,"Timeout while waiting for CTL");
+  return SetError(this,SANE_STATUS_IO_ERROR,"Timeout while waiting for CTL");
 }
 
 /* **********************************************************************
@@ -79,7 +79,7 @@ NOTE: Semantics changed: 0 on success, -1 else
 
 ********************************************************************** */
 
-int WaitWhileScanning(TInstance *this, int cSecs)
+TState WaitWhileScanning(TInstance *this, int cSecs)
 {
   int cTimeOut=cSecs*10;
   int value;
@@ -91,7 +91,7 @@ int WaitWhileScanning(TInstance *this, int cSecs)
       else
 	usleep(50);
     }
-  return SetError(this,PANIC_COMM,"Timeout while waiting for CSTAT");
+  return SetError(this,SANE_STATUS_IO_ERROR,"Timeout while waiting for CSTAT");
 }
 
 /* **********************************************************************
@@ -103,7 +103,7 @@ DoLampSwitch(nRegister)
 
 ********************************************************************** */
 
-int DoLampSwitch(TInstance *this, int nPattern)
+TState DoLampSwitch(TInstance *this, int nPattern)
 {
   return RegWrite(this, R_LMP, 1, nPattern);
 }
@@ -114,7 +114,7 @@ DoCalibration
 
 ********************************************************************** */
 
-int DoCalibration(TInstance *this)
+TState DoCalibration(TInstance *this)
 {
   int cchBulk;
   INST_ASSERT();

@@ -25,7 +25,7 @@ No idea, hoiw to achieve this, for now...
 
 ********************************************************************** */
 
-int DoOriginate(TInstance *this)
+TState DoOriginate(TInstance *this)
 {
   int    iStripe;
   TBool  bHolesOk;
@@ -86,13 +86,14 @@ int DoOriginate(TInstance *this)
     
     cchBulk=2*RegRead(this,R_STAT, 2);
     if (cchBulk!=2*MAX_PIXEL_PER_SCANLINE)
-      return SetError(this,PANIC_COMM,"illegal scan line with reported");
+      return SetError(this,SANE_STATUS_INVAL,
+		      "illegal scan line with reported");
     puchBuffer=(unsigned char*)calloc(1,cchBulk);
     CHECK_POINTER(puchBuffer);
     if (BulkReadBuffer(this,puchBuffer, cchBulk)!=cchBulk)
     {
       free(puchBuffer);
-      return SetError(this,PANIC_COMM,"truncated 10200-bulk");
+      return SetError(this,SANE_STATUS_IO_ERROR,"truncated 10200-bulk");
     }
     lSum=0;
     memset(anLine,0,sizeof(anLine));
@@ -210,7 +211,7 @@ The distance is given in 600 DPI.
 
 ********************************************************************** */
 
-int DoJog(TInstance *this, int nDistance)
+TState DoJog(TInstance *this, int nDistance)
 {
   int cSteps;
   int nSpeed,nRest;

@@ -21,12 +21,41 @@
 
 #include <usb.h>
 
+#ifdef INSANE_VERSION
+
+typedef enum { SANE_STATUS_GOOD,
+	       SANE_STATUS_CANCELLED,
+	       SANE_STATUS_UNSUPPORTED,
+	       SANE_STATUS_EOF,
+	       SANE_STATUS_NO_MEM,
+	       SANE_STATUS_IO_ERROR,
+	       SANE_STATUS_ACCESS_DENIED,
+	       SANE_STATUS_INVAL,
+	       SANE_STATUS_DEVICE_BUSY,
+} SANE_Status;
+
+#endif
+
 #include "sm3600.h"
+
+extern char *achErrorMessages[];
+
+#ifdef INSANE_VERSION
 
 /* ====================================================================== */
 
 #ifdef INSTANTIATE_VARIABLES
 #define GLOBAL
+char *achErrorMessages[]={ "everything fine",
+			  "operation canceled",
+			  "unsupported function",
+			  "end of scan or file",
+			  "memory overflow",
+			  "input/output error",
+			  "permission problem",
+			  "invalid parameter",
+			  "device busy",
+};
 #else
 #define GLOBAL extern
 #endif
@@ -40,6 +69,8 @@ GLOBAL char              *szLogFile;
 GLOBAL char              *szScanFile;
 
 GLOBAL TInstance          devInstance;
+
+#endif
 
 /* ====================================================================== */
 
@@ -55,27 +86,27 @@ void FixExposure(unsigned char *pchBuf,
 		 int nContrast);
 
 /* scanmtek.c */
-int DoInit(TInstance *this);
-int WaitWhileBusy(TInstance *this,int cSecs);
-int WaitWhileScanning(TInstance *this,int cSecs);
-int DoJog(TInstance *this,int nDistance);
-int DoLampSwitch(TInstance *this,int nPattern);
-int DoCalibration(TInstance *this);
+TState DoInit(TInstance *this);
+TState WaitWhileBusy(TInstance *this,int cSecs);
+TState WaitWhileScanning(TInstance *this,int cSecs);
+TState DoJog(TInstance *this,int nDistance);
+TState DoLampSwitch(TInstance *this,int nPattern);
+TState DoCalibration(TInstance *this);
 
 /* scanusb.c */
-int RegWrite(TInstance *this,int iRegister, int cb, unsigned long ulValue);
-int RegWriteArray(TInstance *this,int iRegister, int cb, unsigned char *pchBuffer);
-int RegCheck(TInstance *this,int iRegister, int cch, unsigned long ulValue);
+TState RegWrite(TInstance *this,int iRegister, int cb, unsigned long ulValue);
+TState RegWriteArray(TInstance *this,int iRegister, int cb, unsigned char *pchBuffer);
+TState RegCheck(TInstance *this,int iRegister, int cch, unsigned long ulValue);
 int BulkRead(TInstance *this,FILE *fhOut, unsigned int cchBulk);
 int BulkReadBuffer(TInstance *this,unsigned char *puchBufferOut, unsigned int cchBulk); /* gives count */
 unsigned int RegRead(TInstance *this,int iRegister, int cch);
 
 /* gray.c */
-int DoScanGray(TInstance *this);
+TState DoScanGray(TInstance *this);
 /* color.c */
-int DoScanColor(TInstance *this);
+TState DoScanColor(TInstance *this);
 
 /* homerun.c */
-int DoOriginate(TInstance *this);
+TState DoOriginate(TInstance *this);
 
 #endif

@@ -16,7 +16,7 @@ DoScanGray()
 
 ********************************************************************** */
 
-#define LINE_THRESHOLD   0x80
+#define LINE_THRESHOLD   0x800
 
 static unsigned char uchRegs075[]={
    /*R_SPOS*/ 0xFC, /*R_SPOSH*/ 0x00, /*0x03*/ 0x20,
@@ -153,45 +153,227 @@ static unsigned char uchRegs600[]={
    /*R_CTL*/ 0x39, /*0x47*/ 0x42, /*0x48*/ 0x15,
    /*0x49*/ 0x96, /*0x4A*/ 0x8C };
 
+/* ======================================================================
 
-/*
-I admit, the scanning routine is somewhat bloated now, for it has some
-retention buffering for error diffusion, and it is not optimised for
-CPU usage.
+ScanNextLine()
 
-There is some space for optimisation and possibly a code split, if we
-really know, what we are doing. (eichholz, 12.4.2001).
-*/
+====================================================================== */
 
-int DoScanGray(TInstance *this)
+#define USB_CHUNK_SIZE 0x8000
+
+TState ReadNextGrayLine(TInstance *this)
 {
-  int    cxPixel,cyPixel; /* real pixel */
-  int    cxWindow,cxMax; /* in real pixels */
-  int    cyTotalPath;    /* from bed start to window end in 600 dpi */
-  int    nFixAspect;     /* aspect ratio in percent, 75-100 */
+  int           iWrite;
+  int           iDot;
+  unsigned char chBits;  
+  int           iRead; /* read position in raw line */
+  int           nInterpolator;
+
+  iWrite=0;
+  while (iWrite<this->state.cxMax) /* max 1 time in reality */
+    {
+      while (iWrite<this->state.cxMax &&
+	     this->state.iBulkReadPos<this->state.cchBulk)
+	this->state.ppchLines[0][iWrite++] += /* add! */
+	  this->state.pchBuf[this->state.iBulkReadPos++]<<4;
+      if (iWrite<this->state.cxMax) /* we need an additional chunk */
+	{
+	  if (this->state.bLastBulk)
+	      return SANE_STATUS_EOF;
+	  this->state.cchBulk=BulkReadBuffer(this,this->state.pchBuf,
+					     USB_CHUNK_SIZE);
+	  dprintf(DEBUG_SCAN,"bulk read: %d byte(s), line #%d\n",
+		  this->state.cchBulk, this->state.iLine);
+	  if (this->bWriteRaw)
+	    fwrite(this->state.pchBuf,1,this->state.cchBulk,this->fhScan);
+	  INST_ASSERT();
+	  FixExposure(this->state.pchBuf,this->state.cchBulk,
+		      this->param.nBrightness,
+		      this->param.nContrast);
+	  if (this->state.cchBulk!=USB_CHUNK_SIZE)
+	    this->state.bLastBulk=true;
+	  this->state.iBulkReadPos=0;
+	}
+    } /* while raw line buffer acquiring */
+  this->state.iLine++;
+  iDot=0; chBits=0; /* init pixelbuffer */
+  for (nInterpolator=100, iWrite=0, iRead=0;
+       iRead<this->state.cxMax && iWrite<this->state.cchLineOut;
+       iRead++)
+    {
+      nInterpolator+=this->state.nFixAspect;
+      if (nInterpolator<100) continue; /* res. reduction */
+      nInterpolator-=100;
+      /* dprintf(DEBUG_SCAN," i=%d",iTo); */
+      if (this->mode==gray)
+	  this->state.pchLineOut[iWrite++]=
+	    this->state.ppchLines[0][iRead]>>4;
+      else
+	{
+	  unsigned char chBit; /* 1=white */
+	  if (this->mode==line)
+	    chBit=(this->state.ppchLines[0][iRead]<LINE_THRESHOLD);
+	  else
+	    {
+	      short nError=this->state.ppchLines[0][iRead];
+	      /* printf("(%d)",nError); */
+	      if (nError>=0xFF0)
+		{
+		  nError-=0xFF0;
+		  chBit=0;
+		}
+	      else
+		chBit=1;
+	      /* since I sketched the Floydd-Steinberg
+		 algorithm from heart, I have no idea, if
+		 there is room for improvement in the
+		 coefficients.  If You know, please drop
+		 me a line (eichholz@computer.org, 1.4.2001) */
+#define FASTDITHER
+#ifdef FASTDITHER
+	      this->state.ppchLines[0][iRead+1]+=(nError>>2); /* 8/16 */
+	      this->state.ppchLines[1][iRead+1]+=(nError>>1);
+	      this->state.ppchLines[1][iRead]  +=(nError>>2); /* 8/16 */
+#else
+	      this->state.ppchLines[0][iRead+1]+=(nError*5)>>4;
+	      this->state.ppchLines[1][iRead+1]+=(nError*8)>>4;
+	      this->state.ppchLines[1][iRead]  +=(nError*3)>>4;
+#endif
+	    }
+	  chBits=(chBits<<1)|chBit;
+	  iDot++;
+	  if (iDot==8 && iWrite<this->state.cchLineOut)
+	    {
+	      this->state.pchLineOut[iWrite++]=chBits;
+	      iDot=0; chBits=0;
+	    }
+	} /* gray pixel postprocessing */
+    } /* line postprocessing */
+  if (iDot && iWrite<this->state.cchLineOut)
+    this->state.pchLineOut[iWrite++]=chBits;
+  /* cycle the history lines and clear the preread buffer*/
+  {
+    short *p=this->state.ppchLines[0];
+    this->state.ppchLines[0]=this->state.ppchLines[1];
+    this->state.ppchLines[1]=p;
+    memset(this->state.ppchLines[1],0,(this->state.cxMax+1)*sizeof(short));
+  }
+  return SANE_STATUS_GOOD;
+}
+
+/* **********************************************************************
+
+FreeState()
+
+Frees all dynamical memory for scan buffering.
+
+********************************************************************** */
+
+TState FreeState(TInstance *this, TState nReturn)
+{
+  int i;
+  if (this->state.ppchLines)
+    {
+      for (i=this->state.cBacklog-1; i<=0; i--)
+	{
+	  if (this->state.ppchLines[i])
+	    free(this->state.ppchLines[i]);
+	}
+      free(this->state.ppchLines);
+    }
+  if (this->state.pchLineOut) free(this->state.pchLineOut);
+  if (this->state.pchBuf)     free(this->state.pchBuf);
+  this->state.pchBuf    =NULL;
+  this->state.pchLineOut=NULL;
+  this->state.ppchLines =NULL;
+  return nReturn;
+}
+
+/* ======================================================================
+
+EndScan()
+
+====================================================================== */
+
+TState EndScan(TInstance *this)
+{
+  if (!this->state.bScanning) return SANE_STATUS_GOOD;
+  /* move slider back to start */
+  this->state.bScanning=false;
+  FreeState(this,0);
+  INST_ASSERT();
+  return DoJog(this,-this->state.cyTotalPath);
+}
+
+/* ======================================================================
+
+ReadChunk()
+
+====================================================================== */
+
+TState ReadChunk(TInstance *this, unsigned char *achOut,
+		 int cchMax, int *pcchRead)
+{
+  /* have we to copy more than we have? */
+  /* can the current line fill the buffer ? */
+  *pcchRead=0;
+  INST_ASSERT();
+  while (this->state.iReadPos + cchMax > this->state.cchLineOut)
+    {
+      int rc;
+      /* copy rest of the line into target */
+      int cch = this->state.cchLineOut - this->state.iReadPos;
+      memcpy(achOut,
+	     this->state.pchLineOut+this->state.iReadPos,
+	     cch);
+      cchMax-=cch; /* advance parameters */
+      achOut+=cch;
+      (*pcchRead)+=cch;
+      this->state.iReadPos=0;
+      rc=ReadNextGrayLine(this); /* TODO: in color, too! */
+      if (rc!=SANE_STATUS_GOOD)
+	return rc; /* may be EOF, then: good and away! */
+    }
+  if (!cchMax) return SANE_STATUS_GOOD; /* now everything fits! */
+  (*pcchRead) += cchMax;
+  memcpy(achOut,
+	 this->state.pchLineOut+this->state.iReadPos,
+	 cchMax);
+  this->state.iReadPos += cchMax;
+  return SANE_STATUS_GOOD;
+}
+
+/* ======================================================================
+
+StartScanGray()
+
+====================================================================== */
+
+TState StartScanGray(TInstance *this)
+{
   unsigned char  *puchRegs;
-  unsigned char  *pchBuf;    /* bulk transfer buffer */
-  short         **ppchLines; /* for halftone error diffusion */
   int             i;
+  int             cxWindow;
+  if (this->state.bScanning)
+    return SetError(this,SANE_STATUS_DEVICE_BUSY,"scan active");
+  memset(&(this->state),0,sizeof(this->state));
   puchRegs=NULL;
-  cxPixel=this->param.cx*this->param.res/1200;
-  cyPixel=this->param.cy*this->param.res/1200;
-  if (bVerbose)
-    fprintf(stderr,"scanning %d by %d in gray\n",cxPixel,cyPixel);
-  nFixAspect=100;
+  this->state.cxPixel=this->param.cx*this->param.res/1200;
+  this->state.cyPixel=this->param.cy*this->param.res/1200;
+  this->state.nFixAspect=100;
   switch (this->param.res)
   {
-  case 75:  nFixAspect=75;
+  case 75:  this->state.nFixAspect=75;
             puchRegs=uchRegs075; break;
   case 100: puchRegs=uchRegs100; break;
   case 200: puchRegs=uchRegs200; break;
   case 300: puchRegs=uchRegs300; break;
   case 600: puchRegs=uchRegs600; break;
   }
-  cyTotalPath = this->param.y/2;
-  DoJog(this,cyTotalPath);
+  this->state.cyTotalPath = this->param.y/2;
+  DoJog(this,this->state.cyTotalPath);
   INST_ASSERT();
-  cyTotalPath += this->param.cy/2; /* for jogging back */
+  this->state.cyTotalPath += this->param.cy/2; /* for jogging back */
   
   /*
     regular scan is asynchronously, that is,
@@ -199,28 +381,34 @@ int DoScanGray(TInstance *this)
     until there are no data left.
   */
   RegWriteArray(this,R_ALL, NUM_SCANREGS, puchRegs); INST_ASSERT();
-  RegWrite(this,R_SPOS, 2, this->param.x/2+this->calibration.xMargin); INST_ASSERT();
-  RegWrite(this,R_SLEN, 2, (cyPixel+1)*600/this->param.res); INST_ASSERT();
+  RegWrite(this,R_SPOS, 2,
+	   this->param.x/2+this->calibration.xMargin); INST_ASSERT();
+  RegWrite(this,R_SLEN, 2,
+	   (this->state.cyPixel+1)*600/this->param.res); INST_ASSERT();
   if (this->quality==fast) { }
 
-  /* cxPixel is the number os pixels, we *want* (after interpolation)
-     cxMax is the number of pixels, we *need* (before interpolation)
+  /* this->state.cxPixel is the number os pixels, we *want* (after interpolation)
+     this->state.cxMax is the number of pixels, we *need* (before interpolation)
      cxWindow is the scan width in 600 dpi, we have to request */
 
-  cxMax=cxPixel*100/nFixAspect;
+  this->state.cxMax=this->state.cxPixel*100/this->state.nFixAspect;
   cxWindow=this->param.cx/2;
   RegWrite(this,R_SWID, 2, cxWindow); INST_ASSERT();
 
   /* for halftone dithering we need one history line */
-  pchBuf=malloc(0x8000);
-  ppchLines=calloc(2,sizeof(short *));
-  if (!pchBuf || !ppchLines)
-    return SetError(this,PANIC_RUNTIME,"no buffers available");
-  for (i=0; i<2; i++)
+  this->state.pchBuf=malloc(USB_CHUNK_SIZE);
+  this->state.cBacklog=2;
+  this->state.ppchLines=calloc(this->state.cBacklog,sizeof(short *));
+  if (!this->state.pchBuf || !this->state.ppchLines)
+    return FreeState(this,SetError(this,
+				   SANE_STATUS_NO_MEM,"no buffers available"));
+  for (i=0; i<this->state.cBacklog; i++)
     {
-      ppchLines[i]=calloc(cxMax+1,sizeof(short)); /* 1 dummy at right edge */
-      if (!ppchLines[i])
-	return SetError(this,PANIC_RUNTIME,"no buffers available");
+      this->state.ppchLines[i]=calloc(this->state.cxMax+1,
+				      sizeof(short)); /* 1 dummy at right edge */
+      if (!this->state.ppchLines[i])
+	return FreeState(this,SetError(this,
+				       SANE_STATUS_NO_MEM,"no buffers available"));
     }
 
   /* start the unit, when all buffers are available */
@@ -229,128 +417,69 @@ int DoScanGray(TInstance *this)
   RegWrite(this,R_CTL, 1, 0x79); INST_ASSERT();
   RegWrite(this,R_CTL, 1, 0xF9); INST_ASSERT();
 
+  /* calculate and prepare intermediate line transfer buffer */
+
+  this->state.cchLineOut=(this->mode==gray)
+    ? this->state.cxPixel
+    : (this->state.cxPixel+7)/8;
+  
+  this->state.pchLineOut = malloc(this->state.cchLineOut);
+  if (!this->state.pchLineOut)
+    return FreeState(this,SetError(this,
+				   SANE_STATUS_NO_MEM,
+				   "no buffers available"));
+
+  this->state.bScanning = true;
+  return SANE_STATUS_GOOD;
+}
+
+#ifdef INSANE_VERSION
+
+/* ======================================================================
+
+DoScanGray()
+
+Top level caller for scantool.
+
+====================================================================== */
+
+#define APP_CHUNK_SIZE   10
+
+TState DoScanGray(TInstance *this)
+{
+  int    cx,cy;
+  long   lcchRead;
+  TState rc;
+  char   achBuf[APP_CHUNK_SIZE];
+  cx=this->param.cx*this->param.res/1200;
+  cy=this->param.cy*this->param.res/1200;
+  if (bVerbose)
+    fprintf(stderr,"scanning %d by %d in gray\n",cx,cy);
   if (this->fhScan && !this->bWriteRaw)
     {
       if (this->mode==gray)
- 	fprintf(this->fhScan,"P5\n%d %d\n255\n",cxPixel,cyPixel);
+ 	fprintf(this->fhScan,"P5\n%d %d\n255\n",cx,cy);
       else
-	fprintf(this->fhScan,"P4\n%d %d\n",cxPixel,cyPixel);
+	fprintf(this->fhScan,"P4\n%d %d\n",cx,cy);
     }
-
-  /* the line rebuffering code is a stripped down version of the color
-     processing algorithm.*/
-
-  /* The line buffer is of "short" type, becaus we use error diffusion.
-     The buffer is not directly written, but the pixel values are added,
-     to preserve the diffused error values of the last line.
-     All values are in 10 percent, thus beeing fixes decimal. */
-  {
-    int iFrom,iTo,iChunk,cchBulk,iLine;
-    int iDot;
-    unsigned char chBits;  
-    iChunk=0;
-    cchBulk=0;
-    iTo=0;
-    iFrom=cchBulk; /* no rest */
-    iLine=0;
-    do {
-      iChunk++;
-      if (!this->bWriteRaw)
+  rc=StartScanGray(this);
+  lcchRead=0L;
+  while (!rc)
+    {
+      int cch;
+      cch=0;
+      rc=ReadChunk(this,achBuf,APP_CHUNK_SIZE,&cch);
+      if (cch>0 && this->fhScan && cch<=APP_CHUNK_SIZE)
 	{
-	  iTo=0;
-	  while (iFrom<cchBulk)
-	    ppchLines[0][iTo++] += 10*pchBuf[iFrom++];
+	  fwrite(achBuf,1,cch,this->fhScan);
+	  lcchRead+=cch;
 	}
-      
-      cchBulk=BulkReadBuffer(this,pchBuf,0x8000); INST_ASSERT();
-      FixExposure(pchBuf,cchBulk,
-		  this->param.nBrightness,
-		  this->param.nContrast);
-      dprintf(DEBUG_SCAN,"bulk#%d, got %d bytes...\n",iChunk,cchBulk);
-
-      if (this->bWriteRaw)
-	fwrite(pchBuf,1,cchBulk,this->fhScan);
-      else
-	{
-	  iFrom=0;
-	  while (iFrom+cxMax<=cchBulk) /* while line in buffer */
-	    {
-	      int cxToWrite,nInterpolator;
-	      cxToWrite=cxPixel;
-	      nInterpolator=100;
-	      /* dprintf(DEBUG_SCAN,"cx=%d, cxMax=%d\n",cxToWrite,cxMax); */
-	      /* iTo starts with buffer offset from copy above */
-	      while (iTo<cxMax) /* whole line or rest */
-		ppchLines[0][iTo++] += 10*pchBuf[iFrom++];
-	      iLine++;
-	      iDot=0; chBits=0; /* init pixelbuffer */
-	      for (iTo=0; iTo<cxMax && cxToWrite>0; iTo++)
-		{
-		  nInterpolator+=nFixAspect;
-		  if (nInterpolator<100) continue; /* res. reduction */
-		  nInterpolator-=100;
-		  cxToWrite--;
-		  /* dprintf(DEBUG_SCAN," i=%d",iTo); */
-		  if (this->mode==gray)
-		    {
-		      char ch=ppchLines[0][iTo]/10;
-		      fwrite(&ch,1,1,this->fhScan);
-		    }
-		  else
-		    {
-		      unsigned char chBit; /* 1=white */
-		      if (this->mode==line)
-			chBit=(ppchLines[0][iTo]<LINE_THRESHOLD);
-		      else
-		        {
-			  short nError=ppchLines[0][iTo];
-			  /* printf("(%d)",nError); */
-			  if (nError>=2550)
-			    {
-			      nError-=2550;
-			      chBit=0;
-			    }
-			  else
-			    chBit=1;
-			  /* since I sketched the Floydd-Steinberg
-			     algorithm from heart, I have no idea, if
-			     there is room for improvement in the
-			     coefficients.  If You know, please drop
-			     me a line (eichholz, 1.4.2001) */
-			  ppchLines[0][iTo+1]+=nError*3/10;
-			  ppchLines[1][iTo+1]+=nError*3/10;
-			  ppchLines[1][iTo]  +=nError*4/10;
-			}
-		      chBits=(chBits<<1)|chBit;
-		      iDot++;
-		      if (iDot==8)
-			{
-			  fwrite(&chBits,1,1,this->fhScan);
-			  iDot=0; chBits=0;
-			}
-		    } /* gray pixel postprocessing */
-		} /* line postprocessing */
-	      if (iDot)
-		fwrite(&chBits,1,1,this->fhScan);
-	      /* swap the history lines and clear the preread buffer*/
-	      {
-		short *p=ppchLines[0];
-		ppchLines[0]=ppchLines[1];
-		ppchLines[1]=p;
-	      }
-	      memset(ppchLines[1],0,(cxMax+1)*sizeof(short));
-	      iTo=0; /* reset buffer offset */
-	    } /* while pixels available */
-	} /* ! bWriteRaw */
-      
-    } while (cchBulk==0x8000);
-  } /* buffer processing */
-  free(ppchLines[1]);
-  free(ppchLines[0]);
-  free(ppchLines);
-  free(pchBuf);
-  /* move slider back to start */
+     }
+  if (bVerbose)
+    fprintf(stderr,"read %ld image byte(s)\n",lcchRead);
+  EndScan(this);
   INST_ASSERT();
-  return DoJog(this,-cyTotalPath);
+  return SANE_STATUS_GOOD;
 }
 
+#endif

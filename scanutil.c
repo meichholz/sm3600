@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scanutil.c,v 1.4 2001/04/07 23:16:43 eichholz Exp $
+$Id: scanutil.c,v 1.5 2001/04/10 22:23:00 eichholz Exp $
 
 ====================================================================== */
 
@@ -40,8 +40,9 @@ ExitCheck(pinst)
 void ExitCheck(TInstance *this)
 {
   if (!this->nErrorState) return;
-  fprintf(stderr,"fatal:%s (aborting)\n",
-	  this->szErrorReason ? this->szErrorReason  : "[unknown reason]");
+  fprintf(stderr,"fatal:%s [%s] (aborting)\n",
+	  this->szErrorReason ? this->szErrorReason  : "unknown reason",
+	  achErrorMessages[this->nErrorState]);
   if (this->hScanner) usb_close(this->hScanner);
   if (this->fhLog) fclose(this->fhLog);
   if (this->fhScan) fclose(this->fhScan);

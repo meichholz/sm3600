@@ -1,6 +1,17 @@
 CHANGELOG
 =========
 
+11.4.2001
+
+Internal interface moved towards SANE.
+gray.c now works like in SANE environment. All three non-colo-modes work.
+Raw buffers now use 16 as multiplier for speed.
+lineart separation fixed.
+
+BUGS:
+
+- homerun seems to be unprecise, when scanner warms up (white-detection?)
+
 8.4.2001
 
 scantool compiles again and seems to work.
@@ -9,8 +20,6 @@ BUGS:
 
 - Some CX values give "off by one" scan errors. Reproduceable example is
   3610 versus 3600. 
-
-- Error diffusion need far too much CPU time. See A4 scan with 600 DPI.
 
 5.4.2001
 

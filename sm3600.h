@@ -22,15 +22,13 @@ Start: 2.4.2001
 #define DEBUG_DEVSCAN  0x0012
 #define DEBUG_REPLAY   0x0014
 
-#define PANIC_SETUP   1
-#define PANIC_COMM    2
-#define PANIC_REPLAY  3
-#define PANIC_RUNTIME 4
-#define PANIC_INTERN  99
+#define USB_TIMEOUT_JIFFIES  2000
 
 /* ====================================================================== */
 
 typedef enum { false, true } TBool;
+
+typedef SANE_Status TState;
 
 typedef struct {
   int           xMargin; /* in 1/600 inch */
@@ -55,11 +53,31 @@ typedef enum { color, gray, line, halftone } TMode;
 
 #define INST_ASSERT() { if (this->nErrorState) return this->nErrorState; }
 #define CHECK_POINTER(p) \
-if (!p) return SetError(this,PANIC_RUNTIME,"memory failed in %d",__LINE__)
+if (!p) return SetError(this,SANE_STATUS_NO_MEM,"memory failed in %d",__LINE__)
 
 typedef struct {
-  int                nErrorState;
+  TBool           bCanceled;
+  TBool           bScanning;    /* block is active? */
+  TBool           bLastBulk;    /* EOF announced */
+  int             iReadPos;     /* read() interface */
+  int             iBulkReadPos; /* bulk read pos */
+  int             iLine;        /* log no. line */
+  int             cchBulk;      /* available bytes in bulk buffer */
+  int             cchLineOut;   /* buffer size */
+  int             cxPixel,cyPixel; /* real pixel */
+  int             cxMax;        /* uninterpolated in real pixels */
+  int             cyTotalPath;  /* from bed start to window end in 600 dpi */
+  int             nFixAspect;   /* aspect ratio in percent, 75-100 */
+  int             cBacklog;     /* depth of ppchLines */
+  unsigned char  *pchBuf;       /* bulk transfer buffer */
+  short         **ppchLines;    /* for error diffusion and color corr. */
+  unsigned char  *pchLineOut;   /* read() interface */
+} TScanState;
+
+typedef struct {
+  TState             nErrorState;
   char              *szErrorReason;
+  TBool              bSANE;
   TScanParam         param;
   TCalibration       calibration;
   TBool              bWriteRaw;
@@ -68,12 +86,13 @@ typedef struct {
   usb_dev_handle    *hScanner;
   FILE              *fhLog;
   FILE              *fhScan;
-} TInstance ;
+  TScanState         state;
+} TInstance;
 
-#ifndef SCANTOOL_H
+#ifndef INSANE_VERSION
 
 typedef struct SM3600_Device {
-  struct SM3600_Device * next;
+  struct SM3600_Device  *next;
   SANE_Device            sane;
   TInstance             *pInst;
 } SM3600_Device;
