@@ -52,6 +52,22 @@ The static library implementing this backend.
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 
+.SH PERMISSIONS AND INTERFACES
+
+The backend uses
+.B libusb
+and it's
+pseudo files in
+.I /proc/bus/usb/*
+
+These files are normally owned by
+.B root
+and You are responsible to get access to these files, for example by
+.B chown
+-ing them to You. If You have no
+right permissions, the backend will find the device, but You'll get an
+I/O error.
+
 .SH ENVIRONMENT
 .TP
 .B SANE_DEBUG_SM3600

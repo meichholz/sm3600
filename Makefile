@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.15 2001/08/16 22:49:26 eichholz Exp $
+# $Id: Makefile,v 1.16 2001/10/25 20:02:31 eichholz Exp $
 #
 # -------------------------------------------------------------------
 #
@@ -84,6 +84,10 @@ testraw: scantool initbus
 	./scantool -v -m g -d 1 -d r /tmp/scan.pnm 75 600 300 2400 2400
 	xv /tmp/scan.pnm
 
+uncalibrated: scantool initbus
+	./scantool -O -m gray /tmp/scan.pnm 100 0 0 10600 3600 
+	ee /tmp/scan.pnm
+
 dist:	clean
 	sh mkdist.sh microtek3600
 
@@ -165,7 +169,12 @@ copy:	initbus scantool
 	cat /tmp/scan.pnm | pnmtops -dpi 300 -center \
 		-scale 0.25 -width 8.26 -height 11.6 | \
 	lpr
-#	@ee /tmp/scan.pnm
+
+copyg:	initbus scantool
+	@scantool -p copy -c 32 -m g - 300 \
+	cat /tmp/scan.pnm | pnmtops -dpi 300 -center \
+		-scale 0.25 -width 8.26 -height 11.6 | \
+	lpr
 
 fax:	initbus scantool
 	@scantool -O -p fax -m h - | \

@@ -1,3 +1,10 @@
+2001-10-25  Marian Eichholz <eichholz@computer.org>
+	* Calibration data for 3700, experimental.
+	* Relaxed first-hole-pos in sm3600-homerun.c
+
+2001-10-01  Marian Eichholz <eichholz@computer.org>
+	* Statement on USBFS in sane-sm3600.man
+
 2001-09-30  Marian Eichholz <eichholz@computer.org>
 
 	* Fixed the -O SEGV issue: Uninitialised buffer, what else.
