@@ -17,6 +17,11 @@ Purpose
 This is the source code and the tools for development of a scanning
 tool for the Microtek SanMaker 3600 scanner.
 
+If you want only the SANE backend version then the easiset way to
+install this is to get the patch that is available from the files
+area on our sourceforge project page. You only need to install this
+CVS version if you are doing development or testing.
+
 It is intended with two goals:
 
 1) A standalone tool (scantool) for the command line with specific
@@ -34,7 +39,7 @@ alpha, but might me useful for You, if You are brave :-)
 Please have this notion in mind, if You find mysterious scripts with
 magic SSH stuff, hard coded directories and all such things.
 
-There might me links to directories outside of the package (RCS or
+There might be links to directories outside of the package (RCS or
 so), that make the tree somewhat leaner. This is perfectly ok. Just
 ignore them.
 
@@ -44,7 +49,7 @@ Installing
 
 Read README.INSTALL for the installing procedure with the
 sane-backends 1.0.4 (see http://www.mostang.com/sane/ for download
-procedures)
+procedures).
 
 For the scantool target use the following procedure:
 
@@ -55,15 +60,22 @@ There is no "make install" available now. So, just copy the binary to
 an appropriate place.
 
 
-Permissions and USBFS
+Permissions and USBDEVFS
 ---------------------
 
-Since we use the usblib-Interface for now, You are on Your own to
-grant scanenr access to anyone other than Root. if You have no special
-USB devices, it is completely sufficient to do a
+Since we use the usblib interface for now, you need to grant the
+appropriate permissions to the /proc/bus/usb filesystem.
+
+If You have no special USB devices, it is completely sufficient to do:
 
 	chown YOURUID /proc/bus/usb/???
 
+This will probably be OK for a development machine, but for a
+production environment you will probably want to fix that properly,
+and you wouldn't be using this development package on such a machine
+anyway, would you?  
+
+You might also find hotplug useful see http://linux-hotplug.sourceforge.net/ .
 
 Contact
 -------
@@ -75,5 +87,3 @@ If You have ideas and suggestions about the code, please ask
 There is a web site with a mailing list. Please have a look at
 
 	http://sm3600.sourceforge.net/
-
-
