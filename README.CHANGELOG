@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+18.4.2001
+
+(New) Open/Close and Start/Read/Cancel-Semantics.
+Fixed color parametrisation. Added (fixed) calibration init.
+Xsane crashes after scan.
+
 17.4.2001
 
 Parameter reconstruction from options ok.

@@ -41,7 +41,7 @@ Start: 2.4.2001
 unsigned long ulDebugMask;
 
 int num_devices;
-static TDevice  *pdevFirst;
+static TDevice        *pdevFirst;
 static TInstance      *pinstFirst;
 
 /* ====================================================================== */
@@ -306,8 +306,14 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback authCB)
 void
 sane_exit (void)
 {
-  TDevice *dev, *next;
+  TDevice   *dev, *next;
+  TInstance *this;
 
+  /* free all bound resources and instances */
+  while ((this=pinstFirst))
+    sane_close((SANE_Handle)pinstFirst); /* free all resources */
+  
+  /* free all device descriptors */
   for (dev = pdevFirst; dev; dev = dev->pNext)
     {
       next = dev->pNext;
@@ -344,9 +350,10 @@ SANE_Status sane_get_devices (const SANE_Device *** device_list,
 
 SANE_Status sane_open (SANE_String_Const devicename, SANE_Handle *handle)
 {
-  TDevice   *pdev;
-  TInstance *this;
-  DBG(1,"opening %s\n",devicename);
+  TDevice    *pdev;
+  TInstance  *this;
+  SANE_Status rc;
+  DBG(DEBUG_VERBOSE,"opening %s\n",devicename);
   if (devicename[0]) /* selected */
     {
       for (pdev=pdevFirst; pdev; pdev=pdev->pNext)
@@ -357,13 +364,29 @@ SANE_Status sane_open (SANE_String_Const devicename, SANE_Handle *handle)
   else
     pdev=pdevFirst;
   if (!pdev)
-    return SANE_STATUS_INVAL;
+      return SANE_STATUS_INVAL;
   this = (TInstance*) calloc(1,sizeof(TInstance));
   if (!this) return SANE_STATUS_NO_MEM;
   *handle = (SANE_Handle)this;
   
   this->pNext=pinstFirst; /* register open handle */
   pinstFirst=this;
+  /* open and prepare USB scanner handle */
+  this->hScanner=usb_open(pdev->pdev);
+  if (!this->hScanner)
+    return SetError(this,SANE_STATUS_IO_ERROR, "cannot open scanner device");
+  rc=SANE_STATUS_GOOD;
+  if (usb_claim_interface(this->hScanner, 0))
+    return SetError(this,SANE_STATUS_IO_ERROR, "cannot claim IF");
+  if (usb_set_configuration(this->hScanner, 1))
+    return SetError(this,SANE_STATUS_IO_ERROR, "cannot set USB config 1");
+
+  this->calibration.xMargin=200;
+  this->calibration.yMargin=0x019D;
+  this->calibration.nHoleGray=10;
+  this->calibration.rgbBias=0x888884;
+  this->calibration.nBarGray=0xC0;
+  this->quality=fast;
 
   return InitOptions(this);
 }
@@ -372,8 +395,13 @@ void sane_close (SANE_Handle handle)
 {
   TInstance *this,*pParent,*p;
   this=(TInstance*)handle;
+  DBG(DEBUG_VERBOSE,"closing scanner\n");
+  if (this->state.bScanning)
+    EndScan(this);
+  if (this->hScanner)
+    usb_close(this->hScanner);
+  /* unlink active device entry */
   pParent=NULL;
-  /* search lsit predecessor */
   for (p=pinstFirst; p; p=p->pNext)
     {
       if (p==this) break;
@@ -385,17 +413,19 @@ void sane_close (SANE_Handle handle)
       DBG(1,"invalid handle in close()\n");
       return;
     }
-
-  if (this->state.bScanning)
-    /* TODO: Hard-Cancel scanning */
-    ;
-  
-
   /* delete instance from instance list */
   if (pParent)
     pParent->pNext=this->pNext;
   else
-    pinstFirst=this->pNext;
+    pinstFirst=this->pNext; /* NULL with last entry */
+  /* free resources */
+  if (this->szErrorReason)
+    {
+      DBG(DEBUG_VERBOSE,"Error status: %d, %s",
+	  this->nErrorState, this->szErrorReason);
+      free(this->szErrorReason);
+    }
+  free(this);
 }
 
 const SANE_Option_Descriptor *
@@ -488,7 +518,8 @@ SANE_Status sane_control_option (SANE_Handle handle, SANE_Int iOpt,
   return rc;
 }
 
-static void SetupInternalParameters(TInstance *this)
+static SANE_Status
+SetupInternalParameters(TInstance *this)
 {
   int         i;
   this->param.res=(int)this->aoptVal[optResolution].w;
@@ -508,6 +539,7 @@ static void SetupInternalParameters(TInstance *this)
       this->mode, this->param.res,
       this->param.nBrightness, this->param.nContrast,
       this->param.x,this->param.y,this->param.cx,this->param.cy);
+  return SANE_STATUS_GOOD;
 }
 
 SANE_Status sane_get_parameters (SANE_Handle handle, SANE_Parameters *p)
@@ -516,6 +548,7 @@ SANE_Status sane_get_parameters (SANE_Handle handle, SANE_Parameters *p)
   TInstance *this;
   this=(TInstance*)handle;
   SetupInternalParameters(this);
+  DBG(DEBUG_INFO,"getting parameters...\n");
   p->pixels_per_line=this->param.cx*this->param.res/1200;
   p->lines=this->param.cy*this->param.res/1200;
   p->last_frame=SANE_TRUE;
@@ -523,13 +556,13 @@ SANE_Status sane_get_parameters (SANE_Handle handle, SANE_Parameters *p)
     {
     case color:
       p->format=SANE_FRAME_RGB;
-      p->depth=24;
+      p->depth=8;
       p->bytes_per_line=p->pixels_per_line*3;
       break;
     case gray:
       p->format=SANE_FRAME_GRAY;
       p->depth=8;
-      p->bytes_per_line=p->pixels_per_line*3;
+      p->bytes_per_line=p->pixels_per_line;
       break;
     case halftone:
     case line:
@@ -543,24 +576,53 @@ SANE_Status sane_get_parameters (SANE_Handle handle, SANE_Parameters *p)
 
 SANE_Status sane_start (SANE_Handle handle)
 {
-  TInstance *this;
+  TInstance    *this;
+  SANE_Status   rc;
   this=(TInstance*)handle;
-  /* do some magic */
-  this++;
-  return SANE_STATUS_GOOD;
+  DBG(DEBUG_VERBOSE,"starting scan...\n");
+  if (this->state.bScanning) return SANE_STATUS_DEVICE_BUSY;
+  rc=SetupInternalParameters(this);
+  if (!rc) rc=DoJog(this,100);
+  if (!rc) rc=DoOriginate(this);
+  if (!rc) rc=DoJog(this,this->calibration.yMargin);
+  if (rc) return rc;
+  switch (this->mode)
+    {
+    case color: rc=StartScanColor(this); break;
+    default:    rc=StartScanGray(this); break;
+    }
+  if (this->state.bCanceled) return SANE_STATUS_CANCELLED;
+  return rc;
 }
 
-SANE_Status sane_read (SANE_Handle handle, SANE_Byte *buf, SANE_Int max_len,
-		       SANE_Int *lenp)
+SANE_Status sane_read (SANE_Handle handle, SANE_Byte *puchBuffer,
+		       SANE_Int cchMax,
+		       SANE_Int *pcchRead)
 {
-  return SANE_STATUS_GOOD;
+  SANE_Status    rc;
+  TInstance     *this;
+  this=(TInstance*)handle;
+  DBG(DEBUG_INFO,"reading chunk %d...\n",(int)cchMax);
+  if (!this->state.bScanning) return SANE_STATUS_IO_ERROR;
+  if (this->state.bCanceled) return SANE_STATUS_CANCELLED;
+  rc=ReadChunk(this,puchBuffer,cchMax,pcchRead);
+  if (rc!=SANE_STATUS_GOOD)
+    *pcchRead=0;
+  else if (!*pcchRead) rc=SANE_STATUS_EOF;
+  return rc;
 }
 
 void sane_cancel (SANE_Handle handle)
 {
   TInstance *this;
   this=(TInstance*)handle;
-  this->state.bCanceled=true;
+  DBG(DEBUG_INFO,"cancel called...\n");
+  if (this->state.bScanning)
+    {
+      EndScan(this);
+      this->state.bCanceled=true;
+      DoJog(this,-this->calibration.yMargin);
+    }
 }
 
 SANE_Status
