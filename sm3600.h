@@ -148,7 +148,11 @@ typedef struct TScanState {
 
 #ifndef INSANE_VERSION
 
+#ifdef SM3600_SUPPORT_EXPOSURE
 #define NUM_OPTIONS 18
+#else
+#define NUM_OPTIONS 16
+#endif
 
 typedef union
   {  
@@ -247,10 +251,6 @@ typedef enum { none, hpos, hposH, hres } TRegIndex;
 /* sm3600-scanutil.c */
 __SM3600EXPORT__ int SetError(TInstance *this, int nError, const char *szFormat, ...);
 __SM3600EXPORT__ void debug_printf(unsigned long ulType, const char *szFormat, ...);
-__SM3600EXPORT__ void FixExposure(unsigned char *pchBuf,
-				  int cchBulk,
-				  int nBrightness,
-				  int nContrast);
 __SM3600EXPORT__ TState FreeState(TInstance *this, TState nReturn);
 __SM3600EXPORT__ TState EndScan(TInstance *this);
 __SM3600EXPORT__ TState ReadChunk(TInstance *this, unsigned char *achOut,
@@ -263,7 +263,9 @@ __SM3600EXPORT__ TState DoScanFile(TInstance *this);
 __SM3600EXPORT__ void   GetAreaSize(TInstance *this);
 __SM3600EXPORT__ void   ResetCalibration(TInstance *this);
 
-__SM3600EXPORT__ TState InitGammaTables(TInstance *this);
+__SM3600EXPORT__ TState InitGammaTables(TInstance *this,
+					int nBrightness,
+					int nContrast);
 __SM3600EXPORT__ TState CancelScan(TInstance *this);
 
 /* sm3600-scanmtek.c */

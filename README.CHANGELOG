@@ -1,23 +1,31 @@
 CHANGELOG
 =========
 
-31.6.2001
+1.6.2001
+
+Removed FixExposure() and Brightness-Contrast-Options.
+Made BC options compiletime-optional (enabled by default).
+Made BC control in scantool by means of gamma tables.
+
+
+
+31.5.2001
 
 Applied Hanning window smoothing for the calibration scan.
 Moves some files around.
 Wrote a Manpage for scantool.
 
-30.6.2001
+30.5.2001
 
 Made InitOptions() static.
 Incorporated optional MEDIAN calibration without hanning filter.
 
-29.6.2001
+29.5.2001
 
 Changed calibration scan to RMS smoothing. No horizontal smoothing.
 Looks goooood!
 
-28.6.2001
+28.5.2001
 
 Increased MAX_PIXEL_PER_SCANLINE to 5300 (seems to be a real limit?).
 StripeY is calculated, smoothed and applied to gray and color scans.
@@ -25,7 +33,7 @@ Fullbed width corrected to 22 cm.
 
 TODO: Color calibration is lacking (color offsets or so).
 
-27.6.2001
+27.5.2001
 
 Added some experimental stuff for gain correction
 Fixed much compiler warnings.

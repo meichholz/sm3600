@@ -45,7 +45,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: sm3600-scanutil.c,v 1.2 2001/05/27 18:43:55 eichholz Exp $
+$Id: sm3600-scanutil.c,v 1.3 2001/06/01 22:42:30 eichholz Exp $
 
 ====================================================================== */
 
@@ -135,36 +135,6 @@ void DumpBuffer(FILE *fh, const char *pch, int cch)
 }
 
 #endif
-
-/* **********************************************************************
-
-FixExposure()
-
-Exposure is done by adding brightness to the original scan value and
-augmenting the result around the middle value of 128.
-
-********************************************************************** */
-
-__SM3600EXPORT__
-void FixExposure(unsigned char *pchBuf,
-		 int cchBulk,
-		 int nBrightness,
-		 int nContrast)
-{
-  int i;
-  int nOffB=nBrightness-128;
-  int nFakC=(nContrast+128)*100; /* in percent, to get smoother interpolation */
-  for (i=0; i<cchBulk; i++)
-  {
-    int nNew=pchBuf[i];
-    nNew=(nNew+nOffB)*nFakC/12800+128;
-    if (nNew<0) nNew=0;
-    else if (nNew>255) nNew=255;
-    pchBuf[i]=(unsigned char)nNew;
-  }
-}
-
-
 
 /* **********************************************************************
 
@@ -368,15 +338,23 @@ Init gammy tables and gain tables within controller memory.
 ====================================================================== */
 
 __SM3600EXPORT__
-TState InitGammaTables(TInstance *this)
+TState InitGammaTables(TInstance *this, int nBrightness, int nContrast)
 {
-  int           i;
+  long          i;
+  long          lOffset;
+  long          lScale;
+  /* the rescaling is done with temporary zero translation to 2048 */
+  lOffset=(nBrightness-128)*16; /* signed! */
+  lScale=(nContrast+128)*100;  /* in percent */
   for (i=0; i<4096; i++)
     {
-      this->agammaY[i]=i;
-      this->agammaR[i]=i;
-      this->agammaG[i]=i;
-      this->agammaB[i]=i;
+      int n=(int)((i+lOffset)*lScale/12800L+2048L);
+      if (n<0) n=0;
+      else if (n>4095) n=4095;
+      this->agammaY[i]=n;
+      this->agammaR[i]=n;
+      this->agammaG[i]=n;
+      this->agammaB[i]=n;
     }
   return SANE_STATUS_GOOD;
 }
@@ -403,7 +381,7 @@ TState DoScanFile(TInstance *this)
 
   achBuf=malloc(APP_CHUNK_SIZE);
   rc=SANE_STATUS_GOOD; /* make compiler happy */
-  rc=InitGammaTables(this);
+  rc=InitGammaTables(this, this->param.nBrightness, this->param.nContrast);
   if (rc!=SANE_STATUS_GOOD) return rc;
   if (this->mode==color)
     rc=StartScanColor(this);

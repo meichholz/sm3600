@@ -1,4 +1,4 @@
-# $Id: Makefile.in,v 1.28 2001/05/29 20:17:20 eichholz Exp $
+# $Id: Makefile.in,v 1.29 2001/06/01 22:42:30 eichholz Exp $
 #
 # -------------------------------------------------------------------
 #
@@ -63,10 +63,10 @@ test:	scantool initbus
 	./scantool -v -i -d 5 temp.out
 
 testscan: scantool initbus
-#	./scantool -d 25 -v -m color -b 0 -c 0 /tmp/scan.pnm 600 000 000 3600 1400
-#	./scantool -d 1 -v -m gray -b 0 -c 0 /tmp/scan.pnm 200 300 300 3620 1200
-	./scantool -d 64 -v -m gray -b 0 -c 0 /tmp/scan.pnm 200 000 300 10200 1200
-#	./scantool -d 64 -v -m color -b 0 -c 0 /tmp/scan.pnm 200 000 300 10200 300
+#	./scantool -d 25 -v -m color /tmp/scan.pnm 600 000 000 3600 1400
+#	./scantool -d 1 -v -m gray /tmp/scan.pnm 200 300 300 3620 1200
+	./scantool -d 64 -v -m gray /tmp/scan.pnm 200 000 300 10200 1200
+#	./scantool -d 64 -v -m color /tmp/scan.pnm 200 000 300 10200 300
 #	./scantool -d 1 -v -m line -b 30 /tmp/scan.pnm 200 000 000 3600 4800
 #	./scantool -d 1 -v -m halftone -b 30 -c 50 /tmp/scan.pnm 300 000 000 3600 4800
 	xv /tmp/scan.pnm
@@ -154,13 +154,14 @@ initbus:
 	@sh initbus.sh
 
 copy:	initbus scantool
-	@scantool -p copy -m h -b 80 -c 100 - | \
-	pnmtops -dpi 300 -center -scale 0.25 -width 8.26 -height 11.6 | \
+	@scantool -p copy -c 32 -l h - \
+	cat /tmp/scan.pnm | pnmtops -dpi 300 -center \
+		-scale 0.25 -width 8.26 -height 11.6 | \
 	lpr
-#	ee /tmp/scan.pnm
+#	@ee /tmp/scan.pnm
 
 fax:	initbus scantool
-	@scantool -O -p fax -m h -b 60 -c 100 - | \
+	@scantool -O -p fax -m h - | \
 	pnmtops -dpi 200 -center -scale 0.25 -width 8.26 -height 11.6 \
 	> ~/data/faxout/new.ps
 

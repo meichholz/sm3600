@@ -68,7 +68,14 @@ There is brightness control through
 .B -b
 and contrast control through
 .B -c
-, with ranges from -255 to 255.
+, with ranges from -255 to 255. A contrast value of 0 means
+.I
+normal
+contrast, and a contrast of -128 means full
+.I negative
+contrast. The normal brightness value is 0. Larger values give lighter
+scans, and negative values darken the image. All exposure control is
+done by 12 bit internal gamma mapping, thus being lossless.
 
 The supported scanmodes with
 .B -m

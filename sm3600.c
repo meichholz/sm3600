@@ -61,7 +61,7 @@ Start: 2.4.2001
 
 #include <usb.h>
 
-#define BUILD	4
+#define BUILD	5
 
 #ifndef BACKEND_NAME
 #define BACKEND_NAME sm3600
@@ -79,6 +79,8 @@ Start: 2.4.2001
 /* make no real function export, since we include the modules */
 #define __SM3600EXPORT__ static
 
+/* if defined, *before* sm3600.h inclusion */
+#define SM3600_SUPPORT_EXPOSURE
 
 #include "sm3600.h"
 
@@ -105,7 +107,9 @@ Initialise SANE options
 
 typedef enum { optCount,
 	       optGroupMode, optMode, optResolution,
+#ifdef SM3600_SUPPORT_EXPOSURE
 	       optBrightness, optContrast,
+#endif
 	       optPreview, optGrayPreview,
 	       optGroupGeometry,optTLX, optTLY, optBRX, optBRY,
 	       optGroupEnhancement,
@@ -125,10 +129,12 @@ static const SANE_Range rangeYmm = {
   SANE_FIX(300),
   SANE_FIX(0.1) };
 
+#ifdef SM3600_SUPPORT_EXPOSURE
 static const SANE_Range rangeLumi = {
   SANE_FIX(-100.0),
   SANE_FIX(100.0),
   SANE_FIX(1.0) };
+#endif
 
 static const SANE_Range rangeGamma = { 0, 4095, 1 };
 
@@ -146,7 +152,7 @@ InitOptions(TInstance *this)
     }
   memset(this->aoptDesc,0,sizeof(this->aoptDesc));
   memset(this->aoptVal,0,sizeof(this->aoptVal));
-  InitGammaTables(this);
+  InitGammaTables(this,0,0);
   for (iOpt=optCount; iOpt!=optLast; iOpt++)
     {
       static char *achNamesXY[]= {
@@ -208,6 +214,7 @@ InitOptions(TInstance *this)
 	  pdesc->constraint.word_list = setResolutions;
 	  pval->w       =75;
 	  break;
+#ifdef SM3600_SUPPORT_EXPOSURE
 	case optBrightness:
 	  pdesc->name   =SANE_NAME_BRIGHTNESS;
 	  pdesc->title  =SANE_TITLE_BRIGHTNESS;
@@ -228,6 +235,7 @@ InitOptions(TInstance *this)
 	  pdesc->constraint.range=&rangeLumi;
 	  pval->w       =SANE_FIX(0);
 	  break;
+#endif
 	case optPreview:
 	  pdesc->name   =SANE_NAME_PREVIEW;
 	  pdesc->title  =SANE_TITLE_PREVIEW;
@@ -567,8 +575,10 @@ sane_control_option (SANE_Handle handle, SANE_Int iOpt,
 	case optPreview:
 	case optGrayPreview:
 	case optResolution:
+#ifdef SM3600_SUPPORT_EXPOSURE
 	case optBrightness:
 	case optContrast:
+#endif
 	case optTLX: case optTLY: case optBRX: case optBRY:
 	  *(SANE_Word*)pVal = this->aoptVal[iOpt].w;
 	  break;
@@ -601,8 +611,10 @@ sane_control_option (SANE_Handle handle, SANE_Int iOpt,
 	case optTLX: case optTLY: case optBRX: case optBRY:
 	  if (pnInfo) (*pnInfo) |= SANE_INFO_RELOAD_PARAMS;
 	  /* fall through side effect free */
+#ifdef SM3600_SUPPORT_EXPOSURE
 	case optBrightness:
 	case optContrast:
+#endif
 	case optPreview:
 	case optGrayPreview:
 	  this->aoptVal[iOpt].w = *(SANE_Word*)pVal;
@@ -633,8 +645,13 @@ SetupInternalParameters(TInstance *this)
 {
   int         i;
   this->param.res=(int)this->aoptVal[optResolution].w;
+#ifdef SM3600_SUPPORT_EXPOSURE
   this->param.nBrightness=(int)(this->aoptVal[optBrightness].w>>SANE_FIXED_SCALE_SHIFT);
   this->param.nContrast=(int)(this->aoptVal[optContrast].w>>SANE_FIXED_SCALE_SHIFT);
+#else
+  this->param.nBrightness=0;
+  this->param.nContrast=0;
+#endif
   this->param.x=(int)(SANE_UNFIX(this->aoptVal[optTLX].w)*1200.0/25.4);
   this->param.y=(int)(SANE_UNFIX(this->aoptVal[optTLY].w)*1200.0/25.4);
   this->param.cx=(int)(SANE_UNFIX(this->aoptVal[optBRX].w-this->aoptVal[optTLX].w)*1200.0/25.4)+1;
