@@ -1,9 +1,10 @@
 USB command format for the Microtek ScanMaker3600
 =================================================
 
-$Id: README.USB,v 1.1 2001/04/01 09:09:24 glennr Exp $
+$Id: README.USB,v 1.2 2001/04/01 19:13:55 glennr Exp $
 
-You will need to be a little bit familiar with how USB works to understand some of this.
+You will need to be a little bit familiar with how USB works to
+understand some of this.
 
 USB identification codes
 ========================
@@ -13,40 +14,57 @@ product id's = 40b3, 40ca, 40ff
 USB topology
 ============
 
-The scanner has only 2 pipes, the default control pipe (DCP) and 1 'bulk in' pipe. It uses the DCP for all commands sent to the scanner and for all reads of status data.  The bulk pipe is only used to transfer image data to the host.
+The scanner has only 2 pipes, the default control pipe (DCP) and 1
+'bulk in' pipe. It uses the DCP for all commands sent to the scanner
+and for all reads of status data.  The bulk pipe is only used to
+transfer image data to the host.
 
 Control transfer data format
 ============================
 
-Each control transfer on the DCP requires a Setup packet of eight bytes. The Setup packet contains the fields and values as described below.
+Each control transfer on the DCP requires a Setup packet of eight
+bytes. The Setup packet contains the fields and values as described
+below.
 
 bmRequestType
 -------------
-will contain 0xc0 for device-to-host transfers and 0x40 for host-to-device transfers.
+
+will contain 0xc0 for device-to-host transfers and 0x40 for
+host-to-device transfers.
+
 The bits in the bmRequestType specify the following:
 bit  7    Data transfer direction
 bits 6..5 Request type (0=standard, 1=class, 2=vendor, 3=reserved)
 bits 4..0 Recipient (0=Device, 1=Interface, 2=endpoint, 3=other, 4..31=reserved)
 
-So the values 0xC0 and 0x40 mean a "vendor" request to the "device" recipient.
+So the values 0xC0 and 0x40 mean a "vendor" request to the "device"
+recipient.
 
 bRequest
 --------
-specifies whether the request is a write or a read, must be consistent with bit 7 in the bmRequestType field.
+
+specifies whether the request is a write or a read, must be consistent
+with bit 7 in the bmRequestType field.
 
 0x00 = host to device, or write, 0x08 = device to host, or read.
 
 wValue
 ------
-contains the starting index of a register block that will be read from or written to. It appears that only the LSB is used, the MSB is always 0.
+
+contains the starting index of a register block that will be read from
+or written to. It appears that only the LSB is used, the MSB is always
+0.
 
 wIndex
 ------
+
 is always 0.
 
 wLength
 -------
-The number of registers to read or write. The windows driver reads and writes registers in groups of 1, 2, 3 and 0x4a bytes.
+
+The number of registers to read or write. The windows driver reads and
+writes registers in groups of 1, 2, 3 and 0x4a bytes.
 
 Other notes
 ===========
