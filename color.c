@@ -220,6 +220,28 @@ TState StartScanColor(TInstance *this)
       }
   }
 
+  /* setup gamma tables */
+  RegWrite(this,0x41,1,0x03); /* gamma, RGB */
+  RegWrite(this,0x40,1,0x18); /* offset FIFO 8*3 KB spared */
+  {
+    /* the following mimic should guarantee the right gamma-to-color-mapping */
+    int       iBase;
+    char     *pch;
+    SANE_Int *pn;
+    for (iBase=0,pch=this->state.szOrder; *pch; iBase+=0x2000,pch++)
+      {
+	switch (*pch)
+	  {
+	  case 'R': pn=this->agammaR; break;
+	  case 'G': pn=this->agammaG; break;
+	  default:  pn=this->agammaB; break;
+	  }
+	UploadGammaTable(this,iBase,pn);
+      }
+  }
+  INST_ASSERT();
+
+
   /* enough for 1/100 inch sensor distance */
   this->state.cBacklog=1+2*this->state.ySensorSkew;
 

@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scanutil.c,v 1.13 2001/04/30 23:49:31 eichholz Exp $
+$Id: scanutil.c,v 1.14 2001/05/01 22:11:59 eichholz Exp $
 
 ====================================================================== */
 
@@ -239,30 +239,28 @@ void GetAreaSize(TInstance *this)
 	  this->state.cxWindow,this->state.cxPixel,this->state.cxMax);
 }
 
-#ifdef INSANE_VERSION
-
 /* ======================================================================
 
-InitExposure()
+InitGammaTables()
 
 Init gammy tables and gain tables within controller memory.
 
 ====================================================================== */
 
-TState InitExposure(TInstance *this)
+TState InitGammaTables(TInstance *this)
 {
-  unsigned char auchGamma[256];
   int           i;
-  TState        rc;
-  rc=SANE_STATUS_GOOD;
-  for (i=0; i<256; i++)
-    auchGamma[i]=255-i; /* negative */
-  if (this->mode==gray)
+  for (i=0; i<4096; i++)
     {
-      rc=MemWriteArray(this,0,256,auchGamma);
+      this->agammaGray[i]=i;
+      this->agammaR[i]=i;
+      this->agammaG[i]=i;
+      this->agammaB[i]=i;
     }
-  return rc;
+  return SANE_STATUS_GOOD;
 }
+
+#ifdef INSANE_VERSION
 
 /* ======================================================================
 
@@ -283,7 +281,7 @@ TState DoScanFile(TInstance *this)
 
   achBuf=malloc(APP_CHUNK_SIZE);
   rc=SANE_STATUS_GOOD; /* make compiler happy */
-  rc=InitExposure(this);
+  rc=InitGammaTables(this);
   if (rc!=SANE_STATUS_GOOD) return rc;
   if (this->mode==color)
     rc=StartScanColor(this);

@@ -34,6 +34,8 @@ typedef enum { SANE_STATUS_GOOD,
 	       SANE_STATUS_DEVICE_BUSY,
 } SANE_Status;
 
+typedef int    SANE_Int;
+
 #endif
 
 #include "sm3600.h"
@@ -41,6 +43,8 @@ typedef enum { SANE_STATUS_GOOD,
 extern char *achErrorMessages[];
 
 #ifdef INSANE_VERSION
+
+void DBG(int nLevel, const char *szFormat, ...);
 
 /* ====================================================================== */
 

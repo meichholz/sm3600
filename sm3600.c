@@ -65,6 +65,7 @@ typedef enum { optCount,
 	       optPreview, optGrayPreview,
 	       optGroupGeometry,optTLX, optTLY, optBRX, optBRY,
 	       optGroupEnhancement,
+	       optGammaGray, optGammaR,optGammaG,optGammaB,
 	       optLast } TOptionIndex;
 
 static const SANE_String_Const aScanModes[]= {  "color", "gray", "lineart",
@@ -85,6 +86,8 @@ static const SANE_Range rangeLumi = {
   SANE_FIX(100.0),
   SANE_FIX(1.0) };
 
+static const SANE_Range rangeGamma = { 0, 4095, 1 };
+
 static const SANE_Int setResolutions[] = { 6, 75,100,150,200,300,600 };
 
 SANE_Status
@@ -98,6 +101,7 @@ InitOptions(TInstance *this)
     }
   memset(this->aoptDesc,0,sizeof(this->aoptDesc));
   memset(this->aoptVal,0,sizeof(this->aoptVal));
+  InitGammaTables(this);
   for (iOpt=optCount; iOpt!=optLast; iOpt++)
     {
       static char *achNamesXY[]= {
@@ -216,6 +220,50 @@ InitOptions(TInstance *this)
 	  pdesc->type = SANE_TYPE_GROUP;
 	  pdesc->constraint_type=SANE_CONSTRAINT_NONE;
 	  pdesc->cap  = SANE_CAP_ADVANCED;
+	  break;
+	case optGammaGray:
+	  pdesc->name     = SANE_NAME_GAMMA_VECTOR;
+	  pdesc->title    = SANE_TITLE_GAMMA_VECTOR;
+	  pdesc->desc     = SANE_DESC_GAMMA_VECTOR;
+	  pdesc->type     = SANE_TYPE_INT;
+	  pdesc->unit     = SANE_UNIT_NONE;
+	  pdesc->size     = 4096*sizeof(SANE_Int);
+	  pdesc->constraint_type = SANE_CONSTRAINT_RANGE;
+	  pdesc->constraint.range = &rangeGamma;
+	  pval->wa        = this->agammaGray;
+	  break;
+	case optGammaR:
+	  pdesc->name     = SANE_NAME_GAMMA_VECTOR_R;
+	  pdesc->title    = SANE_TITLE_GAMMA_VECTOR_R;
+	  pdesc->desc     = SANE_DESC_GAMMA_VECTOR_R;
+	  pdesc->type     = SANE_TYPE_INT;
+	  pdesc->unit     = SANE_UNIT_NONE;
+	  pdesc->size     = 4096*sizeof(SANE_Int);
+	  pdesc->constraint_type = SANE_CONSTRAINT_RANGE;
+	  pdesc->constraint.range = &rangeGamma;
+	  pval->wa        = this->agammaR;
+	  break;
+	case optGammaG:
+	  pdesc->name     = SANE_NAME_GAMMA_VECTOR_G;
+	  pdesc->title    = SANE_TITLE_GAMMA_VECTOR_G;
+	  pdesc->desc     = SANE_DESC_GAMMA_VECTOR_G;
+	  pdesc->type     = SANE_TYPE_INT;
+	  pdesc->unit     = SANE_UNIT_NONE;
+	  pdesc->size     = 4096*sizeof(SANE_Int);
+	  pdesc->constraint_type = SANE_CONSTRAINT_RANGE;
+	  pdesc->constraint.range = &rangeGamma;
+	  pval->wa        = this->agammaG;
+	  break;
+	case optGammaB:
+	  pdesc->name     = SANE_NAME_GAMMA_VECTOR_B;
+	  pdesc->title    = SANE_TITLE_GAMMA_VECTOR_B;
+	  pdesc->desc     = SANE_DESC_GAMMA_VECTOR_B;
+	  pdesc->type     = SANE_TYPE_INT;
+	  pdesc->unit     = SANE_UNIT_NONE;
+	  pdesc->size     = 4096*sizeof(SANE_Int);
+	  pdesc->constraint_type = SANE_CONSTRAINT_RANGE;
+	  pdesc->constraint.range = &rangeGamma;
+	  pval->wa        = this->agammaB;
 	  break;
 	case optLast: /* not reached */
 	  break;
@@ -476,10 +524,17 @@ sane_control_option (SANE_Handle handle, SANE_Int iOpt,
 	case optContrast:
 	case optTLX: case optTLY: case optBRX: case optBRY:
 	  *(SANE_Word*)pVal = this->aoptVal[iOpt].w;
-	  return SANE_STATUS_GOOD;
+	  break;
 	case optMode:
 	  strcpy(pVal,this->aoptVal[iOpt].s);
-	  return SANE_STATUS_GOOD;
+	  break;
+	case optGammaGray:
+	case optGammaR:
+	case optGammaG:
+	case optGammaB:
+	  DBG(DEBUG_INFO,"getting gamma\n");
+	  memcpy(pVal,this->aoptVal[iOpt].wa, this->aoptDesc[iOpt].size);
+	  break;
 	default:
 	  return SANE_STATUS_INVAL;
 	}
@@ -504,13 +559,18 @@ sane_control_option (SANE_Handle handle, SANE_Int iOpt,
 	case optPreview:
 	case optGrayPreview:
 	  this->aoptVal[iOpt].w = *(SANE_Word*)pVal;
-	  return SANE_STATUS_GOOD;
+	  break;
 	case optMode:
 	  if (pnInfo)
 	    (*pnInfo) |= SANE_INFO_RELOAD_PARAMS
 	      | SANE_INFO_RELOAD_OPTIONS;
 	  strcpy(this->aoptVal[iOpt].s,pVal);
-	  return SANE_STATUS_GOOD;
+	  break;
+	case optGammaGray:
+	case optGammaR:	case optGammaG:	case optGammaB:
+	  DBG(DEBUG_INFO,"setting gamma #%d\n",iOpt);
+	  memcpy(this->aoptVal[iOpt].wa, pVal, this->aoptDesc[iOpt].size);
+	  break;
 	default:
 	  return SANE_STATUS_INVAL;
 	}
@@ -518,8 +578,7 @@ sane_control_option (SANE_Handle handle, SANE_Int iOpt,
     case SANE_ACTION_SET_AUTO:
       return SANE_STATUS_UNSUPPORTED;
     } /* switch action */
-  
-  return rc;
+  return rc; /* normally GOOD */
 }
 
 static SANE_Status

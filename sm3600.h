@@ -95,7 +95,7 @@ typedef struct TScanState {
 
 #ifndef INSANE_VERSION
 
-#define NUM_OPTIONS 14
+#define NUM_OPTIONS 18
 
 typedef union
   {  
@@ -119,6 +119,10 @@ typedef struct TInstance {
   SANE_Option_Descriptor    aoptDesc[NUM_OPTIONS];
   TOptionValue              aoptVal[NUM_OPTIONS];
 #endif
+  SANE_Int           agammaGray[4096];
+  SANE_Int           agammaR[4096];
+  SANE_Int           agammaG[4096];
+  SANE_Int           agammaB[4096];
   TScanState         state;
   TCalibration       calibration;
   TState             nErrorState;
@@ -199,7 +203,7 @@ TState ReadChunk(TInstance *this, unsigned char *achOut,
 		 int cchMax, int *pcchRead);
 TState DoScanFile(TInstance *this);
 void   GetAreaSize(TInstance *this);
-
+TState InitGammaTables(TInstance *this);
 
 /* scanmtek.c */
 extern unsigned short aidProduct[];
@@ -209,6 +213,7 @@ TState WaitWhileScanning(TInstance *this,int cSecs);
 TState DoJog(TInstance *this,int nDistance);
 TState DoLampSwitch(TInstance *this,int nPattern);
 TState DoCalibration(TInstance *this);
+TState UploadGammaTable(TInstance *this, int iByteAddress, SANE_Int *pnGamma);
 
 /* scanusb.c */
 TState RegWrite(TInstance *this,int iRegister, int cb, unsigned long ulValue);

@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scanmtek.c,v 1.13 2001/04/21 22:30:13 eichholz Exp $
+$Id: scanmtek.c,v 1.14 2001/05/01 22:11:59 eichholz Exp $
 
 ====================================================================== */
 
@@ -125,4 +125,31 @@ TState DoCalibration(TInstance *this)
   return WaitWhileBusy(this,1);
 }
 
+/* **********************************************************************
 
+UploadGammaTable()
+
+********************************************************************** */
+
+TState UploadGammaTable(TInstance *this, int iByteAddress, SANE_Int *pnGamma)
+{
+  unsigned char *puchGamma;
+  TState         rc;
+  int            i;
+  rc=SANE_STATUS_GOOD;
+  INST_ASSERT();
+  puchGamma=malloc(0x2000);
+  if (!puchGamma) return SetError(this,SANE_STATUS_NO_MEM,"gamma buffer");
+  DBG(DEBUG_INFO,"uploading gamma to %d\n",iByteAddress);
+  for (i=0; i<0x1000; i++)
+    {
+      int nVal=pnGamma[i];
+      /* nVal=i; */
+      puchGamma[2*i+1]=nVal>>8;
+      puchGamma[2*i+0]=nVal&0xFF;
+    }
+  for (i=0; rc==SANE_STATUS_GOOD && i<0x2000; i+=0x1000)
+    rc=MemWriteArray(this,(i+iByteAddress)>>1,0x1000,puchGamma+i);
+  free(puchGamma);
+  return rc;
+}

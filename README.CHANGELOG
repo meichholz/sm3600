@@ -1,6 +1,16 @@
 CHANGELOG
 =========
 
+1.5.2001
+
+Labour day: Coding work :-)
+
+Gamma-Table-Options are now available for Gray and RGB.
+Thus, exposure control can be done in the scanner. NICE!
+
+TODO: With XSane the color balance seems not to work properly.
+Have a look at it!
+
 30.4.2001
 
 Better understanding of memory write semantics. Experimental gray inversion.
