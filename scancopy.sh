@@ -10,15 +10,18 @@
 
 RESO=600
 BRIGHTNESS=""
+MODE="halftone"
 
 while [ -n "$1" ]; do
   case "$1" in
     -c|-fast) RESO=300 ;;
     -b) BRIGHTNESS="-b $2" ; shift ;;
     -v) VERBOSE="$1" ;;
+    -l) MODE="line" ;;
+    -O) OPT="-O" ;;
     --debug) VERBOSE="-v" ; DEBUG="$2" ; shift ;;
     -h*) cat <<EOF
-usage: scancopy [-c|-fast] [-v] [b BRIGHT] [-debug MODE] [-h]
+usage: scancopy [-c|-fast] [-O] [-l] [-v] [b BRIGHT] [-debug MODE] [-h]
 EOF
     exit 0
     ;;
@@ -27,9 +30,9 @@ EOF
   shift
 done
 
-SCANBASE="scantool -p c $VERBOSE $BRIGHTNESS"
+SCANBASE="scantool -p c $OPT -m $MODE $VERBOSE $BRIGHTNESS"
 
-echo "calling $SCANBASE"
+test -n "$DEBUG" && echo "calling $SCANBASE"
 
 (
 echo -e -n '\033%-12345X'	# UEL
@@ -45,4 +48,4 @@ case "$DEBUG" in
   *)    $SCANBASE - $RESO ;;
 esac
 
-) | lpr -Ppcl
+) | lpr -q -Ppcl

@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scantool.c,v 1.34 2002/02/11 08:10:13 eichholz Exp $
+$Id: scantool.c,v 1.35 2004/04/15 11:37:11 eichholz Exp $
 
 (C) Marian Eichholz 2001
 
@@ -11,7 +11,7 @@ $Id: scantool.c,v 1.34 2002/02/11 08:10:13 eichholz Exp $
 #include "sm3600-scantool.h"
 #include "g4.h"
 
-#define REVISION "$Revision: 1.34 $"
+#define REVISION "$Revision: 1.35 $"
 
 #define USAGE \
 "usage: %s <outfile> <resolution> <x> <y> <w> <h>" \
@@ -396,7 +396,7 @@ int main(int cArg, char * const ppchArg[])
 	    case 'n': idOutputFormat=PFMT_DEFAULT; break;
 	    }
 	  break;
-#endif G4TOOL
+#endif
 	case 'p': /* preset */
 	  switch (tolower(*optarg))
 	    {
