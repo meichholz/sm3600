@@ -1,0 +1,71 @@
+USB command format for the Microtek ScanMaker3600
+=================================================
+
+$Id: README.USB,v 1.1 2001/04/01 09:09:24 glennr Exp $
+
+You will need to be a little bit familiar with how USB works to understand some of this.
+
+USB identification codes
+========================
+vendor id = 05da
+product id's = 40b3, 40ca, 40ff
+
+USB topology
+============
+
+The scanner has only 2 pipes, the default control pipe (DCP) and 1 'bulk in' pipe. It uses the DCP for all commands sent to the scanner and for all reads of status data.  The bulk pipe is only used to transfer image data to the host.
+
+Control transfer data format
+============================
+
+Each control transfer on the DCP requires a Setup packet of eight bytes. The Setup packet contains the fields and values as described below.
+
+bmRequestType
+-------------
+will contain 0xc0 for device-to-host transfers and 0x40 for host-to-device transfers.
+The bits in the bmRequestType specify the following:
+bit  7    Data transfer direction
+bits 6..5 Request type (0=standard, 1=class, 2=vendor, 3=reserved)
+bits 4..0 Recipient (0=Device, 1=Interface, 2=endpoint, 3=other, 4..31=reserved)
+
+So the values 0xC0 and 0x40 mean a "vendor" request to the "device" recipient.
+
+bRequest
+--------
+specifies whether the request is a write or a read, must be consistent with bit 7 in the bmRequestType field.
+
+0x00 = host to device, or write, 0x08 = device to host, or read.
+
+wValue
+------
+contains the starting index of a register block that will be read from or written to. It appears that only the LSB is used, the MSB is always 0.
+
+wIndex
+------
+is always 0.
+
+wLength
+-------
+The number of registers to read or write. The windows driver reads and writes registers in groups of 1, 2, 3 and 0x4a bytes.
+
+Other notes
+===========
+From a message to Marian...
+
+> If you consider that the data in the "value" column is an index
+> you notice that the values in the large data block (at the end)
+> are pointed to by this index.
+> 
+> This means that when "value" is between 1 and 0x4a it used to
+> access a particular part of the data block, however it is possible
+> to read and write any number of contiguous values starting at any
+> point.  Eg the command "write 2f 3 8c 90 88" writes the values "8c
+> 90 88" to the data block beginning at location 2f, and the command
+> "write 1 4a 00 00 3f...." writes the whole data block at once.
+> 
+> I think we could imagine this data block as a set of control
+> registers for the device. Maybe the values above 4a, ie 50-54,
+> also are just indices to the same data block but are only ever
+> accessed in small amounts.
+
+
