@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.23 2004/04/15 11:38:53 eichholz Exp $
+# $Id: Makefile,v 1.24 2004/04/15 21:03:05 eichholz Exp $
 #
 # -------------------------------------------------------------------
 #
@@ -13,7 +13,7 @@ BINDIR=		/usr/local/bin
 MANDIR=		/usr/local/man
 
 SANE_SRC=	/packin/sane-backends-1.0.4
-SANE_CVS=       ~/src/sane/sane-backends
+SANE_CVS=       ~/src/sane-backends
 
 SANE_INCLUDE=	$(SANE_SRC)/include
 SANE_LIBDIR=	/usr/lib/sane
@@ -80,8 +80,8 @@ testcopy: scantool initbus
 testscan: scantool initbus
 #	./scantool -d 25 -v -m color /tmp/scan.pnm 600 000 000 3600 1400
 #	./scantool -d 1 -v -m gray /tmp/scan.pnm 200 300 300 3620 1200
-	./scantool -d 64 -v -m gray /tmp/scan.pnm 200 000 300 10200 1200
-#	./scantool -d 64 -v -m color /tmp/scan.pnm 200 000 300 10200 300
+#	./scantool -d 64 -v -m gray /tmp/scan.pnm 200 000 300 10200 1200
+	./scantool -d 64 -v -m color /tmp/scan.pnm 200 000 300 10200 300
 #	./scantool -d 1 -v -m line -b 30 /tmp/scan.pnm 200 000 000 3600 4800
 #	./scantool -d 1 -v -m halftone -b 30 -c 50 /tmp/scan.pnm 300 000 000 3600 4800
 	xv /tmp/scan.pnm

@@ -48,4 +48,4 @@ case "$DEBUG" in
   *)    $SCANBASE - $RESO ;;
 esac
 
-) | lpr -q -Ppcl
+) | lpr -o raw
