@@ -1,6 +1,6 @@
 #!/usr/bin/perl -wT
 use strict;
-# $Id: squeezelog.pl,v 1.6 2001/05/26 21:37:25 eichholz Exp $
+# $Id: squeezelog.pl,v 1.7 2001/05/27 23:28:39 glennr Exp $
 #
 # Originally, this script should compact USB-SNOOPY's log files for protocol
 # analysis. Is it designed to preserve as much information as is "possible".
@@ -494,6 +494,7 @@ while (<STDIN>)
     $sTime=$1 if /^\d+\s+(\d+\.\d)/; # extract time index
     s/^\d+\s+[\d\.]+\s+//;           # through away line index and time
     s/\r//g;                         # eliminate CR
+    s/\s+\n//g;                      # eliminate whitespace preceding NL and NL    
     if (/^[<>]/)                     # new URB registered?
       {
 	my $sLine=$_; # save ARG
@@ -538,7 +539,7 @@ while (<STDIN>)
     $nIndex=hex($1)  if /^Index\s+= ([\da-f]+)/;
     $sInOut=lc($1)   if /^TransferFlags\s+=.*DIRECTION_(IN|OUT)/;
     $iLast=$1        if /^([\da-f]{4}):/;   # extract current byte buffer index
-    push @aArgs,"$iLast: $_" if /^[\da-z]{2}( |$)/; # append byte buffer data line
+    push @aArgs,"$iLast: $_" if /^[\da-f]{2}( |$)/; # append byte buffer data line
   }
 
 if ($sOptFormat eq "usb-robot")
