@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scanutil.c,v 1.15 2001/05/07 22:50:27 eichholz Exp $
+$Id: scanutil.c,v 1.16 2001/05/11 21:41:35 eichholz Exp $
 
 ====================================================================== */
 
@@ -161,6 +161,28 @@ TState EndScan(TInstance *this)
 
 /* ======================================================================
 
+TState CancelScan(TInstance *this)
+
+====================================================================== */
+
+TState CancelScan(TInstance *this)
+{
+  DBG(DEBUG_INFO,"CancelScan() called\n");
+  this->state.cyTotalPath=0;
+  this->nErrorState=SANE_STATUS_GOOD; /* force sane status */
+  DoInit(this); /* force scanner processor to be clean */
+  this->nErrorState=SANE_STATUS_GOOD; /* force sane status */
+  DoInit(this);
+  this->nErrorState=SANE_STATUS_GOOD; /* force sane status */
+  EndScan(this);
+  DoOriginate(this);
+  INST_ASSERT();
+  return SANE_STATUS_CANCELLED;
+}
+
+
+/* ======================================================================
+
 ReadChunk()
 
 ====================================================================== */
@@ -172,6 +194,11 @@ TState ReadChunk(TInstance *this, unsigned char *achOut,
   /* can the current line fill the buffer ? */
   int rc;
   *pcchRead=0;
+  INST_ASSERT();
+  if (!this->state.bScanning)
+    return SANE_STATUS_CANCELLED; /* deferred cancel? */
+  if (this->state.bCanceled) /* deferred cancellation? */
+    return CancelScan(this);
   INST_ASSERT();
   /* 22.4.2001: This took me hard, harder, hardest:*/
 

@@ -206,6 +206,7 @@ TState ReadChunk(TInstance *this, unsigned char *achOut,
 TState DoScanFile(TInstance *this);
 void   GetAreaSize(TInstance *this);
 TState InitGammaTables(TInstance *this);
+TState CancelScan(TInstance *this);
 
 /* scanmtek.c */
 extern unsigned short aidProduct[];

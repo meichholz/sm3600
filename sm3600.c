@@ -88,7 +88,7 @@ static const SANE_Range rangeLumi = {
 
 static const SANE_Range rangeGamma = { 0, 4095, 1 };
 
-static const SANE_Int setResolutions[] = { 6, 75,100,150,200,300,600 };
+static const SANE_Int setResolutions[] = { 6, 75,100,200,300,600 };
 
 SANE_Status
 InitOptions(TInstance *this)
@@ -671,13 +671,9 @@ sane_read (SANE_Handle handle, SANE_Byte *puchBuffer,
   TInstance     *this;
   this=(TInstance*)handle;
   DBG(DEBUG_INFO,"reading chunk %d...\n",(int)cchMax);
+  *pcchRead=0;
   if (this->state.bEOF)
-    {
-      *pcchRead=0;
-      return SANE_STATUS_EOF;
-    }
-  if (!this->state.bScanning) return SANE_STATUS_IO_ERROR;
-  if (this->state.bCanceled) return SANE_STATUS_CANCELLED;
+    return SANE_STATUS_EOF;
   rc=ReadChunk(this,puchBuffer,cchMax,pcchRead);
   DBG(DEBUG_INFO,"... line %d (%d/%d)...\n",this->state.iLine,*pcchRead,rc);
   switch (rc)
@@ -690,7 +686,6 @@ sane_read (SANE_Handle handle, SANE_Byte *puchBuffer,
       if (!*pcchRead) rc=SANE_STATUS_EOF;
       break;
     default:
-      *pcchRead=0;
       break;
     }
   return rc;
@@ -701,12 +696,23 @@ sane_cancel (SANE_Handle handle)
 {
   TInstance *this;
   this=(TInstance*)handle;
-  DBG(DEBUG_INFO,"cancel called...\n");
+  DBG(DEBUG_VERBOSE,"cancel called...\n");
   if (this->state.bScanning)
     {
       this->state.bCanceled=true;
-      EndScan(this);
-      DoJog(this,-this->calibration.yMargin);
+      if (this->state.bEOF) /* regular (fast) cancel */
+	{
+	  DBG(DEBUG_INFO,"regular end cancel\n");
+	  EndScan(this);
+	  DoJog(this,-this->calibration.yMargin);
+	}
+      else
+	{
+	  /* since Xsane does not continue scanning,
+	     we cannot defer cancellation */
+	  DBG(DEBUG_INFO,"hard cancel called...\n");
+	  CancelScan(this);
+	}
     }
 }
 
