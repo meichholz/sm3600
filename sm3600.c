@@ -41,6 +41,8 @@
    This file implements a dynamic linking based SANE meta backend.  It
    allows managing an arbitrary number of SANE backends by using
    dynamic linking to load backends on demand.  */
+
+
 /* ======================================================================
 
 sm3600.c
@@ -58,6 +60,8 @@ Start: 2.4.2001
 #include <errno.h>
 
 #include <usb.h>
+
+#define BUILD	1
 
 #ifndef BACKEND_NAME
 #define BACKEND_NAME sm3600
@@ -349,10 +353,14 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback authCB)
 
   authCB++; /* compiler */
 
-  if (version_code)
-    *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, 0);
-
   DBG(DEBUG_VERBOSE,"SM3600 init\n");
+  if (version_code)
+   {
+    *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, BUILD);
+    DBG(DEBUG_VERBOSE,"SM3600 version: %lx\n",
+    	SANE_VERSION_CODE(V_MAJOR, V_MINOR, BUILD));
+   }
+
   pdevFirst=NULL;
 
   usb_init();
