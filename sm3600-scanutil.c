@@ -1,4 +1,4 @@
-/* sane - Scanner Access Now Easy.
+/*
    Copyright (C) 1996, 1997 David Mosberger-Tang
    This file is part of the SANE package.
 
@@ -45,7 +45,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: sm3600-scanutil.c,v 1.6 2001/12/16 22:48:52 eichholz Exp $
+$Id: sm3600-scanutil.c,v 1.7 2002/02/10 20:18:30 eichholz Exp $
 
 ====================================================================== */
 
@@ -415,6 +415,11 @@ TState DoScanFile(TInstance *this)
 	{
 	  if (this->pchPageBuffer)
 	    {
+#ifdef SM3600_DEBUGPAGEBUFFER
+	      if (this->bVerbose)
+		fprintf(stderr,"ichPageBuffer:%d, cch:%d, cchPageBuffer:%d\n",
+			this->ichPageBuffer,cch,this->cchPageBuffer);
+#endif
 	      CHECK_ASSERTION(this->ichPageBuffer+cch<=this->cchPageBuffer);
 	      memcpy(this->pchPageBuffer+this->ichPageBuffer,
 		     achBuf,cch);

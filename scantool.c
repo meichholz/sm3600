@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scantool.c,v 1.32 2001/12/16 23:15:46 eichholz Exp $
+$Id: scantool.c,v 1.33 2002/02/10 20:18:30 eichholz Exp $
 
 (C) Marian Eichholz 2001
 
@@ -11,7 +11,7 @@ $Id: scantool.c,v 1.32 2001/12/16 23:15:46 eichholz Exp $
 #include "sm3600-scantool.h"
 #include "g4.h"
 
-#define REVISION "$Revision: 1.32 $"
+#define REVISION "$Revision: 1.33 $"
 
 #define USAGE \
 "usage: %s <outfile> <resolution> <x> <y> <w> <h>" \
@@ -19,6 +19,7 @@ $Id: scantool.c,v 1.32 2001/12/16 23:15:46 eichholz Exp $
 "\n\noptions:"\
 "\n\t-V : tell version"\
 "\n\t-h : this help"\
+"\n\t-i : interactive testing mode"\
 "\n\t-v : verbose output"\
 "\n\t-b : brightness set to <-255-255>"\
 "\n\t-c : contrast set to <-255-255>"\
@@ -232,8 +233,18 @@ Do some funny things with the given scanner and see if it crashes.
 static int ScanToFile(TInstance *this)
 {
   TState rc;
+  if (idOutputFormat!=PFMT_DEFAULT)
+    switch (this->mode)
+      {
+      case halftone:
+      case line:
+	break;
+      default:
+	return SetError(this,SANE_STATUS_INVAL,"no multibit formats with bit encoder");
+	exit(1);
+      }
   if (!this->fhScan)
-    return SetError(this,SANE_STATUS_INVAL,"test scan file not given");
+    return SetError(this,SANE_STATUS_INVAL,"output file not given");
 
   /* fprintf(stderr,"Verbose 1 = %d\n",this->bVerbose); */
   rc=SANE_STATUS_GOOD;
@@ -268,8 +279,7 @@ static int ScanToFile(TInstance *this)
 #ifdef G4TOOL
   if (idOutputFormat==PFMT_DEFAULT)
     return rc;
-  nClipType=CLIP_FIX_BORDERS;
-  /* nClipType=CLIP_NONE; */
+  nClipType=CLIP_FIX_BORDERS; /* only clip the left/top margins away */
   switch (idOutputFormat)
     {
     case PFMT_TIFFG4: nFileFormat=OFMT_G4; break;

@@ -23,6 +23,7 @@ BOOL WriteHeadPCL(FILE *f)
     	fprintf(f,"\x1B&l%dO",	/* Orientierung */
     		bLandscape ? 1 : 0 );
     	fprintf(f,
+		"\x1B&l26A"     /* A4 paper */
     		"\x1B&a0L"	/* Rand links weg */
     		"\x1B&l0E"	/* Rand oben weg */
     		"\x1B*t%dR"	/* Resolution */
@@ -42,26 +43,8 @@ BOOL WriteHeadPCL(FILE *f)
  ******************************************************************
  */
 
-BOOL DumpPagePCL(FILE *f)
+BOOL ClosePagePCL(FILE *f)
  {
- 	/**
- 	Diese Funktion ist im Grunde Dummy.
- 	Sie fügt nur noch den Seitenabschluß
- 	an die Ausgabe an.
- 	*/
-  long lcchLine=lcchFullPageLine;
-  long liNextBlock=(cxPaper-1L)/8L;
-  while (liNextBlock>=0)
-   {
-    int y;
-    unsigned char *pu=pchFullPage+liNextBlock;
-    for (y=0; y<cyPaper; y++)
-     {
-      /* printf(.....) */
-      pu+=lcchLine;
-     }
-    liNextBlock--;
-   }
   fprintf(f,"\x1B*rC");
   fprintf(f,"\x1B-12345X");
   return TRUE;

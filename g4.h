@@ -44,7 +44,6 @@ typedef int		BOOL;
 */
 
 #define		CX_MAX	5000
-#define		CY_MAX	8000
 
 #define SYM_P	0x0011ul
 #define SYM_H	0x0009ul
@@ -94,7 +93,7 @@ typedef struct {
 	} TRunSpec;
 	
 /*
-* Seitenmaﬂe lt PCL-Manual :	cX=2480-2*50 (printable area)
+* Seitenmaﬂe lt PCL-Manual :	cX=2480-2*50 (printable area) in 300 DPI!
 				cY=3507-2*50
 */
 
@@ -169,7 +168,7 @@ void EncodePageLine(void);
 /* PCL */
 
 BOOL WriteHeadPCL(FILE *f);
-BOOL DumpPagePCL(FILE *f);
+BOOL ClosePagePCL(FILE *f);
 BOOL FlushLinePCL(FILE *f);
 
 /* ENCODE */

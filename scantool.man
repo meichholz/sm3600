@@ -1,134 +1,107 @@
-.TH scantool 5 "31.05.2001"
+.TH scantool 8 "10.02.2002"
 .IX scantool
 .SH NAME
-scantool - scan tool for Microtek scanners with M011 USB chip
+scantool - standalone SM3600 scan program and testbed
+.SH SYNOPSIS
+scantool [ \fB\-v\fR ] [ \fB\-b\fR \fIbrightness\fR ] [ \fB\-c\fR
+\fIcontrast\fR ] [ \fB\-p\fR \fIpreset\fR ] [ \fB\-q\fR \fIquality\fR
+] [ \fB\-m\fR \fIscanmode\fR ] [ \fB\-o\fR \fIencoder\fR ] [ \fB\-d\fR
+\fIdebugmask\fR ] outputfile [ \fIresolution\fR [ \fIleft\fR [
+\fItop\fR [ \fIwidth\fR [ \fIheight\fR ] ] ] ] ]
+.nf
 
-.SH "SYNOPSIS"
+scantool [ \fB\-i\fR ] [ \fB\-d\fR \fIdebugmask\fR ]
 
-.B scantool
--V
+scantool [ \fB\-h\fR ]
 
-.B scantool
--h
+scantool [ \fB\-V\fR ] 
 
-.B scantool
-.RB [ -b
-.RI brightness ]
-.RB [ -c
-.RI contrast ]
-.RB [ -m
-.RI mode ]
-.RB [ -p
-.RI preset ]
-.RB [ -q
-.RI quality ]
-.RB [ -O ]
-.RB [ -v ]
-.RB [ -d
-.RI flags ]
-.RI [ resolution ]
-.RI [ x ]
-.RI [ y ]
-.RI [ width ]
-.RI [ height ]
-.PP
+scantool -O -m gray innerbed.pgm 0 0 9000 3000
 
-.SH "EXAMPLES"
-scantool -b 20 -m halftone 200 0 0 10000 12000 >scan.pnm
-
-scantool -p fax -m halftone >scan.pnm
-
-.SH "DESCRIPTION"
+.SH DESCRIPTION
 The
 .B scantool
-implements a standalone driver and scanning tool, that
-provides access to some Microtek scanners with the Toshiba M011 custom
-USB chip.
-
-It is the main testbed for new procedures, and supports some special
-functions, that are of no use in a SANE environment, like PCL encoding
-for direct copying.
-
-The standard option
-.B -v
-for verbosed output is supported. Default is silent operation. The
-scanned image is written to standard output as portable anymap
-(PNM). A standard help page
-.B -h
-is supported as well.
-
-Resolution and scan dimensions are given in 1/1200 inch units. They
-are successively optional, defaulting to the preset
-.B -p
-format (see below).
-
-Resolution can be 75, 100, 200, 300, 600 DPI.
-
-There is brightness control through
-.B -b
-and contrast control through
-.B -c
-, with ranges from -255 to 255. A contrast value of 0 means
-.I
-normal
-contrast, and a contrast of -128 means full
-.I negative
-contrast. The normal brightness value is 0. Larger values give lighter
-scans, and negative values darken the image. All exposure control is
-done by 12 bit internal gamma mapping, thus being lossless.
-
-The supported scanmodes with
-.B -m
-are
-.I color,
-.I gray,
-.I line
-and
-.I halftone.
-Haltone shading implements the error diffusion, and Line mode is
-separation at 50% luminance.
-
-The Quality
-.B -q
-setting is currently not supported and defaults to
-.I fast.
-
-There are several
-.B -p
-paper (or better: application) prefixes, as
-.I a4,
-.I fax
-for special applications. They also set parameters like brightness,
-contrast, scan mode and resolutions.
-
-There is a debugging interface with options
-.B -i
-and
-.B -d.
-See the code for the special meaning.
-
-Scanning can be aborted by SIGINT (normall: CTRL-C) and any time. This
-is particularly useful, if Your scanner does not find the home
-position for the slider.
-
-
-.SH "COMPATIBILITY"
+\fBscantool\fR has two functions. Is is a special optimised scanning
+tool for standardised problems like A4 printing copy scanning, and it
+is a debugging testbed for the sm3600 SANE functions.
 .PP
-At present, the following scanners are known positively to work with
-this tool:
-.PP
-.RS
-Vendor     Product id:     Remark:
-.br
---------   --------------  -----------
-.br
-Microtek   ScanMaker 3600  all modes ok
-.RE
+.SH "OPTIONS"
+.IP \fB\-b\fR \fIbrightness\fR
+Set the Brightness to \fIbrightness\fR. Values are from -255 to
+255. Just experiment with the values. The brightness sets also the
+threshold for line mode.
+
+.IP \fB\-c\fR \fIcontrast\fR
+Set the contrast to \fIcontrast\fR. Values are from -255 to
+255. Just experiment with the values.
+
+.IP \fB\-d\fR \fIflags\fR
+Set debug Flags to \fIflags\fR. \fIflags\fR is a number representing a
+bitvector.
+
+.IP \fB\-h\fR
+Get a rough option overview.
+
+.IP \fB\-m\fR \fImode\fR
+Select scan \fImode\fR. Modes are \fBcolor\fR, \fBgray\fR, \fBline\fR or
+\fBhalftone\fR.
+
+.IP \fB\-O\fR
+Skip initial slider returning and calibration.
+
+.IP \fB\-o\fR \fIencoding\fR
+Select optional encoder as \fIencoding\fR. Encoders are \fBg4tiff\fR,
+\fBpcl\fR, \fBbitmap\fR, \fBnoenc\fR. Default is \fBnoenc\fR.
+
+.IP \fB\-p\fR \fIpreset\fR
+Set preset values for dimensions, resolutions, exposure and mode. For
+now it is hard coded. Presets are \fBcopy\fR, \fBfax\fR.
+
+.IP \fB\-q\fR \fIquality\fR
+Set overall \fIquality\fR. Scan qualities are (not implemented yet)
+\fBfast\fR, \fBhigh\fR or \fBbest\fR.
+
+.IP \fB\-v\fR
+Verbose output.
+
+.IP \fB\-V\fR
+Tell version.
+
+
+.SH "MODES"
+\fBscantool\fR runs in some \fImajor modes\fR. They are an
+\fIinteractive\fR commandline (\fB-i\fR) and a default scan-and-output
+mode. With the interactive mode some internal commands can be
+triggered and parametrised without need for compilation of test
+scenarios.
+
+The program is especially useful when You want to get an insight
+picture of the housing of the scanner with the famous "home position
+spots". Option \fB-O\fR is Your friend.
+
+.SH "UNITS"
+All geometrical units are in 1200 dots per inch. It is a common unit
+for scan tools.
+
+.SH "ENCODERS"
+
+Output is PNM by default. When You build scantool with \fBg4tool\fR
+support, You can also have a compressed output in PCL or ITU-G4, which
+is suitable for facsimile storage.
+
+Note, that grayscale and color scan cannot be processed with these
+encoders. They are designed for 1 bit sources. Really suitable is the
+PCL encoder.
+
+.SH "INTERACTIVE MODE"
+
+You can get a simple keystroke-action-menu with option \fB\-i\fR. With
+this menu You can job the slider around, test the home run function
+and other special stuf. This menu can help You to adapt the code to
+new models of the scanner hardware.
 
 .SH AUTHOR
 .br
 Marian Eichholz (eichholz@computer.org)
-.br
-Glenn Ramsey (glenn@componic.com)
 .br
 

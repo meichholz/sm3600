@@ -4,7 +4,7 @@ Userspace scan tool for the Microtek 3600 scanner
 
 compatibility functions for g4tool functions
 
-$Id: g4compat.c,v 1.2 2001/12/16 22:48:52 eichholz Exp $
+$Id: g4compat.c,v 1.3 2002/02/10 20:18:30 eichholz Exp $
 
 (C) Marian Eichholz 1997/2001
 
@@ -224,7 +224,7 @@ BOOL ClosePage(FILE *f)
     case OFMT_G4:	return ClosePageG4(f,TRUE);
     case OFMT_RAWG4:	return ClosePageG4(f,FALSE);
     case OFMT_PBM:	return TRUE;
-    case OFMT_PCL:	return DumpPagePCL(f);
+    case OFMT_PCL:	return ClosePagePCL(f);
    }
   return FALSE;
  }
@@ -235,6 +235,8 @@ BOOL ClosePage(FILE *f)
  ******************************************************************
  */
 
+#define G4_ABS(a) ((int)(((long)nPCLResolution*a)/300L))
+
 void CenterPage(void)
  {
   cxPaperOut=cxPaper;
@@ -242,50 +244,51 @@ void CenterPage(void)
   cyPaperOut=cyPaper;
   yPaperOut=0;
   switch (nClipType)
-   {
+    {
     case CLIP_NONE: break;
     case CLIP_CENTER_DOC:
     case CLIP_CENTER_SIMPLE:
-        /**
-        Notfalls muß die Seite zentriert werden. Das geschieht mit etwas
-        Augenmaß, da die Dokumente ihre Tücken haben, bes. der Barcode
-        an DE-Schriften.
-        */
-        if (cxPaper>CX_MAX_A4)
-         {
-          cxPaperOut=CX_MAX_A4;
+      /**
+	 Notfalls muß die Seite zentriert werden. Das geschieht mit etwas
+	 Augenmaß, da die Dokumente ihre Tücken haben, bes. der Barcode
+	 an DE-Schriften.
+      */
+      if (cxPaperOut>G4_ABS(CX_MAX_A4))
+	{
+	  cxPaperOut=G4_ABS(CX_MAX_A4);
 #ifdef OLD_DOC_CLIP_FORMULA
-          xPaperOut=(cxPaper-cxPaperOut)*100/(200-66*(nClipType==CLIP_CENTER_SIMPLE));
-/*
-          					^^^^
-          				das sind 134 bei "simple"
-*/
+	  xPaperOut=(cxPaper-cxPaperOut)*100/(200-66*(nClipType==CLIP_CENTER_SIMPLE));
+	  /*
+	    ^^^^
+	    das sind 134 bei "simple"
+	  */
 #else
-          xPaperOut=(cxPaper-cxPaperOut)*100/(150-16*(nClipType==CLIP_CENTER_SIMPLE));
+	  xPaperOut=(cxPaper-cxPaperOut)*100/(150-16*(nClipType==CLIP_CENTER_SIMPLE));
 #endif
-          xPaperOut-=(xPaperOut % 8);
-          if (bVerboseX)
-            fprintf(stderr,"limiting X to %d / %d pixels\n",
-            	xPaperOut,cxPaperOut);
-         }
-        if (cyPaper>CY_MAX_A4)
-         {
-          cyPaperOut=CY_MAX_A4;
-          yPaperOut=(cyPaper-cyPaperOut)/3;
-          /* yPaperOut-=(yPaperOut % 8); */
-          if (bVerboseX)
-            fprintf(stderr,"limiting Y to %d / %d pixels\n",
-            	yPaperOut,cyPaperOut);
-         }
-       break;
-     case CLIP_FIX_BORDERS:
-       /* fprintf(stderr,"Wir hatten: %d/%d",xPaperOut,yPaperOut); */
-     	xPaperOut=nPCLResolution/5;
-        xPaperOut-=(xPaperOut % 8);
-     	yPaperOut=nPCLResolution/7; /* xxx */
-	/* fprintf(stderr," und bekommen: %d/%d\n",xPaperOut,yPaperOut); */
-     	break;
-   }
+	  xPaperOut-=(xPaperOut % 8);
+	  if (bVerboseX)
+	    fprintf(stderr,"limiting X to %d / %d pixels\n",
+		    xPaperOut,cxPaperOut);
+	}
+      if (cyPaperOut>G4_ABS(CY_MAX_A4))
+	{
+	  cyPaperOut=G4_ABS(CY_MAX_A4);
+	  yPaperOut=(cyPaper-cyPaperOut)/3;
+	  /* yPaperOut-=(yPaperOut % 8); */
+	  if (bVerboseX)
+	    fprintf(stderr,"limiting Y to %d / %d pixels\n",
+		    yPaperOut,cyPaperOut);
+	}
+      break;
+    case CLIP_FIX_BORDERS:
+      /* fprintf(stderr,"Wir hatten: %d/%d",xPaperOut,yPaperOut); */
+      xPaperOut=G4_ABS(40); /* 0,6 cm */
+      xPaperOut-=(xPaperOut % 8);
+      yPaperOut=G4_ABS(200); /* 1,72 cm for LJ 1200 */
+      cxPaperOut-=xPaperOut;
+      /* fprintf(stderr," und bekommen: %d/%d\n",xPaperOut,yPaperOut); */
+      break;
+    }
  }
    
 /*

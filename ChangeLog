@@ -1,3 +1,7 @@
+2002-02-10  Marian Eichholz <eichholz@computer.org>
+	* Fixed border clipping in g4-encoder.
+	* scantool.man manpage completed
+
 2001-12-16  Marian Eichholz <eichholz@computer.org>
 	* Fixes in g4-modules
 	* sm3600.h : TInstance has page buffer parameters

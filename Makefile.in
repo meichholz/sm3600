@@ -1,8 +1,6 @@
-# $Id: Makefile.in,v 1.34 2001/12/16 23:15:46 eichholz Exp $
+# $Id: Makefile.in,v 1.35 2002/02/10 20:18:30 eichholz Exp $
 #
 # -------------------------------------------------------------------
-#
-# 16.02.2001
 #
 # DO NOT EDIT DIRECTLY! Edit Makefile.in
 #
@@ -26,7 +24,7 @@ SANE_STUB=	$(SANE_SRC)/backend/stubs.c
 
 V_MAJOR=	1
 V_MINOR=	0
-V_REV=		4
+V_REV=		7
 
 # mit -pedantic warnt eine Include-Datei!
 CCFLAGS=	-g -DPROG_NAME=\"$*\" -I $(USBDIR)/include -I $(SANE_INCLUDE) \
@@ -75,8 +73,10 @@ testenc: scantool initbus
 	./scantool -v -m line -b 30 -o bitmap /tmp/pnm 300 0 0 2600 2400
 
 testcopy: scantool initbus
-	./scantool -v -p c - | lpr -Ppcl
-
+#	./scantool -v -p c -o bitmap -m h /tmp/scan.pnm 600
+#	ee /tmp/scan.pnm &
+	./scantool -v -p c /tmp/scan.pcl 600
+	lpr -Ppcl /tmp/scan.pcl
 
 testscan: scantool initbus
 #	./scantool -d 25 -v -m color /tmp/scan.pnm 600 000 000 3600 1400

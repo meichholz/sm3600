@@ -1,4 +1,4 @@
-.TH sane-sm3600 5 "15.05.2001"
+.TH sane-sm3600 5 "10.02.2002"
 .IX sane-sm3600
 .SH NAME
 sane-sm3600 - SANE backend for Microtek scanners with M011 USB chip
@@ -38,7 +38,7 @@ Color, grayscale, halftone and lineart scans.
 contrast, brightness, control, gamma correction.
 
 .SH "DEVICE NAMES"
-This backend does not support device names in a usable form.
+This backend does not support device names in a standardized form.
 
 .SH CONFIGURATION
 This backend does not support a configuration file right now.
@@ -54,19 +54,17 @@ support dynamic loading).
 
 .SH PERMISSIONS AND INTERFACES
 
-The backend uses
-.B libusb
-and it's
-pseudo files in
-.I /proc/bus/usb/*
+The backend uses \fBlibusb\fR and it's pseudo files in
+\fI/proc/bus/usb/*\fR.
 
-These files are normally owned by
-.B root
-and You are responsible to get access to these files, for example by
-.B chown
--ing them to You. If You have no
-right permissions, the backend will find the device, but You'll get an
-I/O error.
+These files are normally owned by \fBroot\fR and You are responsible
+to get access to these files, for example \fBchown\fR-ing them to
+Yourself. If You have no right permissions, the backend will find the
+device, but You'll get an I/O error.
+
+The better way is to use automatical \fBhotplugging\fR. See
+\fIhttp://sm3600.sf.net/hotplug.html\fR for instructions and useful
+links.
 
 .SH ENVIRONMENT
 .TP
@@ -83,7 +81,7 @@ E.g. just say:
 export SANE_DEBUG_SM3600=5
 
 .SH "SEE ALSO"
-sane-microtek2(5)
+sane-microtek2(5), http://sm3600.sourceforge.net
 
 .SH AUTHOR
 .br
