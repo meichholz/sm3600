@@ -183,7 +183,6 @@ TState StartScanColor(TInstance *this)
 	RegWrite(this,R_SWID, 2, 0xC000 | this->state.cxWindow);
 	RegWrite(this,0x34, 1, 0x83); /* halfs the vertical resolution */
 	RegWrite(this,0x47,1,0xC0); /* reduces the speed a bit */
-	this->state.szOrder=ORDER_BRG;
 	break;
       case 100:
 	RegWrite(this,R_XRES,1, 0x20);
@@ -223,22 +222,13 @@ TState StartScanColor(TInstance *this)
   /* setup gamma tables */
   RegWrite(this,0x41,1,0x03); /* gamma, RGB */
   RegWrite(this,0x40,1,0x18); /* offset FIFO 8*3 KB spared */
-  {
-    /* the following mimic should guarantee the right gamma-to-color-mapping */
-    int       iBase;
-    char     *pch;
-    SANE_Int *pn;
-    for (iBase=0,pch=this->state.szOrder; *pch; iBase+=0x2000,pch++)
-      {
-	switch (*pch)
-	  {
-	  case '0': pn=this->agammaR; break;
-	  case '1': pn=this->agammaG; break;
-	  default:  pn=this->agammaB; break;
-	  }
-	UploadGammaTable(this,iBase,pn);
-      }
-  }
+  /*
+    hey, surprise: Although the color lines are sent in a strange order,
+    the gamma tables are mapped constantly to the sensors (i.e. RGB)
+  */
+  UploadGammaTable(this,0x0000,this->agammaR);
+  UploadGammaTable(this,0x2000,this->agammaG);
+  UploadGammaTable(this,0x4000,this->agammaB);
   INST_ASSERT();
 
 

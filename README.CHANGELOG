@@ -1,9 +1,17 @@
 CHANGELOG
 =========
 
+7.5.2001
+
+- Hey, RGB color mapping is now ok.
+- The EOF detection now is ok for SANE (delayed EOF reporting).
+- The old base interface (last block gives EOF) for scantool remains
+  still unchanged.
+- Works very nice with Xsane 0.76.
+
 6.5.2001
 
-Perfected DoOriginate(). It now detects the "I am home" rigzht from start.
+Perfected DoOriginate(). It now detects the "I am home" right from start.
 Oops: We have a problem with small colored(?) scans.
 
 5.5.2001

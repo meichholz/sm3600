@@ -653,6 +653,7 @@ sane_start (SANE_Handle handle)
   if (!rc) rc=DoOriginate(this);
   if (!rc) rc=DoJog(this,this->calibration.yMargin);
   if (rc) return rc;
+  this->state.bEOF=false;
   switch (this->mode)
     {
     case color: rc=StartScanColor(this); break;
@@ -671,14 +672,28 @@ sane_read (SANE_Handle handle, SANE_Byte *puchBuffer,
   TInstance     *this;
   this=(TInstance*)handle;
   DBG(DEBUG_INFO,"reading chunk %d...\n",(int)cchMax);
+  if (this->state.bEOF)
+    {
+      *pcchRead=0;
+      return SANE_STATUS_EOF;
+    }
   if (!this->state.bScanning) return SANE_STATUS_IO_ERROR;
   if (this->state.bCanceled) return SANE_STATUS_CANCELLED;
   rc=ReadChunk(this,puchBuffer,cchMax,pcchRead);
   DBG(DEBUG_INFO,"... line %d (%d/%d)...\n",this->state.iLine,*pcchRead,rc);
-  if (rc!=SANE_STATUS_GOOD)
-    *pcchRead=0;
-  else
-    if (!*pcchRead) rc=SANE_STATUS_EOF;
+  switch (rc)
+    {
+    case SANE_STATUS_EOF:
+      this->state.bEOF=true; /* flag EOF on next read() */
+      rc=SANE_STATUS_GOOD;   /* we do not flag THIS block! */
+      break;
+    case SANE_STATUS_GOOD:
+      if (!*pcchRead) rc=SANE_STATUS_EOF;
+      break;
+    default:
+      *pcchRead=0;
+      break;
+    }
   return rc;
 }
 

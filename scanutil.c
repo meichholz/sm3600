@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scanutil.c,v 1.14 2001/05/01 22:11:59 eichholz Exp $
+$Id: scanutil.c,v 1.15 2001/05/07 22:50:27 eichholz Exp $
 
 ====================================================================== */
 
@@ -201,7 +201,7 @@ TState ReadChunk(TInstance *this, unsigned char *achOut,
       rc=(*(this->state.ReadProc))(this);
       dprintf(DEBUG_BUFFER,"Chunk-Read: cchMax = %d\n",cchMax);
       if (rc!=SANE_STATUS_GOOD)
-	return rc; /* may be EOF, then: good and away! */
+	return rc; /* should be NOT(!) EOF, but then: good and away! */
     }
   dprintf(DEBUG_BUFFER,"Chunk-Exit: cchMax = %d\n",cchMax);
   if (!cchMax) return SANE_STATUS_GOOD; /* now everything fits! */
@@ -307,8 +307,6 @@ TState DoScanFile(TInstance *this)
   while (!rc)
     {
       int cch;
-      for (cch=0; cch<APP_CHUNK_SIZE;
-	   achBuf[cch++]=(cch&10) ? 0xFF : 0x55); /* blur buffer */
       cch=0;
       rc=ReadChunk(this,achBuf,APP_CHUNK_SIZE,&cch);
       if (cch>0 && this->fhScan && cch<=APP_CHUNK_SIZE)

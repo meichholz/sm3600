@@ -70,6 +70,7 @@ typedef struct TInstance *PTInstance;
 typedef TState (*TReadLineCB)(PTInstance);
 
 typedef struct TScanState {
+  TBool           bEOF;         /* EOF marker for sane_read */
   TBool           bCanceled;
   TBool           bScanning;    /* block is active? */
   TBool           bLastBulk;    /* EOF announced */
