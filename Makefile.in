@@ -1,4 +1,4 @@
-# $Id: Makefile.in,v 1.35 2002/02/10 20:18:30 eichholz Exp $
+# $Id: Makefile.in,v 1.36 2002/02/11 08:10:13 eichholz Exp $
 #
 # -------------------------------------------------------------------
 #
@@ -50,7 +50,7 @@ SCANTOOL_H=	sm3600.h sm3600-scantool.h
 
 # ======================================================================
 
-default: testenc
+default: bin
 
 .c.o :
 	@echo "compiling $* "
@@ -73,10 +73,9 @@ testenc: scantool initbus
 	./scantool -v -m line -b 30 -o bitmap /tmp/pnm 300 0 0 2600 2400
 
 testcopy: scantool initbus
-#	./scantool -v -p c -o bitmap -m h /tmp/scan.pnm 600
-#	ee /tmp/scan.pnm &
-	./scantool -v -p c /tmp/scan.pcl 600
-	lpr -Ppcl /tmp/scan.pcl
+	./scantool -v -p c -o bitmap /tmp/scan.pnm
+	ee /tmp/scan.pnm &
+#	./scancopy.sh
 
 testscan: scantool initbus
 #	./scantool -d 25 -v -m color /tmp/scan.pnm 600 000 000 3600 1400
@@ -111,40 +110,6 @@ sane104:
 sanetest:
 	export SANE_DEBUG_SM3600=1 ; scanimage -L
 
-
-# ======================================================================
-
-# insane SANE stuff
-
-sanemod: libsane-$(NAME).la
-
-libsane-$(NAME).la : $(NAME).lo $(NAME)-s.lo
-	$(LIBTOOL) --mode=link $(CC) -export-dynamic -o $@ $($*_LIBS) \
-	$(LDFLAGS) $(SANE_LIBS) $^ \
-	-rpath $(SANE_EXECDIR) \
-	-version-info $(V_MAJOR):$(V_REV):$(V_MINOR)
-
-$(NAME)-s.lo : $(NAME)-s.c
-	$(LIBTOOL) --mode=compile $(COMPILE) -DSTUBS -DBACKEND_NAME=$* $<
-
-$(NAME).lo: $(NAME).c
-	$(LIBTOOL) --mode=compile $(COMPILE) -DBACKEND_NAME=$* \
-	-DV_MAJOR=$(V_MAJOR) -DV_MINOR=$(V_MINOR) -DV_REV=$(V_REV) \
-	-DLIBDIR=$(SANE_LIB) $<
-
-$(NAME)-s.c: $(SANE_STUB)
-	rm -f $@
-	ln -s $(SANE_STUB) $@
-
-libsane-$(NAME).so : libsane-$(NAME).la
-	$(LIBTOOL) --mode=install install \
-	libsane-$(NAME).la \
-	$(SANE_EXECDIR)/libsane-$(NAME).so
-
-install-sane: libsane-$(NAME).la libsane-$(NAME).so
-	install $(NAME).conf $(SANE_CONFDIR)
-
-.PRECIOUS: %-s.c %-s.lo %.lo dll-preload.c
 
 # ======================================================================
 
@@ -195,7 +160,9 @@ install: install-scantool
 
 install-scantool:	scantool
 	@install -m 755 scantool $(BINDIR) 
+	@install -m 755 scancopy.sh $(BINDIR)/scancopy
 	@install -m 644 scantool.man $(MANDIR)/man1/scantool.1
+	
 
 getif:
 	ssh -l root localhost chown -R marian /proc/bus/usb/001

@@ -19,20 +19,17 @@
 
 BOOL WriteHeadPCL(FILE *f)
  {
-    	/* fprintf(f,"\x1B" "E"); */	/* Jobstart */
-    	fprintf(f,"\x1B&l%dO",	/* Orientierung */
-    		bLandscape ? 1 : 0 );
+#define CODE_HEADER
+#ifdef CODE_HEADER
     	fprintf(f,
-		"\x1B&l26A"     /* A4 paper */
-    		"\x1B&a0L"	/* Rand links weg */
-    		"\x1B&l0E"	/* Rand oben weg */
-    		"\x1B*t%dR"	/* Resolution */
-    		"\x1B*r0F"	/* logische Seite */
-    		"\x1B*r1A"	/* ab ? (start graphics) */
-    		"\x1B*b1Y"	/* Seed to 0 */
-    		"\x1B*b3M"	/* directly compress! */
+    		"\x1B*t%dR"	/* set resolution */
+    		"\x1B*r0F"	/* use abstracted page */
+		"\x1B*r0A"      /* start to the left margin */
+		"\x1B*b0Y"      /* no vertical movement */
     		, nPCLResolution
 		);
+#endif
+	fprintf(f,"\x1B*b3M");	/* use direct compression */
   /* fprintf(stderr,"coding for %d dpi\n",nPCLResolution); */
   return TRUE;
  }
@@ -46,7 +43,6 @@ BOOL WriteHeadPCL(FILE *f)
 BOOL ClosePagePCL(FILE *f)
  {
   fprintf(f,"\x1B*rC");
-  fprintf(f,"\x1B-12345X");
   return TRUE;
  }
  

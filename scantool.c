@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scantool.c,v 1.33 2002/02/10 20:18:30 eichholz Exp $
+$Id: scantool.c,v 1.34 2002/02/11 08:10:13 eichholz Exp $
 
 (C) Marian Eichholz 2001
 
@@ -11,7 +11,7 @@ $Id: scantool.c,v 1.33 2002/02/10 20:18:30 eichholz Exp $
 #include "sm3600-scantool.h"
 #include "g4.h"
 
-#define REVISION "$Revision: 1.33 $"
+#define REVISION "$Revision: 1.34 $"
 
 #define USAGE \
 "usage: %s <outfile> <resolution> <x> <y> <w> <h>" \
@@ -280,6 +280,7 @@ static int ScanToFile(TInstance *this)
   if (idOutputFormat==PFMT_DEFAULT)
     return rc;
   nClipType=CLIP_FIX_BORDERS; /* only clip the left/top margins away */
+  /* nClipType=CLIP_NONE; */
   switch (idOutputFormat)
     {
     case PFMT_TIFFG4: nFileFormat=OFMT_G4; break;
@@ -402,8 +403,8 @@ int main(int cArg, char * const ppchArg[])
 	    case 'c': /* copy */
 	      this->param.res=600;
 	      this->param.x=this->param.y=0;
-	      this->param.cx=2380*4;
-	      this->param.cy=3408*4;
+	      this->param.cx=2498*4;
+	      this->param.cy=3508*4;
 	      this->param.nBrightness=50;
 	      idOutputFormat=PFMT_PCL;
 	      this->mode=halftone;

@@ -4,7 +4,7 @@ Userspace scan tool for the Microtek 3600 scanner
 
 compatibility functions for g4tool functions
 
-$Id: g4compat.c,v 1.3 2002/02/10 20:18:30 eichholz Exp $
+$Id: g4compat.c,v 1.4 2002/02/11 08:10:13 eichholz Exp $
 
 (C) Marian Eichholz 1997/2001
 
@@ -124,7 +124,7 @@ void EncodePageLine()
   BOOL	bBit;
   int	cBits; cBits=0;
   pchCurrent=pchFullPage+lcchFullPageLine*(iLine-1);
-  for (i=1; i<=cxPaper; i++) /* erste und letzte Bits sind ungültig! */
+  for (i=1; i<=cxPaperOut; i++) /* erste und letzte Bits sind ungültig! */
 
    {
     bBit=abitWork[i];
@@ -157,7 +157,7 @@ static BOOL FlushLinePBM(FILE *f)
   int	i;
   int	uch=0;
   int	cBits=0;
-  for (i=1; i<=cxPaper; i++)
+  for (i=1; i<=cxPaperOut; i++) /* abitWork is already aligned to left margin */
    {
     BOOL bBit=abitWork[i];
     uch=(uch<<1) | bBit;
@@ -210,7 +210,7 @@ BOOL WriteHeader(FILE *f)
    {
     case OFMT_G4:	return WriteHeadG4(f,TRUE);
     case OFMT_RAWG4:	return WriteHeadG4(f,FALSE);
-    case OFMT_PBM:	fprintf(f,"P4\n%d %d\n",cxPaper,cyPaper);
+    case OFMT_PBM:	fprintf(f,"P4\n%d %d\n",cxPaperOut,cyPaperOut);
     			return TRUE;
     case OFMT_PCL:	return WriteHeadPCL(f);
    }
@@ -282,10 +282,11 @@ void CenterPage(void)
       break;
     case CLIP_FIX_BORDERS:
       /* fprintf(stderr,"Wir hatten: %d/%d",xPaperOut,yPaperOut); */
-      xPaperOut=G4_ABS(40); /* 0,6 cm */
+      xPaperOut=G4_ABS(40); /* 0,6 cm for LJ 1200 */
       xPaperOut-=(xPaperOut % 8);
-      yPaperOut=G4_ABS(200); /* 1,72 cm for LJ 1200 */
+      yPaperOut=G4_ABS(30); /* 0,5 cm for LJ 1200 */
       cxPaperOut-=xPaperOut;
+      cyPaperOut-=yPaperOut;
       /* fprintf(stderr," und bekommen: %d/%d\n",xPaperOut,yPaperOut); */
       break;
     }
