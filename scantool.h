@@ -3,7 +3,7 @@
 
 /*
 
- $Id: scantool.h,v 1.6 2001/03/25 15:11:43 eichholz Exp $
+ $Id: scantool.h,v 1.7 2001/03/25 21:00:06 eichholz Exp $
 
  common declarations and definitions.
 
@@ -51,6 +51,9 @@ typedef struct {
   int res; /* like all parameters in 1/1200 inch */
 } TScanParam;
 
+typedef enum { fast, high, best } TQuality;
+typedef enum { color, gray, line, halftone } TMode;
+
 #define ERR_FAILED -1
 #define OK         0
 
@@ -66,6 +69,8 @@ GLOBAL unsigned long      ulDebugMask;
 GLOBAL TBool              bVerbose;
 GLOBAL TBool              bInteractive;
 GLOBAL TBool              bWriteRaw;
+GLOBAL TQuality           optQuality;
+GLOBAL TMode              optMode;
 
 GLOBAL usb_dev_handle     *hScanner;
 
@@ -97,7 +102,6 @@ GLOBAL TScanParam         param;
 /* RGB */
 #define R_CCAL   0x2F
 
-#define R_LEN    0x32
 /* WORD */
 #define R_CSTAT  0x42
 #define R_CTL    0x46

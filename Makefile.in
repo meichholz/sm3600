@@ -1,4 +1,4 @@
-# $Id: Makefile.in,v 1.4 2001/03/25 15:11:43 eichholz Exp $
+# $Id: Makefile.in,v 1.5 2001/03/25 21:00:06 eichholz Exp $
 #
 # -------------------------------------------------------------------
 #
@@ -40,12 +40,12 @@ test:	scantool initbus
 	./scantool -i -d 5 temp.out
 
 testscan: scantool initbus
-	./scantool -d 5 -v /tmp/scan.pnm 100 600 300 24000 12000
+	./scantool -d 1 -v /tmp/scan.pnm 600 600 300 2400 1200
 	xv /tmp/scan.pnm
 
 testraw: scantool initbus
-	echo -e "P5\n300 100\n255" >/tmp/scan.pnm
-	./scantool -v -d 1 -d r /tmp/scan.pnm
+	echo -e "P5\n200 100\n255" >/tmp/scan.pnm
+	./scantool -v -d 1 -d r /tmp/scan.pnm 100 600 300 2400 1200
 	xv /tmp/scan.pnm
 
 dist:	clean
@@ -93,7 +93,7 @@ robot:
 
 
 clean:
-	rm -rf data/*~ temp.* *.o *~ t $(BINARIES) DEADJOE || true
+	rm -rf data/*~ data/ctlblocks/*~ temp.* *.o *~ t $(BINARIES) DEADJOE || true
 
 distclean: clean
 	rm Makefile || true

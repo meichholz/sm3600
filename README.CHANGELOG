@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+======= 1.8
+
+- Horizontal interpolation in the color scan routine.
+- Speed support for 75 dpi, 100 dpi, 200 dpi, 300 dpi, 600 dpi
+
 ======= 1.7
 
 Jogging now uses controlled acceleration of the slider unit.

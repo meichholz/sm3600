@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scantool.c,v 1.7 2001/03/25 18:01:29 eichholz Exp $
+$Id: scantool.c,v 1.8 2001/03/25 21:00:06 eichholz Exp $
 
 (C) Marian Eichholz 2001
 
@@ -14,7 +14,7 @@ $Id: scantool.c,v 1.7 2001/03/25 18:01:29 eichholz Exp $
 
 #include "scantool.h"
 
-#define REVISION "$Revision: 1.7 $"
+#define REVISION "$Revision: 1.8 $"
 
 #define USAGE \
 "usage: %s <outfile> <resolution> <x> <y> <w> <h>" \
@@ -25,7 +25,7 @@ $Id: scantool.c,v 1.7 2001/03/25 18:01:29 eichholz Exp $
 "\n\t-v : verbose output"\
 "\n\t-d : set debug <flags> and r(aw) write mode"\
 "\n"\
-"\n\t-q : set overall quality to 'speed' or 'best'"\
+"\n\t-q : set overall quality to 'fast', 'high' or 'best'"\
 "\n\t-m : mode for 'color', 'gray', 'line' or 'halftone'"\
 "\n\t-p : paper preset for 'a4', 'letter', 'fax'"\
 "\n\n"
@@ -79,11 +79,8 @@ void DoScanColor(FILE *fh, int nResolution,
 {
   char *pchLine,*pchBuf,*szOrder;
   int cyTotalPath; /* in 600 dpi */
-  pchLine=malloc(3*cxPixel); /* must be less than 0x8000 */
-  pchBuf=malloc(0x8000);
-  if (!pchLine || !pchBuf)
-    Panic(PANIC_RUNTIME,"no buffers available");
-
+  int cxWindow,cxMax; /* in real pixels */
+  int nFixAspect;
   if (bVerbose)
     fprintf(stderr,"scanning %d by %d in color\n",cxPixel,cyPixel);
 
@@ -103,9 +100,10 @@ void DoScanColor(FILE *fh, int nResolution,
   RegWrite(0x49, 1, 0x9E);    /* #1528[004.9] */
 
   {
+#ifdef HIGHQUALBLOCK
     unsigned char uchRegs[]={
       0xAB /*!!0x01!!*/, 0x05 /*!!0x02!!*/, 0x2A /*!!0x03!!*/,
-      0x60 /*!!0x04!!*/, 0x49 /*!!0x05!!*/, 0x10 /*!!R_STPS!!*/,
+      0x60 /*!!0x04!!*/, 0x49 /*!!0x05!!*/, 0x06 /*!!R_STPS!!*/,
       0x00 /*!!R_STPSH!!*/, 0x6A /*!!0x08!!*/, 0x6A /*!!0x09!!*/,
       0x1E /*!!0x0A!!*/, 0x0E /*!!0x0B!!*/, 0x6D /*0x0C*/,
       0x70 /*0x0D*/, 0x69 /*0x0E*/, 0xD0 /*0x0F*/,
@@ -129,35 +127,102 @@ void DoScanColor(FILE *fh, int nResolution,
       0x03 /*!!0x43!!*/, 0x01 /*R_LMP*/, 0x00 /*0x45*/,
       0x39 /*R_CTL*/, 0x20 /*!!0x47!!*/, 0x56 /*!!0x48!!*/,
       0x96 /*!!0x49!!*/, 0xD8 /*0x4A*/ };
+#else
+    unsigned char uchRegs[]={
+      0xFC /*!!R_SPOS!!*/, 0x00 /*R_SPOSH*/, 0x24 /*!!0x03!!*/,
+      0xB0 /*!!R_SWID!!*/, 0xC4 /*!!R_SWIDH!!*/, 0x06 /*!!R_STPS!!*/,
+      0x00 /*!!R_STPSH!!*/, 0xFF /*!!0x08!!*/, 0xFF /*!!0x09!!*/,
+      0x22 /*!!R_LEN!!*/, 0x07 /*!!R_LENH!!*/, 0x6D /*0x0C*/,
+      0x70 /*0x0D*/, 0x69 /*0x0E*/, 0xD0 /*0x0F*/,
+      0x00 /*0x10*/, 0x00 /*0x11*/, 0x42 /*!!0x12!!*/,
+      0x15 /*0x13*/, 0x84 /*!!0x14!!*/, 0x2A /*0x15*/,
+      0xC5 /*!!0x16!!*/, 0x40 /*0x17*/, 0xC5 /*!!0x18!!*/,
+      0x40 /*0x19*/, 0xFF /*0x1A*/, 0x01 /*0x1B*/,
+      0x88 /*0x1C*/, 0x40 /*0x1D*/, 0x4C /*0x1E*/,
+      0x50 /*0x1F*/, 0x00 /*0x20*/, 0x0C /*0x21*/,
+      0x21 /*0x22*/, 0xF0 /*0x23*/, 0x40 /*0x24*/,
+      0x00 /*0x25*/, 0x0A /*0x26*/, 0xF0 /*0x27*/,
+      0x00 /*0x28*/, 0x00 /*0x29*/, 0x4E /*0x2A*/,
+      0xF0 /*0x2B*/, 0x00 /*0x2C*/, 0x00 /*0x2D*/,
+      0x4E /*0x2E*/, 0x80 /*R_CCAL*/, 0x80 /*R_CCAL2*/,
+      0x80 /*R_CCAL3*/, 0x0B /*0x32*/, 0x2D /*0x33*/,
+      0x43 /*!!0x34!!*/, 0x29 /*0x35*/, 0x00 /*0x36*/,
+      0x00 /*0x37*/, 0x00 /*0x38*/, 0x00 /*0x39*/,
+      0x00 /*0x3A*/, 0x00 /*0x3B*/, 0xFF /*0x3C*/,
+      0x0F /*0x3D*/, 0x00 /*0x3E*/, 0x00 /*0x3F*/,
+      0x01 /*0x40*/, 0x00 /*0x41*/, 0x80 /*R_CSTAT*/,
+      0x03 /*0x43*/, 0x01 /*R_LMP*/, 0x00 /*0x45*/,
+      0x39 /*R_CTL*/, 0xC5 /*!!0x47!!*/, 0x40 /*0x48*/,
+      0x9E /*0x49*/, 0x8C /*0x4A*/ };
+#endif
     
     RegWriteArray(R_ALL, NUM_SCANREGS, uchRegs);
     RegWrite(R_SPOS, 2, xBorder*600/nResolution+XMARGIN);
     RegWrite(R_SLEN, 2, (cyPixel+1)*600/nResolution);
-    szOrder=ORDER_RGB; 
+    szOrder=ORDER_BRG; 
     RegWrite(R_CCAL, 3, 0xFFFFFF); /* 0xBBGGRR */
-    RegWrite(0x4a, 1, 0xD8);
-    RegWrite(0x49, 1, 0x9E);
+    if (optQuality==fast)
+      {
+	
+      }
+    cxMax=cxPixel;
+    cxWindow=cxPixel*600/nResolution;
+    nFixAspect=100;
     switch (nResolution)
       {
+      case 75:
+	RegWrite(R_XRES,1, 0x20); /* ups, can  do only 100 dpi horizontal */
+	cxMax=cxPixel*100/75;
+	RegWrite(R_SWID, 2, 0xC000 | cxMax*6);
+	RegWrite(0x34, 1, 0x83); /* halfs the vertical resolution */
+	RegWrite(0x47,1,0xC0); /* reduces the speed a bit */
+	szOrder=ORDER_BRG;
+	nFixAspect=75;
+	break;
       case 100:
 	RegWrite(R_XRES,1, 0x20);
-	RegWrite(R_SWID, 2, 0xC000 | (cxPixel*600/nResolution));
-	RegWrite(0x08, 2, 0xFFFF);
+	RegWrite(R_SWID, 2, 0xC000 | cxWindow);
+	RegWrite(0x34, 1, 0x63); /* halfs the vertical resolution */
+	RegWrite(0x47,1,0xC0); /* reduces the speed a bit */
+	/* correct aspect ratio */
+#ifdef NO_IDEA_FOR_WHAT
+	/* I have no idea, what these differences are good for. The seem to produce
+	   a slight blue presence... */
+	RegWrite(0x16, 1, 0xC0);
+	RegWrite(0x18, 1, 0xC0);
+	RegWrite(0x12, 1, 0x40);
+	RegWrite(0x10, 2, 0x0728);
+	RegWrite(0x14, 1, 0x80);
+#endif
+	break;
+      case 200:
+	RegWrite(R_XRES,1, 0x24);
+	RegWrite(R_SWID, 2, 0xC000 | cxWindow);
 	break;
       case 300:
-	RegWrite(R_XRES,1, 0x2A);
-	RegWrite(R_SWID, 2, 0x4000 | (cxPixel*600/nResolution));
 	RegWrite(0x08,2, 0x6A6A);
-	szOrder=ORDER_RGB; 
+	RegWrite(R_XRES,1, 0x2A);
+	RegWrite(R_SWID, 2, 0x4000 | cxWindow);
+	RegWrite(0x34, 1, 0x03); /* halfs the vertical resolution */
+	RegWrite(0x47,1,0xC0); /* reduces the speed a bit */
+	szOrder=ORDER_RGB;
 	break;
       case 600:
 	RegWrite(R_XRES,1, 0x3F);
-	RegWrite(R_SWID, 2, 0xC000 | (cxPixel*600/nResolution));
-	RegWrite(0x08,2, 0xFFFF);
-	szOrder=ORDER_BRG; 
+	RegWrite(R_SWID, 2, 0xC000 | cxWindow);
+	RegWrite(0x34, 1, 0x03); /* halfs the vertical resolution */
+	RegWrite(0x47,1,0xC2); /* reduces the speed a bit */
+	break;
+      case 1200:
+	/* not supported, since the driver supports only 600 dpi in color */
 	break;
       }
   }
+
+  pchLine=malloc(3*cxMax); /* must be less than 0x8000 */
+  pchBuf=malloc(0x8000);
+  if (!pchLine || !pchBuf)
+    Panic(PANIC_RUNTIME,"no buffers available");
 
   RegWrite(R_CTL, 1, 0x39);    /* #1532[005.0] */
   RegWrite(R_CTL, 1, 0x79);    /* #1533[005.0] */
@@ -191,18 +256,23 @@ void DoScanColor(FILE *fh, int nResolution,
       else
 	{
 	  iFrom=0;
-	  while (iFrom+3*cxPixel<cchBulk)
+	  while (iFrom+3*cxMax<cchBulk)
 	    {
+	      int nInterpolator=0;
+	      
 	      /* iTo starts with buffer offset from copy above */
-	      while (iTo<3*cxPixel) /* whole line or rest */
+	      while (iTo<3*cxMax) /* whole line or rest */
 		pchLine[iTo++]=pchBuf[iFrom++];
 	      /* re-assemble pchLine */
 	      /* dprintf(DEBUG_SCAN,"assembling line %d\n",++iLine); */
-	      for (iTo=0; iTo<cxPixel; iTo++)
+	      for (iTo=0; iTo<cxMax; iTo++)
 		{
-		  fwrite(pchLine+iTo+(szOrder[0]-'0')*cxPixel,1,1,fh); /* R */
-		  fwrite(pchLine+iTo+(szOrder[1]-'0')*cxPixel,1,1,fh); /* G */
-		  fwrite(pchLine+iTo+(szOrder[2]-'0')*cxPixel,1,1,fh); /* B */
+		  nInterpolator+=nFixAspect;
+		  if (nInterpolator<100) continue;
+		  nInterpolator-=100;
+		  fwrite(pchLine+iTo+(szOrder[0]-'0')*cxMax,1,1,fh); /* R */
+		  fwrite(pchLine+iTo+(szOrder[1]-'0')*cxMax,1,1,fh); /* G */
+		  fwrite(pchLine+iTo+(szOrder[2]-'0')*cxMax,1,1,fh); /* B */
 		}
 	      iTo=0; /* reset buffer offset */
 	    } /* while pixels available */
@@ -337,19 +407,25 @@ void ScanToFile(FILE *fhOut, struct usb_device *pScanner)
   DoOriginate();
 #endif
   DoJog(YMARGIN);
-  DoScanColor(fhOut,param.res,
-	      param.x*param.res/1200,
-	      param.y*param.res/1200,
-	      param.cx*param.res/1200,
-	      param.cy*param.res/1200);
-  DoJog(-YMARGIN);
-  DoOriginate();
 
-  /* DoScanColor(fhOut,301,0,0,800,1200); DoJog(-4000); */
-  /* DoScanColor(fhOut,200,0,0,800,1200); DoJog(-4000); */
-  /* DoScanColor(fhOut,100,0,0,826,883); DoJog(-7400); */
-  /* DoScanColor(fhOut,200,0,0,1200,1800); DoJog(-4000); */
-  /* DoScanColor(fhOut,600,0,0,600,600); DoJog(-1000); */
+  switch (optMode)
+    {
+    case color:
+      DoScanColor(fhOut,param.res,
+		  param.x*param.res/1200,
+		  param.y*param.res/1200,
+		  param.cx*param.res/1200,
+		  param.cy*param.res/1200);
+      break;
+    case gray:
+      break;
+    case line:
+      break;
+    case halftone:
+      break;
+    }
+
+  DoJog(-YMARGIN);
 
   usb_close(hScanner); hScanner=NULL;
 }
@@ -403,6 +479,8 @@ int main(int cArg, char * const ppchArg[])
   param.res=300;
   param.cx=10250;
   param.cy=14078;
+  optQuality=fast;
+  optMode=color;
   while (EOF!=(chOpt=getopt(cArg,ppchArg,"Vvhid:l:o:p:q:m:")))
     {
       switch (chOpt)
@@ -416,8 +494,25 @@ int main(int cArg, char * const ppchArg[])
 	case 'l': szLogFile=strdup(optarg); break;
         case 'i': bInteractive=true; break;
 	case 'p': /* preset */ break;
-	case 'q': /* quality */ break;
-	case 'm': /* mode */ break;
+	case 'q':
+	  switch (tolower(*optarg))
+	    {
+	    case 'f': optQuality=fast; break;
+	    case 'h': optQuality=high; break;
+	    case 'b': optQuality=best; break;
+	    default: printf(USAGE,PROG_NAME); exit(1);
+	    }
+	  break;
+	case 'm':
+	  switch (tolower(*optarg))
+	    {
+	    case 'c': optMode=color; break;
+	    case 'g': optMode=gray; break;
+	    case 'l': optMode=line; break;
+	    case 'h': optMode=halftone; break;
+	    default: printf(USAGE,PROG_NAME); exit(1);
+	    }
+	  break;
         case 'd':
 	  switch (*optarg)
 	    {
@@ -442,9 +537,13 @@ int main(int cArg, char * const ppchArg[])
 
   switch (param.res)
     {
+    case 50:
+    case 75:
     case 100:
+    case 200:
     case 300:
     case 600:
+      /* case 1200: */
       break; /* ok */
     default:
       Panic(PANIC_SETUP,"unsupported resulution requested");

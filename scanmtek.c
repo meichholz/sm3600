@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scanmtek.c,v 1.4 2001/03/25 18:01:29 eichholz Exp $
+$Id: scanmtek.c,v 1.5 2001/03/25 21:00:06 eichholz Exp $
 
 ====================================================================== */
 
@@ -27,7 +27,6 @@ Replay the first initialisation block (no slider movement).
 void DoInit(void)
 {
   dprintf(DEBUG_SCAN,"general init...\n");
-  RegWrite(R_LEN,2,LEN_MAGIC);
   {
     unsigned char uchRegs2466[]={
       0x00 /*0x01*/, 0x00 /*0x02*/, 0x3F /*0x03*/,
@@ -46,7 +45,7 @@ void DoInit(void)
       0x00 /*0x28*/, 0x00 /*0x29*/, 0x4E /*0x2A*/,
       0xF0 /*0x2B*/, 0x00 /*0x2C*/, 0x00 /*0x2D*/,
       0x4E /*0x2E*/, 0x80 /*R_CCAL*/, 0x80 /*R_CCAL2*/,
-      0x80 /*R_CCAL3*/, 0x29 /*R_LEN*/, 0x35 /*R_LENH*/,
+      0x80 /*R_CCAL3*/, 0x29 /* */, 0x35 /* */,
       0x63 /*0x34*/, 0x29 /*0x35*/, 0x00 /*0x36*/,
       0x00 /*0x37*/, 0x00 /*0x38*/, 0x00 /*0x39*/,
       0x00 /*0x3A*/, 0x00 /*0x3B*/, 0xFF /*0x3C*/,
@@ -119,7 +118,6 @@ void DoJog(int nDistance)
   RegWrite(0x34, 1, 0x63);
   RegWrite(0x49, 1, 0x96);
   WaitWhileBusy(2);
-  RegWrite(R_LEN,2,LEN_MAGIC);
   RegWrite(0x34, 1, 0x63);
   RegWrite(0x49, 1, 0x9E); /* that is a difference! */
   cSteps=(nDistance>0) ? nDistance : -nDistance;
@@ -458,7 +456,6 @@ void DoCalibration(void)
   RegWrite(0x34, 1, 0x63);
   RegWrite(0x49, 1, 0x96);
   WaitWhileBusy(2);
-  RegWrite(R_LEN,2,LEN_MAGIC);
   RegWrite(0x34, 1, 0x63);
   RegWrite(0x49, 1, 0x9E); /* that is a difference! */
   {
@@ -493,12 +490,9 @@ void DoCalibration(void)
   RegWrite(R_CTL, 1, 0x39);    /* #2588[065.4] */
   RegWrite(R_CTL, 1, 0x79);    /* #2589[065.4] */
   RegWrite(R_CTL, 1, 0xF9);    /* #2590[065.4] */
-  RegWrite(R_LEN, 2, LEN_MAGIC);    /* #2591[065.4] */
   WaitWhileBusy(5);
-  RegWrite(R_LEN,2,LEN_MAGIC);
  
   dprintf(DEBUG_SCAN,"magic1...\n");
-  RegWrite(R_LEN,2,LEN_MAGIC);
   {
     unsigned char uchRegs2609[]={
       0x00 /*0x01*/, 0x00 /*0x02*/, 0x3F /*0x03*/,
@@ -528,12 +522,10 @@ void DoCalibration(void)
       0x96 /*!!0x49!!*/, 0xD8 /*0x4A*/ };
     RegWriteArray(R_ALL, 74, uchRegs2609);
   }    /* #2609[066.2] */
-  RegWrite(R_LEN, 2, LEN_MAGIC);    /* #2611[066.2] */
   RegWrite(R_CTL, 1, 0x39);    /* #2614[066.2] */
   WaitWhileBusy(3);
 
   dprintf(DEBUG_SCAN,"magic2...\n");
-  RegWrite(R_LEN, 2, LEN_MAGIC);    /* #2611[066.2] */
   {
     unsigned char uchRegs2617[]={
       0x73 /*!!0x01!!*/, 0x03 /*!!0x02!!*/, 0x20 /*!!0x03!!*/,
@@ -574,7 +566,6 @@ void DoCalibration(void)
   WaitWhileBusy(3);
 
   dprintf(DEBUG_SCAN,"magic2...\n");
-  RegWrite(R_LEN, 2, 0x290B);    /* #2630[066.4] */
   {
     unsigned char uchRegs2631[]={
       0x73 /*0x01*/, 0x03 /*0x02*/, 0x20 /*0x03*/,
@@ -615,7 +606,6 @@ void DoCalibration(void)
   WaitWhileBusy(3);
 
   dprintf(DEBUG_SCAN,"magic3...\n");
-  RegWrite(R_LEN, 2, 0x290B);    /* #2643[066.7] */
   WaitWhileBusy(3);
   WaitWhileBusy(3);
   RegWrite(R_CTL, 1, 0x39);    /* #2648[066.7] */
