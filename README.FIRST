@@ -25,9 +25,12 @@ CVS version if you are doing development or testing.
 It is intended with two goals:
 
 1) A standalone tool (scantool) for the command line with specific
-optimisations and options.
+optimisations and options. The scantool is a testbede for scanning
+algorithms, too and has a command line interface for ad hoc testing.
 
 2) A SANE backend module.
+
+See README.FILE for the meaning of certain files, tools and scripts.
 
 
 Broken links and special names

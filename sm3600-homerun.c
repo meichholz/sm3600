@@ -212,6 +212,7 @@ DoCalibration
 #define CALIB_GAP    10
 
 #define SM3600_CALIB_USE_MEDIAN
+#define SM3600_CALIB_APPLY_HANNING_WINDOW
 
 #ifdef SM3600_CALIB_USE_MEDIAN
 typedef int (*TQSortProc)(const void *, const void *);
@@ -232,6 +233,9 @@ TState DoCalibration(TInstance *this)
 #ifdef SM3600_CALIB_USE_MEDIAN
   unsigned char aauchY[CALIB_LINES][MAX_PIXEL_PER_SCANLINE];
   unsigned char auchRow[CALIB_LINES];
+#endif
+#ifdef SM3600_CALIB_APPLY_HANNING_WINDOW
+  unsigned char auchHanning[MAX_PIXEL_PER_SCANLINE];
 #endif
 
   int    iLine,i;
@@ -288,8 +292,12 @@ TState DoCalibration(TInstance *this)
       this->calibration.achStripeY[i]=auchRow[(CALIB_LINES-1)/2];
     }
 #endif
-  /* intentionally, I did *not* apply a hanning filter. Discussion
-     welcome :-) */
+#ifdef SM3600_CALIB_APPLY_HANNING_WINDOW
+  memcpy(auchHanning,this->calibration.achStripeY,sizeof(auchHanning));
+  for (i=1; i<MAX_PIXEL_PER_SCANLINE-1; i++)
+    this->calibration.achStripeY[i]=(unsigned char)
+      ((2*(int)auchHanning[i]+auchHanning[i-1]+auchHanning[i+1])/4);
+#endif
   
   /* scan a color line at 600 DPI */
   DoJog(this,-CALIB_START-CALIB_LINES*CALIB_GAP);

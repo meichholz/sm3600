@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+31.6.2001
+
+Applied Hanning window smoothing for the calibration scan.
+
 30.6.2001
 
 Made InitOptions() static.
