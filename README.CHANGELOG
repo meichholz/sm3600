@@ -1,6 +1,8 @@
 CHANGELOG
 =========
 
+
+
 20.4.2001
 
 GetAreaSize() centralizes the derivation of state-geometry-variables,
@@ -11,6 +13,11 @@ Seems to have more stable cxMax/cxWindow pairing with 75 DPI.
 Fixed double usb_close().
 
 Prescan with Xsane still crashes on cancel().
+
+TODO 1: Crash is avoided, if FreeState() is commented out in
+EndScan(). Not a solution...
+
+TODO 2: The first scan row with Xsane contains noisy bytes. Any idea?
 
 19.4.2001
 

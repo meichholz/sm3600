@@ -586,7 +586,7 @@ SANE_Status sane_start (SANE_Handle handle)
   DBG(DEBUG_VERBOSE,"starting scan...\n");
   if (this->state.bScanning) return SANE_STATUS_DEVICE_BUSY;
   rc=SetupInternalParameters(this);
-  if (!rc) rc=DoJog(this,100);
+  if (!rc) rc=DoJog(this,200);
   if (!rc) rc=DoOriginate(this);
   if (!rc) rc=DoJog(this,this->calibration.yMargin);
   if (rc) return rc;
@@ -612,7 +612,8 @@ SANE_Status sane_read (SANE_Handle handle, SANE_Byte *puchBuffer,
   rc=ReadChunk(this,puchBuffer,cchMax,pcchRead);
   if (rc!=SANE_STATUS_GOOD)
     *pcchRead=0;
-  else if (!*pcchRead) rc=SANE_STATUS_EOF;
+  else
+    if (!*pcchRead) rc=SANE_STATUS_EOF;
   return rc;
 }
 
@@ -623,8 +624,8 @@ void sane_cancel (SANE_Handle handle)
   DBG(DEBUG_INFO,"cancel called...\n");
   if (this->state.bScanning)
     {
-      EndScan(this);
       this->state.bCanceled=true;
+      EndScan(this);
       DoJog(this,-this->calibration.yMargin);
     }
 }

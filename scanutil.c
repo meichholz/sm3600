@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scanutil.c,v 1.9 2001/04/19 22:40:16 eichholz Exp $
+$Id: scanutil.c,v 1.10 2001/04/20 22:59:58 eichholz Exp $
 
 ====================================================================== */
 
@@ -118,10 +118,10 @@ Frees all dynamical memory for scan buffering.
 
 TState FreeState(TInstance *this, TState nReturn)
 {
-  int i;
   if (this->state.ppchLines)
     {
-      for (i=this->state.cBacklog-1; i>=0; i--)
+      int i;
+      for (i=0; i<this->state.cBacklog; i++)
 	{
 	  if (this->state.ppchLines[i])
 	    free(this->state.ppchLines[i]);
@@ -147,7 +147,7 @@ TState EndScan(TInstance *this)
   if (!this->state.bScanning) return SANE_STATUS_GOOD;
   /* move slider back to start */
   this->state.bScanning=false;
-  FreeState(this,0);
+  /*  FreeState(this,0); */
   INST_ASSERT();
   return DoJog(this,-this->state.cyTotalPath);
 }
