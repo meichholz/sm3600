@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.24 2004/04/15 21:03:05 eichholz Exp $
+# $Id: Makefile,v 1.25 2004/04/16 10:55:43 eichholz Exp $
 #
 # -------------------------------------------------------------------
 #
@@ -24,7 +24,7 @@ SANE_STUB=	$(SANE_SRC)/backend/stubs.c
 
 V_MAJOR=	1
 V_MINOR=	0
-V_REV=		7
+V_REV=		13
 
 # mit -pedantic warnt eine Include-Datei!
 CCFLAGS=	-g -DPROG_NAME=\"$*\" -I $(USBDIR)/include -I $(SANE_INCLUDE) \
