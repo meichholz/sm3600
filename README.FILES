@@ -1,0 +1,82 @@
+README.FILES
+
+A hitchhiker's guide to the sm3600 package.
+
+			"Mostly harmless"
+
+Scripts
+-------
+
+	configure
+
+Sets up the Makefile from Makefile.in. Try "configure --help"
+
+	patchsane104.sh
+	sane-backends-1.0.4.cfg.diff
+	README.SANE
+
+Puts the backend source files to an sane-backends-1.0.4 tree. See
+README.SANE for usage details.
+
+	logfilter.pl
+
+The godfather of all USBSNOOPY analysers. Thanks, Glenn :-)
+
+	squeezelog.pl
+
+The godfather's son. Dumps register transfers in both human readable
+and C compilable form.
+
+	dumpscanctl.pl
+
+Postfilter for automatical grepping of the scan start control
+block. Useful for comparison of scan parameters for different
+resolutions etc.
+
+Directories
+-----------
+
+The content of the directories is normally not used. Here are the
+meanings of the directories:
+
+	data
+
+Some transscripts (text and C code) of scan control sessions and
+different options.
+
+	data/ctlblocks
+
+Same as parent directory, but here are only the very control sets,
+that trigger the scan.
+
+	doc
+
+Some (in fact, one) obsolete documentation (or memo) files.
+
+	glenn_ramsey
+
+The historical very first snoopy transscripts are here, as well as the
+filter script, that wrote them.
+
+	obsolete
+
+Really, I cannot throw away code :-) Here are some very ancient source
+fragments, that are no longer used.
+
+
+Maintainer Marian's special scripts
+-----------------------------------
+
+	initbus.sh
+
+Maks all USB devices available for user marian's access.
+
+	mkdist.sh
+
+Makes source tarball for upload.
+
+	mktrans.sh
+
+Makes complete transscripts from a fresh USBSNOOPY log.
+
+	

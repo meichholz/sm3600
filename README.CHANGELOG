@@ -4,6 +4,8 @@ CHANGELOG
 31.6.2001
 
 Applied Hanning window smoothing for the calibration scan.
+Moves some files around.
+Wrote a Manpage for scantool.
 
 30.6.2001
 

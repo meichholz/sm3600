@@ -1,0 +1,127 @@
+.TH scantool 5 "31.05.2001"
+.IX scantool
+.SH NAME
+scantool - scan tool for Microtek scanners with M011 USB chip
+
+.SH "SYNOPSIS"
+
+.B scantool
+-V
+
+.B scantool
+-h
+
+.B scantool
+.RB [ -b
+.RI brightness ]
+.RB [ -c
+.RI contrast ]
+.RB [ -m
+.RI mode ]
+.RB [ -p
+.RI preset ]
+.RB [ -q
+.RI quality ]
+.RB [ -O ]
+.RB [ -v ]
+.RB [ -d
+.RI flags ]
+.RI [ resolution ]
+.RI [ x ]
+.RI [ y ]
+.RI [ width ]
+.RI [ height ]
+.PP
+
+.SH "EXAMPLES"
+scantool -b 20 -m halftone 200 0 0 10000 12000 >scan.pnm
+
+scantool -p fax -m halftone >scan.pnm
+
+.SH "DESCRIPTION"
+The
+.B scantool
+implements a standalone driver and scanning tool, that
+provides access to some Microtek scanners with the Toshiba M011 custom
+USB chip.
+
+It is the main testbed for new procedures, and supports some special
+functions, that are of no use in a SANE environment, like PCL encoding
+for direct copying.
+
+The standard option
+.B -v
+for verbosed output is supported. Default is silent operation. The
+scanned image is written to standard output as portable anymap
+(PNM). A standard help page
+.B -h
+is supported as well.
+
+Resolution and scan dimensions are given in 1/1200 inch units. They
+are successively optional, defaulting to the preset
+.B -p
+format (see below).
+
+Resolution can be 75, 100, 200, 300, 600 DPI.
+
+There is brightness control through
+.B -b
+and contrast control through
+.B -c
+, with ranges from -255 to 255.
+
+The supported scanmodes with
+.B -m
+are
+.I color,
+.I gray,
+.I line
+and
+.I halftone.
+Haltone shading implements the error diffusion, and Line mode is
+separation at 50% luminance.
+
+The Quality
+.B -q
+setting is currently not supported and defaults to
+.I fast.
+
+There are several
+.B -p
+paper (or better: application) prefixes, as
+.I a4,
+.I fax
+for special applications. They also set parameters like brightness,
+contrast, scan mode and resolutions.
+
+There is a debugging interface with options
+.B -i
+and
+.B -d.
+See the code for the special meaning.
+
+Scanning can be aborted by SIGINT (normall: CTRL-C) and any time. This
+is particularly useful, if Your scanner does not find the home
+position for the slider.
+
+
+.SH "COMPATIBILITY"
+.PP
+At present, the following scanners are known positively to work with
+this tool:
+.PP
+.RS
+Vendor     Product id:     Remark:
+.br
+--------   --------------  -----------
+.br
+Microtek   ScanMaker 3600  all modes ok
+.RE
+
+.SH AUTHOR
+.br
+Marian Eichholz (eichholz@computer.org)
+.br
+Glenn Ramsey (glenn@componic.com)
+.br
+
