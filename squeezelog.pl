@@ -1,6 +1,6 @@
 #!/usr/bin/perl -wT
 use strict;
-# $Id: squeezelog.pl,v 1.3 2001/03/29 22:01:51 eichholz Exp $
+# $Id: squeezelog.pl,v 1.4 2001/05/21 05:48:14 glennr Exp $
 #
 # Originally, this script should compact USB-SNOOPY's log files for protocol
 # analysis. Is it designed to preserve as much information as is "possible".
@@ -136,12 +136,93 @@ sub FlushNewRobot {
 
 my $bVendorPending=0;
 my $nRegister;
-my %hRegNames=qw( 01 SPOS 02 SPOSH 04 SWID 05 SWIDH
-		  06 STPS 07 STPSH 0A LEN 0B LENH
-		  42 CSTAT 44 LMP 46 CTL 52 POS 53 POSH
-		  54 STAT 55 STATH
-		  2F CCAL 30 CCAL2 31 CCAL3
-		  );
+my %hRegNames=qw(
+01 Xstart1
+02 Xstart2 
+03 Xscale
+04 Xlen1
+05 Xlen2
+06 Ystart1
+07 Ystart2
+08 Yscale1
+09 Yscale2
+0A Ylen1
+0B Ylen2
+0C dumPix
+0D blckPix
+0E SHwidth
+0F SHpg
+10 SH1pos1
+11 SH1pos2
+12 SH2pos1
+13 SH2pos2
+14 SH3pos1
+15 SH3pos2
+16 SH4pos1
+17 SH4pos2
+18 SH5pos1
+19 SH5pos2
+1A SHevent1
+1B SHevent2
+1C ScInSeq1
+1D ScInSeq2
+1E RSpulse
+1F GCpulse1
+20 GCpulse2
+21 CPcont
+22 sampPos
+23 LED1pos1
+24 LED1pos2
+25 LED1pos3
+26 LED1pos4
+27 LED2pos1
+28 LED2pos2
+29 LED2pos3
+2A LED2pos4
+2B LED3pos1
+2C LED3pos2
+2D LED3pos3
+2E LED3pos4
+2F offsDAC1
+30 offsDAC2
+31 offsDAC3
+32 VGAgain1
+33 VGAGain2
+34 sgnlCntl
+35 ADCcont
+36 offsO1
+37 offsO2
+38 offsO3
+39 offsE1
+3A offsE2
+3B offsE3
+3C fGain1
+3D fGain2
+3E ofbase
+3F gbase
+40 Fbase
+41 datFmt
+42 inVal
+43 GPIOmode
+44 GPIOout(lamp)
+45 GPIOin 
+46 mtrCntl1
+47 mtrStpLen1
+48 mtrStpLen2
+49 mtrCntl2
+4A mtrBufCntl
+4B FIFOr1
+4C FIFOr2
+4D FIFOp
+4E FIFOw1
+4F FIFOw2
+50 Xcntr1
+51 Xcntr2
+52 Ycntr1
+53 Ycntr2 
+54 FIFOstat1
+55 FIFOstat2
+);
 
 sub FlushRegisterStyle {
   $_=shift;
