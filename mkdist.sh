@@ -1,8 +1,8 @@
-# $Id: mkdist.sh,v 1.1 2001/03/23 21:58:23 eichholz Exp $
+# $Id: mkdist.sh,v 1.2 2001/03/24 17:02:48 eichholz Exp $
 NAME=$1 ; cd .. ; tar cfpzv \
 	$NAME.tar.gz \
 	--exclude=glenn_ramsey \
-	--exclude=logs \
+	--exclude=logs --exclude=CVS \
 	$NAME
 
 WWW="/home/marian/www/export/en/sm3600"

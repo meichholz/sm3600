@@ -2,7 +2,9 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scanusb.c,v 1.1 2001/03/23 21:58:32 eichholz Exp $
+$Id: scanusb.c,v 1.2 2001/03/24 17:02:48 eichholz Exp $
+
+(C) Marian Eichholz 2001
 
 ====================================================================== */
 

@@ -1,0 +1,36 @@
+#!/usr/bin/perl -wT
+
+use strict;
+
+my $usbdir="/usr/local";
+
+my $usage=<<"EOS";
+usage configure {option}
+
+Environment:
+  --usbdir=DIR            read usb.h from DIR [$usbdir]
+
+Other:
+  --help                  print this page
+EOS
+
+while (defined $ARGV[0])
+{
+  $_=shift @ARGV;
+  if (/^--usbdir=(.*)/) { $usbdir=$1; }
+  else { print $usage; exit 0; }
+}
+
+open INFILE,"<Makefile.in" or die "cannot open Makefile.in\n";
+open OUTFILE,">Makefile" or die "cannot create Makefile\n";
+
+print "writing Makefile...\n";
+
+while (<INFILE>)
+  {
+    s/\@USBDIR\@/$usbdir/g;
+    print OUTFILE;
+}
+
+close OUTFILE;
+close INFILE;

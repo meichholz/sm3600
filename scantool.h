@@ -3,9 +3,11 @@
 
 /*
 
- $Id: scantool.h,v 1.2 2001/03/24 01:19:44 eichholz Exp $
+ $Id: scantool.h,v 1.3 2001/03/24 17:02:48 eichholz Exp $
 
- common declarations and definitions
+ common declarations and definitions.
+
+ (C) Marian Eichholz 2001
 
 */
 

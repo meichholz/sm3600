@@ -1,3 +1,0 @@
-CVSROOT=eichholz@cvs.sm3600.sourceforge.net:/cvsroot/sm3600
-CVS_RSH=ssh
-export CVROOT CVS_RSH

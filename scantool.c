@@ -2,7 +2,9 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scantool.c,v 1.2 2001/03/24 01:19:44 eichholz Exp $
+$Id: scantool.c,v 1.3 2001/03/24 17:02:48 eichholz Exp $
+
+(C) Marian Eichholz 2001
 
 ====================================================================== */
 
@@ -14,7 +16,7 @@ $Id: scantool.c,v 1.2 2001/03/24 01:19:44 eichholz Exp $
 
 #include "scantool.h"
 
-#define REVISION "$Revision: 1.2 $"
+#define REVISION "$Revision: 1.3 $"
 
 #define USAGE \
 "usage: %s <outfile>" \
