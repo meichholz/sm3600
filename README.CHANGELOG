@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+10.5.2001
+
+Did some tests with scanimage, xscanimage, xsane.
+Fixed the sane_close() SEGV problem (due to unwitty free()-calls).
+
 7.5.2001
 
 - Hey, RGB color mapping is now ok.

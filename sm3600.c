@@ -352,18 +352,17 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback authCB)
 void
 sane_exit (void)
 {
-  TDevice   *dev, *next;
+  TDevice   *dev, *pNext;
 
   /* free all bound resources and instances */
   while (pinstFirst)
     sane_close((SANE_Handle)pinstFirst); /* free all resources */
   
   /* free all device descriptors */
-  for (dev = pdevFirst; dev; dev = dev->pNext)
+  for (dev = pdevFirst; dev; dev = pNext)
     {
-      next = dev->pNext;
+      pNext = dev->pNext;
       free ((void *) dev->sane.name);
-      free (dev->pdev);
       free (dev);
     }
 }
