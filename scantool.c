@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scantool.c,v 1.9 2001/03/26 21:06:37 eichholz Exp $
+$Id: scantool.c,v 1.10 2001/03/27 22:34:05 eichholz Exp $
 
 (C) Marian Eichholz 2001
 
@@ -10,7 +10,7 @@ $Id: scantool.c,v 1.9 2001/03/26 21:06:37 eichholz Exp $
 
 #include "scantool.h"
 
-#define REVISION "$Revision: 1.9 $"
+#define REVISION "$Revision: 1.10 $"
 
 #define USAGE \
 "usage: %s <outfile> <resolution> <x> <y> <w> <h>" \
@@ -31,9 +31,6 @@ $Id: scantool.c,v 1.9 2001/03/26 21:06:37 eichholz Exp $
 static unsigned short aidProduct[] = {
   0x40B3, 0x40CA, 0x40FF, /* ScanMaker 3600 */
   0x0 };
-
-#define YMARGIN 0x0192
-#define XMARGIN 0x00FB
 
 /* **********************************************************************
 
@@ -144,7 +141,7 @@ void DoScanColor(FILE *fh, int nResolution,
       0x39 /*R_CTL*/, 0xC5 /*!!0x47!!*/, 0x40 /*0x48*/,
       0x9E /*0x49*/, 0x8C /*0x4A*/ };
     RegWriteArray(R_ALL, NUM_SCANREGS, uchRegs);
-    RegWrite(R_SPOS, 2, xBorder*600/nResolution+XMARGIN);
+    RegWrite(R_SPOS, 2, xBorder*600/nResolution+calibration.xMargin);
     RegWrite(R_SLEN, 2, (cyPixel+1+2*ySensorSkew)*600/nResolution);
     szOrder=ORDER_BRG; 
     RegWrite(R_CCAL, 3, 0xFFFFFF); /* 0xBBGGRR */
@@ -411,7 +408,7 @@ void ScanToFile(FILE *fhOut, struct usb_device *pScanner)
   DoJog(100);
   DoOriginate();
 #endif
-  DoJog(YMARGIN);
+  DoJog(calibration.yMargin);
 
   switch (optMode)
     {
@@ -430,7 +427,7 @@ void ScanToFile(FILE *fhOut, struct usb_device *pScanner)
       break;
     }
 
-  DoJog(-YMARGIN);
+  DoJog(-calibration.yMargin);
 
   usb_close(hScanner); hScanner=NULL;
 }
@@ -484,6 +481,11 @@ int main(int cArg, char * const ppchArg[])
   param.res=300;
   param.cx=10250;
   param.cy=14078;
+  calibration.xMargin=200;
+  calibration.yMargin=0x019D;
+  calibration.nHoleGray=10;
+  calibration.rgbWhite=0xC0C0C0;
+  calibration.nBarGray=0xC0;
   optQuality=fast;
   optMode=color;
   while (EOF!=(chOpt=getopt(cArg,ppchArg,"Vvhid:l:o:p:q:m:")))

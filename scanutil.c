@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scanutil.c,v 1.1 2001/03/23 21:58:31 eichholz Exp $
+$Id: scanutil.c,v 1.2 2001/03/27 22:34:05 eichholz Exp $
 
 ====================================================================== */
 
@@ -22,7 +22,10 @@ void dprintf(unsigned long ulType, const char *szFormat, ...)
 {
   va_list ap;
   if ((ulDebugMask & ulType)!=ulType) return;
-  fprintf(stderr,"debug:");
+  if (*szFormat=='~')
+    szFormat++;
+  else
+    fprintf(stderr,"debug:");
   va_start(ap,szFormat);
   vfprintf(stderr,szFormat,ap);
   va_end(ap);

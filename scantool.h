@@ -3,7 +3,7 @@
 
 /*
 
- $Id: scantool.h,v 1.7 2001/03/25 21:00:06 eichholz Exp $
+ $Id: scantool.h,v 1.8 2001/03/27 22:34:05 eichholz Exp $
 
  common declarations and definitions.
 
@@ -44,6 +44,14 @@
 typedef enum { false, true } TBool;
 
 typedef struct {
+  int xMargin; /* in 1/600 inch */
+  int yMargin; /* in 1/600 inch */
+  unsigned char nHoleGray;
+  unsigned char nBarGray;
+  long rgbWhite;
+} TCalibration;
+
+typedef struct {
   int x;
   int y;
   int cx;
@@ -80,6 +88,7 @@ GLOBAL FILE               *fhLog;
 GLOBAL FILE               *fhScan;
 
 GLOBAL TScanParam         param;
+GLOBAL TCalibration       calibration;
 
 /* ====================================================================== */
 

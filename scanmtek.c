@@ -2,19 +2,17 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scanmtek.c,v 1.6 2001/03/26 21:06:37 eichholz Exp $
+$Id: scanmtek.c,v 1.7 2001/03/27 22:34:05 eichholz Exp $
 
 ====================================================================== */
 
 #include "scantool.h"
 
-/* some magic constant for "bonsai" line processing */
-#define CCH_BONSAI  100
+/* tuning constants for DoOriginate */
+#define CCH_BONSAI              60
 #define MAX_PIXEL_PER_SCANLINE  5100
-#define X_BONSAI_BLACK1 13
-#define X_BONSAI_BLACK2 36
-#define X_BONSAI_BLACK3 60
-#define MIN_BONSAI_WHITE 70
+#define BLACK_HOLE_GRAY         15
+#define CHASSIS_GRAY            105
 
 /* **********************************************************************
 
@@ -196,7 +194,9 @@ No idea, hoiw to achieve this, for now...
 
 void DoOriginate()
 {
-  int cWhite,cBlack,iStripe;
+  int    iStripe;
+  TBool  bHolesOk;
+  long   lMedian;
   
   if (bVerbose)
     fprintf(stderr,"carriage return...\n");
@@ -246,8 +246,10 @@ void DoOriginate()
     int            anLine[CCH_BONSAI]; /* summm */
     unsigned char  achLine[CCH_BONSAI+1];
     unsigned char *puchBuffer;
-    int            cchBulk,i;
-    long           lSum, lMedian;
+    int            cchBulk,i,iHole;
+    int            axHoles[3];
+    long           lSum;
+    
     /*     dprintf(DEBUG_SCAN,"originate-%d...",iStripe); */
     RegWrite(R_CTL, 1, 0x59);    /* #2496[062.5] */
     RegWrite(R_CTL, 1, 0xD9);    /* #2497[062.5] */
@@ -261,60 +263,63 @@ void DoOriginate()
       Panic(PANIC_COMM,"truncated 10200-bulk");
     lSum=0;
     memset(anLine,0,sizeof(anLine));
-#ifdef ORIGINATE_BY_AVERAGE
     for (i=0; i<cchBulk; i++)
-      {
-	int iBonsai=(i*(2*CCH_BONSAI-1))/(cchBulk-1); /* 0..119 */
-	if (iBonsai>=CCH_BONSAI)
-	  iBonsai-=CCH_BONSAI; /* wraparound */
-	lSum+=puchBuffer[i];
-	anLine[iBonsai]+=puchBuffer[i]; /* simple, basta */
-      }
-#else
+      lSum+=puchBuffer[i]; /* gives total white level */
     for (i=0; i<CCH_BONSAI; i++)
       {
 	int iBulk=i*(cchBulk/2)/CCH_BONSAI;
-	lSum+=puchBuffer[iBulk];
 	achLine[i]=puchBuffer[iBulk+40]; /* simple, basta */
       }
-#endif
-    cWhite=0;
-    cBlack=0;
-    /* renormalize */
+    /* the bonsai line is supported only for curiosity */
+    for (i=0; i<CCH_BONSAI; i++)
+      achLine[i]=achLine[i]/26+'0'; /* '0'...'9' */
     achLine[CCH_BONSAI]='\0';
-    lMedian=cchBulk/CCH_BONSAI; /* the maximum accumulatable value/256 */
-    for (i=0; i<CCH_BONSAI; i++)
+
+    i=200;
+    iHole=0;
+    dprintf(DEBUG_ORIG,"");
+    while (i<MAX_PIXEL_PER_SCANLINE && iHole<3)
       {
-#ifdef ORIGINATE_BY_AVERAGE
-	achLine[i]=anLine[i]/lMedian; /* 0..256 */
-#endif
-	achLine[i]=achLine[i]/26+'0'; /* '0'...'9' */
-      }
-    /* check for the three circles */
-    for (i=0; i<CCH_BONSAI; i++)
-      {
-	if (achLine[i]>='4') cWhite++;
-	switch (i)
+	int c;
+	while (i<MAX_PIXEL_PER_SCANLINE && puchBuffer[i]>BLACK_HOLE_GRAY) i++; /* not very black */
+	c=0;
+	dprintf(DEBUG_ORIG,"~ i=%d",i);
+	while (i<MAX_PIXEL_PER_SCANLINE && puchBuffer[i]<=BLACK_HOLE_GRAY) { i++; c++; }
+	dprintf(DEBUG_ORIG,"~ c=%d",c);
+	if (c>90) /* 90% of min hole diameter */
 	  {
-	  case X_BONSAI_BLACK1:
-	  case X_BONSAI_BLACK2:
-	  case X_BONSAI_BLACK3:
-	    cBlack+=achLine[i]-'0';
-	    break;
+	    axHoles[iHole]=i-c/2; /* store the middle of the hole */
+	    dprintf(DEBUG_ORIG,"~ #%d=%d",iHole,axHoles[iHole]);
+	    iHole++;
+	    i+=10; /* some hysteresis */
 	  }
       }
-    achLine[CCH_BONSAI]='\0';
-    dprintf(DEBUG_ORIG,"%s - %c%c%c - %d\n",
-	    achLine,
-	    achLine[X_BONSAI_BLACK1],
-	    achLine[X_BONSAI_BLACK2],
-	    achLine[X_BONSAI_BLACK3],
-	    cWhite);
+    if (iHole==3)
+      {
+	bHolesOk=true;
+	for (i=0; i<2; i++)
+	  {
+	    int n=axHoles[i+1]-axHoles[i];
+	    if (n<1050 || n>1400)
+	      bHolesOk=false;
+	  }
+	if (axHoles[0]<400 || axHoles[0]>900) /* 2 cm tolerance */
+	  bHolesOk=false;
+      }
+    else
+      bHolesOk=false;
     lMedian=lSum/cchBulk;
+    if (bHolesOk)
+      {
+	calibration.xMargin=axHoles[0]-480;           /* left bed corner */
+	calibration.nHoleGray=puchBuffer[axHoles[0]]; /* black reference */
+      }
+    dprintf(DEBUG_ORIG,"~ %s - %d\n",
+	    achLine,
+	    lMedian);
     free(puchBuffer);
-    /* dprintf(DEBUG_ORIG,"median=%ld, sum=%ld\n",lMedian,lSum); */
     WaitWhileBusy(2);
-  } while (cWhite<MIN_BONSAI_WHITE || cBlack>3);
+  } while (lMedian<CHASSIS_GRAY || !bHolesOk);
   
   dprintf(DEBUG_ORIG,"originate 3...\n");
   /* ... this blocks makes little to no movement (approx. -0.5 mm) */
@@ -373,11 +378,11 @@ void DoScanGray(FILE *fh, int cRows)
   cSteps=1;
   if (fh)
     {
-      fprintf(fh,"P5\n%d %d\n255\n",5100,2*cRows);
+      fprintf(fh,"P5\n%d %d\n255\n",MAX_PIXEL_PER_SCANLINE,2*cRows);
       fflush(fh);
     }
   if (bVerbose)
-    fprintf(stderr,"scanning %d by %d in gray\n",5100,2*cRows);
+    fprintf(stderr,"scanning %d by %d in gray\n",MAX_PIXEL_PER_SCANLINE,2*cRows);
   /* ... real scan, but grayscale, and with 1/600 inch movement */
   {
     unsigned char uchRegs2551[]={

@@ -1,7 +1,16 @@
 CHANGELOG
 =========
 
-26.3.200	11.9
+28.3.2001
+
+New origination algorithm based on the structure of the markers in the
+cover.
+
+The slider postition is calibrated with respect to the markers.
+
+Code should be fairly robust.
+
+27.3.2001	11.9
 
 - Added color descewing code. The stripes are at 2/300 inch distance.
 - Accelerated jogging supported only for movements >1 inch.
