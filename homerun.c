@@ -173,7 +173,7 @@ TState DoOriginate(TInstance *this)
 	}
     }
   DoJog(this,1); INST_ASSERT(); /* Correction for 1 check line */
-  return (this->state.bCanceled ? SANE_STATUS_CANCELED : SANE_STATUS_GOOD);
+  return (this->state.bCanceled ? SANE_STATUS_CANCELLED : SANE_STATUS_GOOD);
 }
 
 /* **********************************************************************

@@ -3,6 +3,7 @@ CHANGELOG
 
 5.5.2001
 
+Oops: Quickfix of SANE_STATUS_CANCELLED...
 Cancel-Signalisation in scantool.
 Dynamical speedy DoOriginate() für Black Bed detection.
 Homerun-Cancellation.
