@@ -1,14 +1,21 @@
 Things to do for the sm3600 backend
 
 1. Design issues
+----------------
 
 Reduce the amount of "magic", ie writing of data blocks that were
 logged from scanwizard without knowing entirely what they do.
 Eventually the driver should be able to compose all of the data for
 itself. 
 
+Figure out how to set the analogue front end gain and offset.
+
 2. Implementation issues
+------------------------
+
 31 May 2001 sm3600-homerun.c DoCalibration()
 make it use heap instead of stack memory for the scan lines buffer
+
+2 June 2001 Write a proper autoconf m4 macro for libusb.
 
 COMPLETED <cut and paste the resolved things below here>
