@@ -349,7 +349,7 @@ TState StartScanGray(TInstance *this)
   /* upload gamma table */
   RegWrite(this,0x41,1,0x01); /* gamma, gray */
   RegWrite(this,0x40,1,0x08); /* offset FIFO 8 KB spared */
-  UploadGammaTable(this,0,this->agammaGray); INST_ASSERT();
+  UploadGammaTable(this,0,this->agammaY); INST_ASSERT();
 
   /* for halftone dithering we need one history line */
   this->state.pchBuf=malloc(USB_CHUNK_SIZE);

@@ -66,6 +66,7 @@ Start: 2.4.2001
 #define DEBUG_REPLAY   0x0014
 #define DEBUG_BUFFER   0x0018
 #define DEBUG_SIGNALS  0x0020
+#define DEBUG_CALIB    0x0040
 
 #define DEBUG_CRITICAL 1
 #define DEBUG_VERBOSE  2
@@ -83,11 +84,16 @@ typedef enum { false, true } TBool;
 typedef SANE_Status TState;
 
 typedef struct {
+  TBool         bCalibrated;
   int           xMargin; /* in 1/600 inch */
   int           yMargin; /* in 1/600 inch */
   unsigned char nHoleGray;
   unsigned char nBarGray;
   long          rgbBias;
+  unsigned char      *achStripeY;
+  unsigned char      *achStripeR;
+  unsigned char      *achStripeG;
+  unsigned char      *achStripeB;
 } TCalibration;
 
 typedef struct {
@@ -164,7 +170,7 @@ typedef struct TInstance {
   SANE_Option_Descriptor    aoptDesc[NUM_OPTIONS];
   TOptionValue              aoptVal[NUM_OPTIONS];
 #endif
-  SANE_Int           agammaGray[4096];
+  SANE_Int           agammaY[4096];
   SANE_Int           agammaR[4096];
   SANE_Int           agammaG[4096];
   SANE_Int           agammaB[4096];
@@ -237,7 +243,6 @@ typedef enum { none, hpos, hposH, hres } TRegIndex;
 /* sm3600-scanutil.c */
 __SM3600EXPORT__ int SetError(TInstance *this, int nError, const char *szFormat, ...);
 __SM3600EXPORT__ void debug_printf(unsigned long ulType, const char *szFormat, ...);
-__SM3600EXPORT__ void DumpBuffer(FILE *fh, const char *pch, int cch);
 __SM3600EXPORT__ void FixExposure(unsigned char *pchBuf,
 				  int cchBulk,
 				  int nBrightness,
@@ -246,29 +251,39 @@ __SM3600EXPORT__ TState FreeState(TInstance *this, TState nReturn);
 __SM3600EXPORT__ TState EndScan(TInstance *this);
 __SM3600EXPORT__ TState ReadChunk(TInstance *this, unsigned char *achOut,
 				  int cchMax, int *pcchRead);
+#ifdef INSANE_VERSION
+__SM3600EXPORT__ void DumpBuffer(FILE *fh, const char *pch, int cch);
 __SM3600EXPORT__ TState DoScanFile(TInstance *this);
+#endif
+
 __SM3600EXPORT__ void   GetAreaSize(TInstance *this);
+__SM3600EXPORT__ void   ResetCalibration(TInstance *this);
+
 __SM3600EXPORT__ TState InitGammaTables(TInstance *this);
 __SM3600EXPORT__ TState CancelScan(TInstance *this);
 
 /* sm3600-scanmtek.c */
-__SM3600EXPORT__ extern unsigned short aidProduct[];
+extern unsigned short aidProduct[];
 __SM3600EXPORT__ TState DoInit(TInstance *this);
 __SM3600EXPORT__ TState DoReset(TInstance *this);
 __SM3600EXPORT__ TState WaitWhileBusy(TInstance *this,int cSecs);
 __SM3600EXPORT__ TState WaitWhileScanning(TInstance *this,int cSecs);
+#ifdef INSANE_VERSION
 __SM3600EXPORT__ TState DoLampSwitch(TInstance *this,int nPattern);
+#endif
 __SM3600EXPORT__ TState DoCalibration(TInstance *this);
 __SM3600EXPORT__ TState UploadGammaTable(TInstance *this, int iByteAddress, SANE_Int *pnGamma);
 
 /* sm3600-scanusb.c */
 __SM3600EXPORT__ TState RegWrite(TInstance *this,int iRegister, int cb, unsigned long ulValue);
 __SM3600EXPORT__ TState RegWriteArray(TInstance *this,int iRegister, int cb, unsigned char *pchBuffer);
+#ifdef INSANE_VERSIONx
 __SM3600EXPORT__ TState RegCheck(TInstance *this,int iRegister, int cch, unsigned long ulValue);
 __SM3600EXPORT__ int BulkRead(TInstance *this,FILE *fhOut, unsigned int cchBulk);
+__SM3600EXPORT__ TState MemReadArray(TInstance *this, int iAddress, int cb, unsigned char *pchBuffer);
+#endif
 __SM3600EXPORT__ int BulkReadBuffer(TInstance *this,unsigned char *puchBufferOut, unsigned int cchBulk); /* gives count */
 __SM3600EXPORT__ unsigned int RegRead(TInstance *this,int iRegister, int cch);
-__SM3600EXPORT__ TState MemReadArray(TInstance *this, int iAddress, int cb, unsigned char *pchBuffer);
 __SM3600EXPORT__ TState MemWriteArray(TInstance *this, int iAddress, int cb, unsigned char *pchBuffer);
 
 /* sm3600-gray.c */

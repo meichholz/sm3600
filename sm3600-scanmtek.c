@@ -46,7 +46,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: sm3600-scanmtek.c,v 1.1 2001/05/26 21:04:20 eichholz Exp $
+$Id: sm3600-scanmtek.c,v 1.2 2001/05/27 18:43:55 eichholz Exp $
 
 ====================================================================== */
 
@@ -208,6 +208,8 @@ TState WaitWhileScanning(TInstance *this, int cSecs)
   return SetError(this,SANE_STATUS_IO_ERROR,"Timeout while waiting for CSTAT");
 }
 
+#ifdef INSANE_VERSION
+
 /* **********************************************************************
 
 DoLampSwitch(nRegister)
@@ -223,17 +225,7 @@ TState DoLampSwitch(TInstance *this, int nPattern)
   return RegWrite(this, R_LMP, 1, nPattern);
 }
 
-/* **********************************************************************
-
-DoCalibration
-
-********************************************************************** */
-
-__SM3600EXPORT__
-TState DoCalibration(TInstance *this)
-{
-  return WaitWhileBusy(this,1);
-}
+#endif
 
 /* **********************************************************************
 

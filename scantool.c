@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scantool.c,v 1.26 2001/05/15 22:23:25 eichholz Exp $
+$Id: scantool.c,v 1.27 2001/05/27 18:43:55 eichholz Exp $
 
 (C) Marian Eichholz 2001
 
@@ -10,7 +10,7 @@ $Id: scantool.c,v 1.26 2001/05/15 22:23:25 eichholz Exp $
 
 #include "sm3600-scantool.h"
 
-#define REVISION "$Revision: 1.26 $"
+#define REVISION "$Revision: 1.27 $"
 
 #define USAGE \
 "usage: %s <outfile> <resolution> <x> <y> <w> <h>" \
@@ -117,6 +117,8 @@ void ExitCheck(TInstance *this)
   fprintf(stderr,"fatal:%s [%s] (aborting)\n",
 	  this->szErrorReason ? this->szErrorReason  : "unknown reason",
 	  achErrorMessages[this->nErrorState]);
+
+  ResetCalibration(this);
   if (this->hScanner) usb_close(this->hScanner);
   if (this->fhLog) fclose(this->fhLog);
   if (this->fhScan) fclose(this->fhScan);
@@ -307,11 +309,7 @@ int main(int cArg, char * const ppchArg[])
   this->param.nBrightness=0;
   this->param.nContrast=0;
 
-  this->calibration.xMargin=200;
-  this->calibration.yMargin=0x019D;
-  this->calibration.nHoleGray=10;
-  this->calibration.rgbBias=0x888884;
-  this->calibration.nBarGray=0xC0;
+  ResetCalibration(this);
 
   this->quality=fast;
   this->mode=color;
@@ -450,6 +448,7 @@ int main(int cArg, char * const ppchArg[])
 
   ExitCheck(this);
 
+  ResetCalibration(this);
   if (this->fhScan) fclose(this->fhScan);
   if (this->fhLog)  fclose(this->fhLog);
   if (this->hScanner) usb_close(this->hScanner);

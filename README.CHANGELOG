@@ -1,6 +1,13 @@
 CHANGELOG
 =========
 
+27.6.2001
+
+Fixed much compiler warnings.
+Removed memory leak in sane_exit() [devlist]
+Changed "GammaGray" to "GammaY".
+Added infrastructure for calibration stripe...
+
 26.5.2001
 
 Made an update of Glenns changes.

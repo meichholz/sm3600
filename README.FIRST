@@ -5,7 +5,7 @@ Content
 -------
 
 - Purpose
-- Broken Links and special names
+- Broken links and special names
 - Installing
 - Permissions
 - Contact
@@ -30,13 +30,13 @@ optimisations and options.
 2) A SANE backend module.
 
 
-Broken Links and special names
+Broken links and special names
 ------------------------------
 
 This is a DEVELOPMENT TREE, no "shrinkwrapped package". It is *very*
-alpha, but might me useful for You, if You are brave :-)
+alpha, but might me useful for you, if you are brave :-)
 
-Please have this notion in mind, if You find mysterious scripts with
+Please have this notion in mind, if you find mysterious scripts with
 magic SSH stuff, hard coded directories and all such things.
 
 There might be links to directories outside of the package (RCS or
@@ -61,12 +61,12 @@ an appropriate place.
 
 
 Permissions and USBDEVFS
----------------------
+------------------------
 
 Since we use the usblib interface for now, you need to grant the
 appropriate permissions to the /proc/bus/usb filesystem.
 
-If You have no special USB devices, it is completely sufficient to do:
+If you have no special USB devices, it is completely sufficient to do:
 
 	chown YOURUID /proc/bus/usb/???
 
@@ -77,10 +77,11 @@ anyway, would you?
 
 You might also find hotplug useful see http://linux-hotplug.sourceforge.net/ .
 
+
 Contact
 -------
 
-If You have ideas and suggestions about the code, please ask
+If you have ideas and suggestions about the code, please ask
 
 	mailto:eichholz@computer.org
 

@@ -45,7 +45,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: sm3600-scanutil.c,v 1.1 2001/05/26 21:04:20 eichholz Exp $
+$Id: sm3600-scanutil.c,v 1.2 2001/05/27 18:43:55 eichholz Exp $
 
 ====================================================================== */
 
@@ -109,6 +109,8 @@ int SetError(TInstance *this, int nError, const char *szFormat, ...)
   return nError;
 }
 
+#ifdef INSANE_VERSION
+
 /* **********************************************************************
 
 DumpBuffer(fh,pch,cch)
@@ -131,6 +133,8 @@ void DumpBuffer(FILE *fh, const char *pch, int cch)
     }
   fprintf(fh,"\n");
 }
+
+#endif
 
 /* **********************************************************************
 
@@ -329,6 +333,34 @@ void GetAreaSize(TInstance *this)
 
 /* ======================================================================
 
+ResetCalibration()
+
+Free calibration data. The Instance can be safely released afterwards.
+
+====================================================================== */
+
+__SM3600EXPORT__
+void ResetCalibration(TInstance *this)
+{
+  if (this->calibration.achStripeY)
+    free(this->calibration.achStripeY);
+  if (this->calibration.achStripeR)
+    free(this->calibration.achStripeR);
+  if (this->calibration.achStripeG)
+    free(this->calibration.achStripeG);
+  if (this->calibration.achStripeB)
+    free(this->calibration.achStripeB);
+  /* reset all handles, pointers, flags */
+  memset(&(this->calibration),0,sizeof(this->calibration));
+  this->calibration.xMargin=200;
+  this->calibration.yMargin=0x019D;
+  this->calibration.nHoleGray=10;
+  this->calibration.rgbBias=0x888884;
+  this->calibration.nBarGray=0xC0;
+}
+
+/* ======================================================================
+
 InitGammaTables()
 
 Init gammy tables and gain tables within controller memory.
@@ -341,7 +373,7 @@ TState InitGammaTables(TInstance *this)
   int           i;
   for (i=0; i<4096; i++)
     {
-      this->agammaGray[i]=i;
+      this->agammaY[i]=i;
       this->agammaR[i]=i;
       this->agammaG[i]=i;
       this->agammaB[i]=i;

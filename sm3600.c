@@ -61,7 +61,7 @@ Start: 2.4.2001
 
 #include <usb.h>
 
-#define BUILD	1
+#define BUILD	2
 
 #ifndef BACKEND_NAME
 #define BACKEND_NAME sm3600
@@ -113,7 +113,7 @@ typedef enum { optCount,
 	       optPreview, optGrayPreview,
 	       optGroupGeometry,optTLX, optTLY, optBRX, optBRY,
 	       optGroupEnhancement,
-	       optGammaGray, optGammaR,optGammaG,optGammaB,
+	       optGammaY, optGammaR,optGammaG,optGammaB,
 	       optLast } TOptionIndex;
 
 static const SANE_String_Const aScanModes[]= {  "color", "gray", "lineart",
@@ -269,7 +269,7 @@ InitOptions(TInstance *this)
 	  pdesc->constraint_type=SANE_CONSTRAINT_NONE;
 	  pdesc->cap  = SANE_CAP_ADVANCED;
 	  break;
-	case optGammaGray:
+	case optGammaY:
 	  pdesc->name     = SANE_NAME_GAMMA_VECTOR;
 	  pdesc->title    = SANE_TITLE_GAMMA_VECTOR;
 	  pdesc->desc     = SANE_DESC_GAMMA_VECTOR;
@@ -278,7 +278,7 @@ InitOptions(TInstance *this)
 	  pdesc->size     = 4096*sizeof(SANE_Int);
 	  pdesc->constraint_type = SANE_CONSTRAINT_RANGE;
 	  pdesc->constraint.range = &rangeGamma;
-	  pval->wa        = this->agammaGray;
+	  pval->wa        = this->agammaY;
 	  break;
 	case optGammaR:
 	  pdesc->name     = SANE_NAME_GAMMA_VECTOR_R;
@@ -401,6 +401,8 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback authCB)
   return SANE_STATUS_GOOD;
 }
 
+static const SANE_Device ** devlist = 0; /* only pseudo-statical */
+
 void
 sane_exit (void)
 {
@@ -417,20 +419,20 @@ sane_exit (void)
       free ((void *) dev->sane.name);
       free (dev);
     }
+  if (devlist) free(devlist);
+  devlist=NULL;
 }
 
 SANE_Status
 sane_get_devices (const SANE_Device *** device_list,
 		  SANE_Bool local_only)
 {
-  static const SANE_Device ** devlist = 0;
   TDevice *dev;
   int i;
 
   local_only = TRUE; /* Avoid compile warning */
 
-  if (devlist)
-    free (devlist);
+  if (devlist) free (devlist);
 
   devlist = malloc ((num_devices + 1) * sizeof (devlist[0]));
   if (!devlist)
@@ -465,8 +467,10 @@ sane_open (SANE_String_Const devicename, SANE_Handle *handle)
       return SANE_STATUS_INVAL;
   this = (TInstance*) calloc(1,sizeof(TInstance));
   if (!this) return SANE_STATUS_NO_MEM;
+
   *handle = (SANE_Handle)this;
-  
+
+  ResetCalibration(this); /* do not release memory */
   this->pNext=pinstFirst; /* register open handle */
   pinstFirst=this;
   /* open and prepare USB scanner handle */
@@ -479,13 +483,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle *handle)
   if (usb_set_configuration(this->hScanner, 1))
     return SetError(this,SANE_STATUS_IO_ERROR, "cannot set USB config 1");
 
-  this->calibration.xMargin=200;
-  this->calibration.yMargin=0x019D;
-  this->calibration.nHoleGray=10;
-  this->calibration.rgbBias=0x888884;
-  this->calibration.nBarGray=0xC0;
   this->quality=fast;
-
   return InitOptions(this);
 }
 
@@ -502,6 +500,7 @@ sane_close (SANE_Handle handle)
       usb_close(this->hScanner);
       this->hScanner=NULL;
     }
+  ResetCalibration(this); /* release calibration data */
   /* unlink active device entry */
   pParent=NULL;
   for (p=pinstFirst; p; p=p->pNext)
@@ -579,7 +578,7 @@ sane_control_option (SANE_Handle handle, SANE_Int iOpt,
 	case optMode:
 	  strcpy(pVal,this->aoptVal[iOpt].s);
 	  break;
-	case optGammaGray:
+	case optGammaY:
 	case optGammaR:
 	case optGammaG:
 	case optGammaB:
@@ -617,7 +616,7 @@ sane_control_option (SANE_Handle handle, SANE_Int iOpt,
 	      | SANE_INFO_RELOAD_OPTIONS;
 	  strcpy(this->aoptVal[iOpt].s,pVal);
 	  break;
-	case optGammaGray:
+	case optGammaY:
 	case optGammaR:	case optGammaG:	case optGammaB:
 	  DBG(DEBUG_INFO,"setting gamma #%d\n",iOpt);
 	  memcpy(this->aoptVal[iOpt].wa, pVal, this->aoptDesc[iOpt].size);
@@ -701,6 +700,7 @@ sane_start (SANE_Handle handle)
   if (this->state.bScanning) return SANE_STATUS_DEVICE_BUSY;
   rc=SetupInternalParameters(this);
   this->state.bCanceled=false;
+  if (!rc) rc=DoInit(this); /* oopsi, we should initalise :-) */
   if (!rc) rc=DoOriginate(this,true);
   if (!rc) rc=DoJog(this,this->calibration.yMargin);
   if (rc) return rc;

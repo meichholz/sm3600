@@ -201,6 +201,27 @@ static TLineType GetLineType(TInstance *this)
 
 /* **********************************************************************
 
+DoCalibration
+
+********************************************************************** */
+
+__SM3600EXPORT__
+TState DoCalibration(TInstance *this)
+{
+  if (this->calibration.bCalibrated)
+    return SANE_STATUS_GOOD;
+  DoJog(this,150);
+  usleep(100);
+  /* scan a gray line at 600 DPI */
+  /* scan a color line at 600 DPI */
+  DoJog(this,-150);
+  INST_ASSERT();
+  this->calibration.bCalibrated=true;
+  return SANE_STATUS_GOOD;
+}
+
+/* **********************************************************************
+
 DoOriginate()
 
 *shall* one time move the slider safely back to its origin.
@@ -325,6 +346,8 @@ TState DoJog(TInstance *this, int nDistance)
     }
   INST_ASSERT();
   usleep(100);
-  return WaitWhileBusy(this,100);
+  WaitWhileBusy(this,100);
+  INST_ASSERT();
+  return DoCalibration(this);
 }
 

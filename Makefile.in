@@ -1,4 +1,4 @@
-# $Id: Makefile.in,v 1.23 2001/05/07 22:50:27 eichholz Exp $
+# $Id: Makefile.in,v 1.24 2001/05/27 18:43:55 eichholz Exp $
 #
 # -------------------------------------------------------------------
 #
@@ -36,9 +36,10 @@ LIBTOOL= 	/usr/bin/libtool
 
 BINARIES=	scantool
 
-SCANTOOL_MODS=	scantool.o  scanutil.o gray.o color.o homerun.o \
-		scanvars.o scanusb.o scanmtek.o
-SCANTOOL_H=	scantool.h
+SCANTOOL_MODS=  scantool.o scanvars.o \
+		sm3600-scanutil.o sm3600-gray.o sm3600-color.o \
+		sm3600-homerun.o sm3600-scanusb.o sm3600-scanmtek.o
+SCANTOOL_H=	sm3600.h sm3600-scantool.h
 
 # ======================================================================
 
@@ -50,7 +51,7 @@ default: testscan
 
 bin:	$(BINARIES)
 
-$(SCANTOOL_MODS) : sm3600.h scantool.h
+$(SCANTOOL_MODS) : $(SCANTOOL_H)
 
 all:	bin
 

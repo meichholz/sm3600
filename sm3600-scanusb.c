@@ -46,7 +46,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: sm3600-scanusb.c,v 1.1 2001/05/26 21:04:20 eichholz Exp $
+$Id: sm3600-scanusb.c,v 1.2 2001/05/27 18:43:55 eichholz Exp $
 
 (C) Marian Eichholz 2001
 
@@ -192,6 +192,8 @@ MemReadArray(iRegister, cb, ulValue)
 
 ********************************************************************** */
 
+#ifdef INSANE_VERSION
+
 __SM3600EXPORT__
 TState MemReadArray(TInstance *this, int iAddress, int cb, unsigned char *pchBuffer)
 {
@@ -327,6 +329,8 @@ int BulkRead(TInstance *this, FILE *fhOut, unsigned int cchBulk)
   free(pchBuffer);
   return rc ? -1 : cchRead;
 }
+
+#endif
 
 /* **********************************************************************
 
