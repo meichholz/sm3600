@@ -1,6 +1,17 @@
 CHANGELOG
 =========
 
+5.5.2001
+
+Cancel-Signalisation in scantool.
+Dynamical speedy DoOriginate() für Black Bed detection.
+Homerun-Cancellation.
+Fix of the DoJog()-parameter.
+
+2.5.2001
+
+Fix of RGB-gamma-mapping.
+
 1.5.2001
 
 Labour day: Coding work :-)

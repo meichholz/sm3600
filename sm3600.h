@@ -22,6 +22,7 @@ Start: 2.4.2001
 #define DEBUG_DEVSCAN  0x0012
 #define DEBUG_REPLAY   0x0014
 #define DEBUG_BUFFER   0x0018
+#define DEBUG_SIGNALS  0x0020
 
 #define DEBUG_CRITICAL 1
 #define DEBUG_VERBOSE  2

@@ -73,12 +73,12 @@ static const SANE_String_Const aScanModes[]= {  "color", "gray", "lineart",
 
 static const SANE_Range rangeXmm = {
   SANE_FIX(0),
-  SANE_FIX(210),
+  SANE_FIX(220),
   SANE_FIX(0.1) };
 
 static const SANE_Range rangeYmm = {
   SANE_FIX(0),
-  SANE_FIX(295),
+  SANE_FIX(300),
   SANE_FIX(0.1) };
 
 static const SANE_Range rangeLumi = {

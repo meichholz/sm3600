@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scantool.c,v 1.22 2001/04/21 22:30:13 eichholz Exp $
+$Id: scantool.c,v 1.23 2001/05/05 22:42:23 eichholz Exp $
 
 (C) Marian Eichholz 2001
 
@@ -10,7 +10,7 @@ $Id: scantool.c,v 1.22 2001/04/21 22:30:13 eichholz Exp $
 
 #include "scantool.h"
 
-#define REVISION "$Revision: 1.22 $"
+#define REVISION "$Revision: 1.23 $"
 
 #define USAGE \
 "usage: %s <outfile> <resolution> <x> <y> <w> <h>" \
@@ -58,6 +58,54 @@ static void TellRevision(void)
 
 /* **********************************************************************
 
+CatchAbortRequest()
+
+A signal handler for catching the all important SIGINT (Ctrl-C).
+
+********************************************************************** */
+
+static void CatchAbortRequest(int idSignal, siginfo_t * psi, void * pDummy2)
+{
+  sigset_t set;
+  sigemptyset(&set);
+  sigaddset(&set, idSignal);
+  sigprocmask(SIG_BLOCK, &set, NULL);
+  dprintf(DEBUG_SIGNALS,"got a %d signal!\n",idSignal);
+  switch (idSignal)
+    {
+    case SIGINT:
+      devInstance.state.bCanceled=true;
+      if (devInstance.bVerbose)
+	fprintf(stderr,"ABORT requested...\n");
+      break;
+    }
+  sigprocmask(SIG_UNBLOCK, &set, NULL);
+}
+
+/* **********************************************************************
+
+SetSignalHandler(bSet)
+
+Install or deinstall the signal handler for INT.
+
+********************************************************************** */
+
+static void SetSignalHandler(TBool bSetit)
+{
+  static struct sigaction sigCatcher;
+
+  memset(&sigCatcher,0,sizeof(sigCatcher));
+
+  sigCatcher.sa_sigaction=CatchAbortRequest;
+  sigemptyset(&sigCatcher.sa_mask);
+  if (bSetit)
+    {
+      sigaction(SIGINT,  &sigCatcher, NULL);
+    }
+}
+
+/* **********************************************************************
+
 ExitCheck(pinst)
 
 ********************************************************************** */
@@ -65,6 +113,7 @@ ExitCheck(pinst)
 void ExitCheck(TInstance *this)
 {
   if (!this->nErrorState) return;
+  SetSignalHandler(false);
   fprintf(stderr,"fatal:%s [%s] (aborting)\n",
 	  this->szErrorReason ? this->szErrorReason  : "unknown reason",
 	  achErrorMessages[this->nErrorState]);
@@ -125,7 +174,7 @@ static int RunDialog(TInstance *this)
   chChoice='?';
   nParam=0;
   nSign=1;
-  while (chChoice!='q')
+  while (chChoice!='q' && !this->state.bCanceled)
     {
       if (chChoice!='\n')
 	{
@@ -393,6 +442,8 @@ int main(int cArg, char * const ppchArg[])
   OpenScanner(this,pdevScanner);
   ExitCheck(this);
 
+  SetSignalHandler(true);
+
   if (bInteractive)
     RunDialog(this);
   else
@@ -403,6 +454,7 @@ int main(int cArg, char * const ppchArg[])
   if (this->fhScan) fclose(this->fhScan);
   if (this->fhLog)  fclose(this->fhLog);
   if (this->hScanner) usb_close(this->hScanner);
+  SetSignalHandler(false);
  
   return 0;
 }

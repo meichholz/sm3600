@@ -16,6 +16,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <signal.h>
 
 #include <errno.h>
 
@@ -24,7 +25,7 @@
 #ifdef INSANE_VERSION
 
 typedef enum { SANE_STATUS_GOOD,
-	       SANE_STATUS_CANCELLED,
+	       SANE_STATUS_CANCELED,
 	       SANE_STATUS_UNSUPPORTED,
 	       SANE_STATUS_EOF,
 	       SANE_STATUS_NO_MEM,

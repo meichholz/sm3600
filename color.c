@@ -232,8 +232,8 @@ TState StartScanColor(TInstance *this)
       {
 	switch (*pch)
 	  {
-	  case 'R': pn=this->agammaR; break;
-	  case 'G': pn=this->agammaG; break;
+	  case '0': pn=this->agammaR; break;
+	  case '1': pn=this->agammaG; break;
 	  default:  pn=this->agammaB; break;
 	  }
 	UploadGammaTable(this,iBase,pn);
