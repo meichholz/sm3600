@@ -77,6 +77,8 @@ Start: 2.4.2001
 
 #define SCANNER_VENDOR     0x05DA
 
+#define MAX_PIXEL_PER_SCANLINE  5300
+
 /* ====================================================================== */
 
 typedef enum { false, true } TBool;

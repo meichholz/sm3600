@@ -190,8 +190,9 @@ TState StartScanColor(TInstance *this)
   {
     unsigned char uchRegs[]={
       0xFC /*!!R_SPOS!!*/, 0x00 /*R_SPOSH*/, 0x24 /*!!0x03!!*/,
-      0xB0 /*!!R_SWID!!*/, 0xC4 /*!!R_SWIDH!!*/, 0x06 /*!!R_STPS!!*/,
-      0x00 /*!!R_STPSH!!*/, 0xFF /*!!0x08!!*/, 0xFF /*!!0x09!!*/,
+      0xB0 /*!!R_SWID!!*/, 0xC4 /*!!R_SWIDH!!*/,
+      1,0,
+      0xFF /*!!0x08!!*/, 0xFF /*!!0x09!!*/,
       0x22 /*!!R_LEN!!*/, 0x07 /*!!R_LENH!!*/, 0x6D /*0x0C*/,
       0x70 /*0x0D*/, 0x69 /*0x0E*/, 0xD0 /*0x0F*/,
       0x00 /*0x10*/, 0x00 /*0x11*/, 0x42 /*!!0x12!!*/,
@@ -266,7 +267,7 @@ TState StartScanColor(TInstance *this)
 
   /* setup gamma tables */
   RegWrite(this,0x41,1,0x03); /* gamma, RGB */
-  RegWrite(this,0x40,1,0x18); /* offset FIFO 8*3 KB spared */
+  RegWrite(this,0x40,1,0x28); /* offset FIFO 8*3 (GAMMA)+16 KB(gain) spared */
   /*
     hey, surprise: Although the color lines are sent in a strange order,
     the gamma tables are mapped constantly to the sensors (i.e. RGB)
@@ -276,6 +277,32 @@ TState StartScanColor(TInstance *this)
   UploadGammaTable(this,0x4000,this->agammaB);
   INST_ASSERT();
 
+#define GAIN_CORRECTION
+#ifdef GAIN_CORRECTION
+  RegWrite(this,0x3D,1,0x0F | 0x80); /* 10XXXXXX : one offset table */
+  RegWrite(this,0x3F,1,0x18); /* 16KB gain at 0x06000 */
+  {
+    unsigned short uwGain[8192];
+    int i,iOff;
+    int nAvg=0;
+
+    /*
+      Oopsi: correction data starts at the left of the scanning window!
+    */
+    iOff=this->param.x/2+this->calibration.xMargin;
+    if (iOff<8) iOff=8;
+    for (i=iOff; i<MAX_PIXEL_PER_SCANLINE; i++)
+      {
+	int ii;
+	nAvg=0;
+	for (ii=0; ii<8; ii++)
+	  nAvg+=this->calibration.achStripeY[i-ii];
+	uwGain[i-iOff]=nAvg<<1;
+      }
+    for (i=0; i<0x4000; i+=0x1000)
+      MemWriteArray(this,(0x6000+i)>>1,0x1000,(unsigned char*)&uwGain[i>>1]);
+  }
+#endif
 
   /* enough for 1/100 inch sensor distance */
   this->state.cBacklog=1+2*this->state.ySensorSkew;

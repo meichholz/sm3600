@@ -349,38 +349,30 @@ TState StartScanGray(TInstance *this)
 
   /* upload gamma table */
   RegWrite(this,0x41,1,0x01); /* gamma, gray */
-  RegWrite(this,0x40,1,0x80); /* FIFO at   0x20000 */
+  RegWrite(this,0x40,1,0x20); /* FIFO at   0x08000 */
   UploadGammaTable(this,0,this->agammaY); INST_ASSERT();
-#ifdef OFFSET_CORRECTION
-  RegWrite(this,0x3D,1,0x0F | 0x20); /* XX10XXXX : one offset table */
-  RegWrite(this,0x3E,1,0x08); /* offset at 0x02000 */
-  {
-    unsigned char achOffset[8192];
-    int i;
-    for (i=0; i<5110; i++)
-      {
-	int n=511-i*511/5110;
-	achOffset[i]=i<3000 ? 255 : 0;
-	/* achOffset[i]=(i&0x1)? 255 : 0; */
-      }
-    MemWriteArray(this,0x2000>>1,0x1000,achOffset+0x0000);
-    MemWriteArray(this,0x3000>>1,0x1000,achOffset+0x1000);
-  }
-#endif
 
-#define xGAIN_CORRECTION
+#define GAIN_CORRECTION
 #ifdef GAIN_CORRECTION
   RegWrite(this,0x3D,1,0x0F | 0x80); /* 10XXXXXX : one offset table */
   RegWrite(this,0x3F,1,0x08); /* 16KB gain at 0x02000 */
   {
     unsigned short uwGain[8192];
-    int i;
-    int nSwing=0x600;
-    for (i=0; i<2560; i++)
+    int i,iOff;
+    int nAvg=0;
+
+    /*
+      Oopsi: correction data starts at the left of the scanning window!
+    */
+    iOff=this->param.x/2+this->calibration.xMargin;
+    if (iOff<8) iOff=8;
+    for (i=iOff; i<MAX_PIXEL_PER_SCANLINE; i++)
       {
-	uwGain[i]=uwGain[5109-i]=
-	  (0xFFF-nSwing)+(i*nSwing/2559);
-	/* achOffset[i]=(i&0x1)? 255 : 0; */
+	int ii;
+	nAvg=0;
+	for (ii=0; ii<8; ii++)
+	  nAvg+=this->calibration.achStripeY[i-ii];
+	uwGain[i-iOff]=nAvg<<1;
       }
     for (i=0; i<0x4000; i+=0x1000)
       MemWriteArray(this,(0x2000+i)>>1,0x1000,(unsigned char*)&uwGain[i>>1]);

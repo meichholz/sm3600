@@ -1,6 +1,14 @@
 CHANGELOG
 =========
 
+28.6.2001
+
+Increased MAX_PIXEL_PER_SCANLINE to 5300 (seems to be a real limit?).
+StripeY is calculated, smoothed and applied to gray and color scans.
+Fullbed width corrected to 22 cm.
+
+TODO: Color calibration is lacking (color offsets or so).
+
 27.6.2001
 
 Added some experimental stuff for gain correction

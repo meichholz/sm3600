@@ -161,7 +161,7 @@ InitOptions(TInstance *this)
       static char *achDescXY[]= {
 	SANE_DESC_SCAN_TL_X,	SANE_DESC_SCAN_TL_Y,
 	SANE_DESC_SCAN_BR_X,	SANE_DESC_SCAN_BR_Y };
-      static double afFullBed[] = { 20.0,30.0, 50.0, 80.0 }; /* TODO: calculate exactly! */
+      static double afFullBed[] = { 22.0,30.0, 50.0, 80.0 }; /* TODO: calculate exactly! */
       static const SANE_Range *aRangesXY[] = { &rangeXmm,&rangeYmm,&rangeXmm,&rangeYmm };
       SANE_Option_Descriptor *pdesc;
       TOptionValue           *pval;
