@@ -1,9 +1,14 @@
 CHANGELOG
 =========
 
+30.6.2001
+
+Made InitOptions() static.
+Incorporated optional MEDIAN calibration without hanning filter.
+
 29.6.2001
 
-Changed calibration scan to median smoothing. No horizontal smoothing.
+Changed calibration scan to RMS smoothing. No horizontal smoothing.
 Looks goooood!
 
 28.6.2001
