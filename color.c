@@ -111,25 +111,24 @@ TState StartScanColor(TInstance *this)
      construction.  Thus, we have to deal with several buffers, some
      interpolation, and related management stuff. */
   int             i;
-  int             cxWindow;
   if (this->state.bScanning)
     return SetError(this,SANE_STATUS_DEVICE_BUSY,"scan active");
   memset(&(this->state),0,sizeof(this->state));
-  this->state.nFixAspect=100;
   this->state.ReadProc  =ReadNextColorLine;
   this->state.ySensorSkew=0;
 
+  GetAreaSize(this);
+
   switch (this->param.res)
     {
-    case 75:  this->state.nFixAspect=75; break;
     case 200: this->state.ySensorSkew=1; break;
     case 300: this->state.ySensorSkew=2; break;
     case 600: this->state.ySensorSkew=4; break;
+    default: break;
     }
   /* since we need 2*this->state.ySensorSkew additional scan lines for de-skewing of
      the sensor lines, we enlarge the window and shorten the initial movement
      accordingly */
-  this->state.cyPixel   =this->param.cy*this->param.res/1200;
   this->state.cyTotalPath =
     this->param.y/2-(2*this->state.ySensorSkew)*600/this->param.res;
   DoJog(this,this->state.cyTotalPath); INST_ASSERT();
@@ -175,22 +174,18 @@ TState StartScanColor(TInstance *this)
     RegWrite(this,R_SLEN, 2, (this->state.cyPixel+2*this->state.ySensorSkew)*600/this->param.res);
     this->state.szOrder=ORDER_BRG; 
     RegWrite(this,R_CCAL, 3, this->calibration.rgbBias); INST_ASSERT(); /* 0xBBGGRR */
-    this->state.cxPixel   =this->param.cx*this->param.res/1200;
-    this->state.cxMax=this->state.cxPixel;
-    cxWindow=this->state.cxPixel*600/this->param.res;
     switch (this->param.res)
       {
       case 75:
 	RegWrite(this,R_XRES,1, 0x20); /* ups, can  do only 100 dpi horizontal */
-	this->state.cxMax=this->state.cxMax*100/75;
-	RegWrite(this,R_SWID, 2, 0xC000 | this->state.cxMax*6);
+	RegWrite(this,R_SWID, 2, 0xC000 | this->state.cxWindow);
 	RegWrite(this,0x34, 1, 0x83); /* halfs the vertical resolution */
 	RegWrite(this,0x47,1,0xC0); /* reduces the speed a bit */
 	this->state.szOrder=ORDER_BRG;
 	break;
       case 100:
 	RegWrite(this,R_XRES,1, 0x20);
-	RegWrite(this,R_SWID, 2, 0xC000 | cxWindow);
+	RegWrite(this,R_SWID, 2, 0xC000 | this->state.cxWindow);
 	RegWrite(this,0x34, 1, 0x63); /* halfs the vertical resolution */
 	RegWrite(this,0x47,1,0xC0); /* reduces the speed a bit */
 	/* I have no idea, what these differences are good for. The seem to produce
@@ -201,19 +196,19 @@ TState StartScanColor(TInstance *this)
 	break;
       case 200:
 	RegWrite(this,R_XRES,1, 0x24);
-	RegWrite(this,R_SWID, 2, 0xC000 | cxWindow);
+	RegWrite(this,R_SWID, 2, 0xC000 | this->state.cxWindow);
 	break;
       case 300:
 	RegWrite(this,0x08,2, 0x6A6A);
 	RegWrite(this,R_XRES,1, 0x2A);
-	RegWrite(this,R_SWID, 2, 0x4000 | cxWindow);
+	RegWrite(this,R_SWID, 2, 0x4000 | this->state.cxWindow);
 	RegWrite(this,0x34, 1, 0x03); /* halfs the vertical resolution */
 	RegWrite(this,0x47,1,0xC0); /* reduces the speed a bit */
 	this->state.szOrder=ORDER_RGB;
 	break;
       case 600:
 	RegWrite(this,R_XRES,1, 0x3F);
-	RegWrite(this,R_SWID, 2, 0xC000 | cxWindow);
+	RegWrite(this,R_SWID, 2, 0xC000 | this->state.cxWindow);
 	RegWrite(this,0x34, 1, 0x03); /* halfs the vertical resolution */
 	RegWrite(this,0x47,1,0xC2); /* reduces the speed a bit */
 	break;
@@ -222,10 +217,6 @@ TState StartScanColor(TInstance *this)
 	break;
       }
   }
-
-  dprintf(DEBUG_SCAN,"requesting color %d[600] %d[real] %d[raw]\n",
-	  cxWindow,this->state.cxPixel,this->state.cxMax);
-
 
   /* enough for 1/100 inch sensor distance */
   this->state.cBacklog=1+2*this->state.ySensorSkew;
@@ -251,7 +242,7 @@ TState StartScanColor(TInstance *this)
   this->state.cchLineOut=3*this->state.cxPixel;
   this->state.pchLineOut = malloc(this->state.cchLineOut);
   if (!this->state.pchLineOut)
-  return FreeState(this,SetError(this,
+    return FreeState(this,SetError(this,
 				   SANE_STATUS_NO_MEM,
 				   "no buffers available"));
 

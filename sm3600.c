@@ -396,10 +396,13 @@ void sane_close (SANE_Handle handle)
   TInstance *this,*pParent,*p;
   this=(TInstance*)handle;
   DBG(DEBUG_VERBOSE,"closing scanner\n");
-  if (this->state.bScanning)
-    EndScan(this);
   if (this->hScanner)
-    usb_close(this->hScanner);
+    {
+      if (this->state.bScanning)
+	EndScan(this);
+      usb_close(this->hScanner);
+      this->hScanner=NULL;
+    }
   /* unlink active device entry */
   pParent=NULL;
   for (p=pinstFirst; p; p=p->pNext)
@@ -549,8 +552,9 @@ SANE_Status sane_get_parameters (SANE_Handle handle, SANE_Parameters *p)
   this=(TInstance*)handle;
   SetupInternalParameters(this);
   DBG(DEBUG_INFO,"getting parameters...\n");
-  p->pixels_per_line=this->param.cx*this->param.res/1200;
-  p->lines=this->param.cy*this->param.res/1200;
+  GetAreaSize(this);
+  p->pixels_per_line=this->state.cxPixel;
+  p->lines=this->state.cyPixel;
   p->last_frame=SANE_TRUE;
   switch (this->mode)
     {

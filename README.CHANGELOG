@@ -1,10 +1,23 @@
 CHANGELOG
 =========
 
+20.4.2001
+
+GetAreaSize() centralizes the derivation of state-geometry-variables,
+including cxWindow. Used by Color and Gray scan.
+
+Seems to have more stable cxMax/cxWindow pairing with 75 DPI.
+
+Fixed double usb_close().
+
+Prescan with Xsane still crashes on cancel().
+
 19.4.2001
 
 Rework of the dimension control cvariable calculation in the StartXXXScan()
 functions.
+
+Homerun needs not so much luminiscence.
 
 BUG: Color scan is broken and smashes the stack in many situations. Even with
 "scantool". Investigation is starting...

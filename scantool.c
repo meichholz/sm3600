@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scantool.c,v 1.20 2001/04/18 22:39:56 eichholz Exp $
+$Id: scantool.c,v 1.21 2001/04/19 22:40:16 eichholz Exp $
 
 (C) Marian Eichholz 2001
 
@@ -10,7 +10,7 @@ $Id: scantool.c,v 1.20 2001/04/18 22:39:56 eichholz Exp $
 
 #include "scantool.h"
 
-#define REVISION "$Revision: 1.20 $"
+#define REVISION "$Revision: 1.21 $"
 
 #define USAGE \
 "usage: %s <outfile> <resolution> <x> <y> <w> <h>" \
@@ -103,7 +103,8 @@ static int OpenScanner(TInstance *this,
     {
       rc=usb_set_configuration(this->hScanner, 1); /* 0 or 1 ? */
       if (rc<0)
-	return SetError(this,SANE_STATUS_IO_ERROR,"set USB config: %s",usb_strerror());
+	return SetError(this,SANE_STATUS_IO_ERROR,
+			"set USB config: %s",usb_strerror());
     }
   return 0;
 }
@@ -176,16 +177,19 @@ Do some funny things with the given scanner and see if it crashes.
 
 static int ScanToFile(TInstance *this)
 {
+  TState rc;
   if (!this->fhScan)
     return SetError(this,SANE_STATUS_INVAL,"test scan file not given");
 
-  DoInit(this);
-  DoJog(this,200);
-  DoOriginate(this);
-  DoJog(this,this->calibration.yMargin);
-  DoScanFile(this);
-  INST_ASSERT();
-  return DoJog(this,-this->calibration.yMargin);
+  /* fprintf(stderr,"Verbose 1 = %d\n",this->bVerbose); */
+  rc=SANE_STATUS_GOOD;
+  if (rc==SANE_STATUS_GOOD) rc=DoInit(this);
+  if (rc==SANE_STATUS_GOOD) rc=DoJog(this,200); 
+  if (rc==SANE_STATUS_GOOD) rc=DoOriginate(this); 
+  if (rc==SANE_STATUS_GOOD) rc=DoJog(this,this->calibration.yMargin);
+  if (rc==SANE_STATUS_GOOD) rc=DoScanFile(this);
+  if (rc==SANE_STATUS_GOOD) rc=DoJog(this,-this->calibration.yMargin);
+  return rc;
 }
 
 /* **********************************************************************
@@ -391,7 +395,6 @@ int main(int cArg, char * const ppchArg[])
 
   ExitCheck(this);
 
-  usb_close(this->hScanner);
   if (this->fhScan) fclose(this->fhScan);
   if (this->fhLog)  fclose(this->fhLog);
   if (this->hScanner) usb_close(this->hScanner);

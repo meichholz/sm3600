@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scanusb.c,v 1.4 2001/04/10 22:23:00 eichholz Exp $
+$Id: scanusb.c,v 1.5 2001/04/19 22:40:16 eichholz Exp $
 
 (C) Marian Eichholz 2001
 
@@ -176,12 +176,12 @@ int BulkRead(TInstance *this, FILE *fhOut, unsigned int cchBulk)
   if (fhOut && !rc)
     {
       fwrite(pchBuffer,1,cchRead,fhOut);
-      free(pchBuffer);
       if (ferror(fhOut))
 	rc=SetError(this,SANE_STATUS_IO_ERROR,
 		    "scan file write failed: %s",
 		    strerror(errno));
     }
+  free(pchBuffer);
   return rc ? -1 : cchRead;
 }
 
@@ -232,6 +232,7 @@ int BulkReadBuffer(TInstance *this,
   
   if (!rc && puchBufferOut)
     memcpy(puchBufferOut,pchBuffer,cchRead);
+  free(pchBuffer);
   return rc ? -1 : cchRead;
 }
 
@@ -272,6 +273,7 @@ unsigned int RegRead(TInstance *this, int iRegister, int cch)
       free(pchTransfer);
       return n;
     }
+  free(pchTransfer);
   SetError(this,SANE_STATUS_IO_ERROR,"error during register read");
   return 0;
 }

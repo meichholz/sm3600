@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scanutil.c,v 1.8 2001/04/18 22:39:56 eichholz Exp $
+$Id: scanutil.c,v 1.9 2001/04/19 22:40:16 eichholz Exp $
 
 ====================================================================== */
 
@@ -51,8 +51,8 @@ int SetError(TInstance *this, int nError, const char *szFormat, ...)
     {
       va_start(ap,szFormat);
       vsnprintf(this->szErrorReason,499,szFormat,ap);
-      this->szErrorReason[499]='\0';
       va_end(ap);
+      this->szErrorReason[499]='\0';
     }
   return nError;
 }
@@ -121,7 +121,7 @@ TState FreeState(TInstance *this, TState nReturn)
   int i;
   if (this->state.ppchLines)
     {
-      for (i=this->state.cBacklog-1; i<=0; i--)
+      for (i=this->state.cBacklog-1; i>=0; i--)
 	{
 	  if (this->state.ppchLines[i])
 	    free(this->state.ppchLines[i]);
@@ -165,11 +165,13 @@ TState ReadChunk(TInstance *this, unsigned char *achOut,
   /* can the current line fill the buffer ? */
   *pcchRead=0;
   INST_ASSERT();
+  dprintf(DEBUG_BUFFER,"Chunk-Init: cchMax = %d\n",cchMax);
   while (this->state.iReadPos + cchMax > this->state.cchLineOut)
     {
       int rc;
+      int cch;
       /* copy rest of the line into target */
-      int cch = this->state.cchLineOut - this->state.iReadPos;
+      cch = this->state.cchLineOut - this->state.iReadPos;
       memcpy(achOut,
 	     this->state.pchLineOut+this->state.iReadPos,
 	     cch);
@@ -178,9 +180,11 @@ TState ReadChunk(TInstance *this, unsigned char *achOut,
       (*pcchRead)+=cch;
       this->state.iReadPos=0;
       rc=(*(this->state.ReadProc))(this);
+      dprintf(DEBUG_BUFFER,"Chunk-Read: cchMax = %d\n",cchMax);
       if (rc!=SANE_STATUS_GOOD)
 	return rc; /* may be EOF, then: good and away! */
     }
+  dprintf(DEBUG_BUFFER,"Chunk-Exit: cchMax = %d\n",cchMax);
   if (!cchMax) return SANE_STATUS_GOOD; /* now everything fits! */
   (*pcchRead) += cchMax;
   memcpy(achOut,
@@ -188,6 +192,32 @@ TState ReadChunk(TInstance *this, unsigned char *achOut,
 	 cchMax);
   this->state.iReadPos += cchMax;
   return SANE_STATUS_GOOD;
+}
+
+/* ======================================================================
+
+GetAreaSize()
+
+====================================================================== */
+
+void GetAreaSize(TInstance *this)
+{
+  /* this->state.cxPixel : pixels, we *want* (after interpolation)
+     this->state.cxMax   : pixels, we *need* (before interpolation) */
+  int nRefRes;
+  nRefRes=this->param.res;
+  switch (this->param.res)
+    {
+    case 75:  nRefRes=100; this->state.nFixAspect=75; break;
+    default: this->state.nFixAspect=100; break;
+    }
+  this->state.cxPixel   =this->param.cx*this->param.res/1200;
+  this->state.cyPixel   =this->param.cy*this->param.res/1200;
+  this->state.cxMax     =this->state.cxPixel*100/this->state.nFixAspect;
+  /* this->state.cxWindow  =this->param.cx*600/1200; */
+  this->state.cxWindow  =this->state.cxMax*600/nRefRes;
+  dprintf(DEBUG_SCAN,"requesting %d[600] %d[real] %d[raw]\n",
+	  this->state.cxWindow,this->state.cxPixel,this->state.cxMax);
 }
 
 #ifdef INSANE_VERSION
@@ -207,7 +237,9 @@ TState DoScanFile(TInstance *this)
   int    cx,cy;
   long   lcchRead;
   TState rc;
-static   char   achBuf[APP_CHUNK_SIZE*10];
+  char   *achBuf;
+
+  achBuf=malloc(APP_CHUNK_SIZE);
   rc=SANE_STATUS_GOOD; /* make compiler happy */
   if (this->mode==color)
     rc=StartScanColor(this);
@@ -242,6 +274,7 @@ static   char   achBuf[APP_CHUNK_SIZE*10];
 	  lcchRead+=cch;
 	}
      }
+  free(achBuf);
   if (this->bVerbose)
     fprintf(stderr,"read %ld image byte(s)\n",lcchRead);
   EndScan(this);

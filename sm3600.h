@@ -21,6 +21,7 @@ Start: 2.4.2001
 #define DEBUG_BASE     0x0011
 #define DEBUG_DEVSCAN  0x0012
 #define DEBUG_REPLAY   0x0014
+#define DEBUG_BUFFER   0x0018
 
 #define DEBUG_CRITICAL 1
 #define DEBUG_VERBOSE  2
@@ -78,6 +79,7 @@ typedef struct TScanState {
   int             cchLineOut;   /* buffer size */
   int             cxPixel,cyPixel; /* real pixel */
   int             cxMax;        /* uninterpolated in real pixels */
+  int             cxWindow;     /* Window with in sensor pixel */
   int             cyTotalPath;  /* from bed start to window end in 600 dpi */
   int             nFixAspect;   /* aspect ratio in percent, 75-100 */
   int             cBacklog;     /* depth of ppchLines */
@@ -194,6 +196,7 @@ TState EndScan(TInstance *this);
 TState ReadChunk(TInstance *this, unsigned char *achOut,
 		 int cchMax, int *pcchRead);
 TState DoScanFile(TInstance *this);
+void   GetAreaSize(TInstance *this);
 
 
 /* scanmtek.c */

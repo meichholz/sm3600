@@ -72,7 +72,6 @@ TState DoOriginate(TInstance *this)
 
   INST_ASSERT();
   do {
-    int            anLine[CCH_BONSAI]; /* summm */
     unsigned char  achLine[CCH_BONSAI+1];
     unsigned char *puchBuffer;
     int            cchBulk,i,iHole;
@@ -96,7 +95,6 @@ TState DoOriginate(TInstance *this)
       return SetError(this,SANE_STATUS_IO_ERROR,"truncated 10200-bulk");
     }
     lSum=0;
-    memset(anLine,0,sizeof(anLine));
     for (i=0; i<cchBulk; i++)
       lSum+=puchBuffer[i]; /* gives total white level */
     for (i=0; i<CCH_BONSAI; i++)
