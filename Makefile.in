@@ -1,4 +1,4 @@
-# $Id: Makefile.in,v 1.12 2001/04/04 22:37:57 eichholz Exp $
+# $Id: Makefile.in,v 1.13 2001/04/04 22:40:26 eichholz Exp $
 #
 # -------------------------------------------------------------------
 #
@@ -173,7 +173,7 @@ robot:
 
 
 clean:
-	rm -rf data/*~ data/ctlblocks/*~ temp.* \
+	rm -rf data/*~ data/ctlblocks/*~ temp.* .libs \
 	*.lo *.la dll-preload.c *-s.c *.so *.o *~ t $(BINARIES) \
 	DEADJOE || true
 
