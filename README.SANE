@@ -1,10 +1,18 @@
 How to include our little stuff into SANE
 =========================================
 
+USB support
+-----------
+You will to have USB support in your kernel. See http://www.linux-usb.org .
+
+libusb
+------
+You need libusb 0.1.3b. See http://libusb.sourceforge.net/ . 
+
 sane-backends > 1.0.4
 ---------------------
 
-There is now sm3600-support in the SANE-backends package, curerntly
+There is now sm3600-support in the SANE-backends package, currently
 available by anoncvs:
 
 	cvs -d :pserver:anoncvs@anoncvs.hungry.com:/cvsroot login
@@ -23,12 +31,35 @@ You can incorporate the new source modules by simple copying:
 sane-backends 1.0.4
 -------------------
 
-DO *NOT* USE the sane-targets in the makefile. They just don't produce
-sensible code. For now, we must use the original SANE environment. I am not happy with that. Perhaps later...
+DO *NOT* USE the sane-targets in the makefile in this directory. They
+just don't produce sensible code. For now, we must use the original
+SANE environment and that should work OK with the patch supplied (see
+below).
 
-First, extract and prepare the SANE backend-package. I used version 1.0.4.
+First, extract and prepare the SANE backend-package.
+(eg $tar xzvf sane-backends-1.0.4.tar.gz)
 
 Modify the SANE package:
+There are 2 ways to do this, manually and automatically...
+
+1. The automatic way
+
+Run the patchsane104.sh script from this directory, give the full
+path names of this dir and the sane-backends-1.0.4 dir as parameters.
+
+$./patchsane104 `pwd` /absolute/path/to/sane-backends-1.0.4  
+
+The script makes the symlinks as shown below and also applies the
+patch sane-backends-1.0.4.cfg.diff which contains the configure
+script and makefile changes.
+
+Have a look at the script and the diff if you want to know exactly
+what it does.
+</1.> ;-)
+
+2. The manual way. This is what the above script does, except that the
+script also patches the configure script so that it inlcudes the -lusb
+in the makefiles properly, that is assuming you have libusb installed.
 
 	ln -s $SRC/sm3600.* backend/
 	ln -s $SRC/*.man doc/
@@ -37,7 +68,6 @@ Modify the SANE package:
 		do
 			ln -s $SRC/sm3600-$i backend/sm3600-$i
 		done
-
 
 
 In <backend/Makefile.in> include the "sm3600" module to
@@ -54,6 +84,7 @@ Reconfigure everything after You modified the Makefile.in.
 Include an "sm3600" line to the dll.conf in the source code. This is
 necessary, because normally there are only the preloaded modules
 available.
+</2.> ;-)
 
 Remake everything with
 
