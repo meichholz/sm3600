@@ -1,0 +1,31 @@
+CHANGELOG
+=========
+
+$Id: README.CHANGELOG,v 1.1 2001/03/23 21:58:31 eichholz Exp $
+
+=======	0.26
+
+1) The scan is fully windowed and has an adjustable resolution in X and Y
+direction (i have no idea, if the resolution can be set independently, but
+the unequal aspect ratio of the preview point to this direction).
+
+2) With the standard calculations on resultion and the geometry givben to
+the windows driver I see no similarities at all in the scan control block.
+It seems, as if there is some additional calculation on the data.
+
+3) The different scans give different color stripe order: For now I have one
+RGB (300 dpi) and two BRG blocks (600 and overview).
+
+4) I told the driver to get 1200 DPI, but in fact I get 600 DPI in both
+directions.
+
+5) At 600 DPI there is a strong vertical parallaxe for the R, G and B
+stripes. Perhaps there are three scan lines in the carriage at 1/200 -1/100
+inch distance. This demands for correction in the scanning routine and more
+sophisticated stripe buffering.
+
+6) I made some #ifdef-magic to enable the raw grayscale output for geometry
+analysis purposes.
+
+7) The origination routine got an own debugging flag.
+

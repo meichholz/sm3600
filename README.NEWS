@@ -1,0 +1,16 @@
+NEWS
+====
+
+$Id: README.NEWS,v 1.1 2001/03/23 21:58:35 eichholz Exp $
+
+	22.03.2001
+
+Some scans order the color stripe RGB, some BRG.
+150 DPI and overview (like 160) makes BRG
+300 DPI and 600 DPI give RGB.
+
+Not all resolutions are used by the SW5, only 150, 300, 600 DPI.
+
+Preview scanning is faster, but with aspect ratio != 1:1.
+
+Halftone scan seems to provide for bitmap, further investigation needed.

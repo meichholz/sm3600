@@ -1,0 +1,138 @@
+From glennr@es.co.nz Fri Mar  2 04:44:48 2001
+X-Sieve: cmu-sieve 1.3
+Received: from mout1.freenet.de ([194.97.50.132] ident=exim)
+	by urmel.freenet-ag.de with esmtp (Exim 3.22 #17)
+	id 14YgUq-0001sm-00
+	for marian@urmel.freenet-ag.de; Fri, 02 Mar 2001 04:44:48 +0100
+Received: from [194.97.50.136] (helo=mx3.freenet.de)
+	by mout1.freenet.de with esmtp (Exim 3.22 #1)
+	id 14YgUq-0008R1-00
+	for marian@urmel.freenet-ag.de; Fri, 02 Mar 2001 04:44:48 +0100
+Received: from smtp4.ihug.co.nz ([203.109.252.5])
+	by mx3.freenet.de with esmtp (Exim 3.22 #1)
+	id 14YgUp-0005cn-00
+	for marian.eichholz@freenet-ag.de; Fri, 02 Mar 2001 04:44:47 +0100
+Received: (from root@localhost)
+	by smtp4.ihug.co.nz (8.9.3/8.9.3/Debian 8.9.3-21) id QAA18251;
+	Fri, 2 Mar 2001 16:44:41 +1300
+Received: from goata.nodomain ([203.173.203.189])
+	by smtp4.ihug.co.nz (8.9.3/8.9.3/Debian 8.9.3-21) with ESMTP id HAA15153
+	for <marian.eichholz@freenet-ag.de>; Fri, 2 Mar 2001 07:05:54 +1300
+X-Authentication-Warning: smtp4.ihug.co.nz: Host [203.173.203.189] claimed to be goata.nodomain
+Received: from es.co.nz (localhost [127.0.0.1])
+	by goata.nodomain (8.9.3/8.9.3/Debian/GNU) with ESMTP id HAA00543
+	for <marian.eichholz@freenet-ag.de>; Fri, 2 Mar 2001 07:05:31 +1300
+Sender: glennr@es.co.nz
+Message-ID: <3A9E8F6B.ED3605B5@es.co.nz>
+Date: Fri, 02 Mar 2001 07:05:31 +1300
+From: Glenn Ramsey <glennr@es.co.nz>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: marian.eichholz@freenet-ag.de
+Subject: How to return the slider (almost)
+References: <3A9D6DDC.E471894C@computer.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Delivered-To: marian.eichholz@freenet-ag.de
+Status: RO
+X-Status: A
+Content-Length: 2718
+Lines: 95
+
+Marian Eichholz wrote:
+> 
+> Ok, here comes the renewed archive.
+> 
+> Have You any idea, how the scanning carriage is returned to it's origin?
+> 
+
+I made it return, but I don't really know which commands did it
+;-).
+
+Here is the command sequence. These are copied from the last log I
+sent to you. The last few commands are the ones that did it. If
+you comment them out the slider will forward for a couple of
+inches. I haven't had time to figure out what is what yet, but
+this is a some progress at least.
+
+Register 52 seems to contain some sort of slider position feedback
+and it seems to increase as the slider moves home.
+
+Maybe register 43 is the slider speed, 03 = slow, 07 = fast, not
+really sure though.
+
+I think register 47 has something to do with movinf the slider
+too.
+
+  RegWriteString(R_CTL,"39");
+  RegWriteString(R_CTL,"39");
+  RegWriteString(R_LEN,"0C2D");
+
+  RegWriteString(R_ALL,"00003f10c00000ffff20006d7069d000"
+                       "004015802ac040c040ff8188404b4d00"
+		               "3c01f040000af000004ef000004e7c88"
+		               "780c2d6329000000000000ff0f000001"
+		               "000003010039c040968c");
+		              
+  RegWriteString(0x43,"03");
+  /* RegCheckString(R_CCAL,"808080"); */
+  RegWriteString(R_CCAL,"7c8878");
+  RegWriteString(R_LEN,"0C2d");
+  RegWriteString(R_LEN,"0C2d");
+  RegWriteString(0x44,"01");
+  RegWriteString(0x44,"01");
+
+  while (!RegRead(R_CTL,1) & 0x39) usleep(100);
+
+  RegWriteString(R_CTL,"39");
+
+  RegWriteString(0x34,"c3");
+  RegWriteString(0x49,"9e");
+
+  /* move the slider forward */
+  
+   RegWriteString(R_ALL,"660020ecd3a001ffffa81b6d7069d000"
+		                "004015802ac040c040ff8188404b4d00"
+		                "3c01f040000af000004ef000004e7c88"
+		                "780c2dc329000000000000ff0f000001"
+		                "000003010039c0409e8c");
+
+  
+  RegWriteString(R_CTL,"39");	  
+  RegWriteString(R_CTL,"39");	  
+  RegWriteString(0x41,"03");	  
+  RegWriteString(0x06,"0000");
+  RegWriteString(0x0a,"481D");
+  RegWriteString(0x47,"0080");
+  RegWriteString(0x34,"c3");
+  RegWriteString(0x49,"9e");	
+  /*RegWriteString(R_CTL,"39");
+  RegWriteString(R_CTL,"79");
+  RegWriteString(R_CTL,"F9");*/
+  
+  while (!(RegRead(0x52,2) == 0x0000)) usleep(100);
+    
+  
+  RegWriteString(R_ALL,  "00003f4000fa1c000000006d7069d000"
+		                 "004015802ac040c040ff8188404b4d00"
+		                 "3c01f040000af000004ef000004e7c80"
+			             "780c2dc329000000000000ff0f000001"
+			             "008007010039c0409ed8");
+  
+  RegWriteString(0x43,"03");
+  RegWriteString(0x34,"0000");
+  RegWriteString(0x49,"9e");		
+  RegWriteString(R_CTL,"39");
+  RegWriteString(R_CTL,"d9");
+  RegWriteString(0x47,"0070");
+
+Regards
+g
+
+-- 
+Glenn Ramsey
+glennr@es.co.nz
+
+
+

@@ -1,0 +1,574 @@
+type length request dir value (first 16 bytes of data buffer])
+c    1  0  read 46 00
+c    2  0  read 12 00 00
+c    1  0  read 46 00
+c    1  0  read 44 00
+c    2  8 write 32 29 35
+c   4a  8 write  1 00 00 3f 10 c0 00 00 ff ff 20 00 6d 70 69 d0 00
+c    1  8 write 43 03
+c    3  0  read 2f 80 80 80
+c    3  8 write 2f 8c 90 88
+c    2  8 write 32 0b 2d
+c    2  8 write 32 0b 2d
+c    1  0  read 46 39
+c    2  8 write 32 0b 2d
+c    1  8 write 34 63
+c    1  8 write 49 9e
+c   4a  8 write  1 00 00 3f 40 00 f0 00 00 00 00 00 6d 70 69 d0 00
+c    1  8 write 46 39
+c    1  8 write 46 79
+c    1  8 write 46 f9
+c    2  8 write 32 0b 2d
+c    1  0  read 46 79
+c    1  8 write 44 01
+c    1  8 write 44 01
+c    1  8 write 34 63
+c    1  8 write 49 96
+c   4a  8 write  1 00 00 3f ec 13 26 00 00 3f 02 00 6d 70 69 d0 00
+c    1  8 write 46 59
+c    1  8 write 46 d9
+c    1  0  read 42 00
+c    2  0  read 54 00 00
+c    1  0  read 42 00
+c    2  0  read 54 00 00
+c    1  0  read 42 00
+c    2  0  read 54 00 00
+c    1  0  read 42 00
+c    2  0  read 54 00 00
+c    1  0  read 42 80
+c    2  0  read 54 ec 13
+b 27d8
+c    2  0  read 54 00 00
+c    1  0  read 46 59
+c    1  8 write 46 59
+c    1  8 write 46 d9
+c    1  0  read 42 00
+c    2  0  read 54 00 00
+c    1  0  read 42 00
+c    2  0  read 54 00 00
+c    1  0  read 42 00
+c    2  0  read 54 00 00
+c    1  0  read 42 80
+c    2  0  read 54 ec 13
+b 27d8
+c    2  0  read 54 00 00
+c    1  0  read 46 59
+c    1  8 write 46 59
+c    1  8 write 46 d9
+c    1  0  read 42 00
+c    2  0  read 54 00 00
+c    1  0  read 42 00
+c    2  0  read 54 00 00
+c    1  0  read 42 00
+c    2  0  read 54 00 00
+c    1  0  read 42 00
+c    2  0  read 54 00 00
+c    1  0  read 42 80
+c    2  0  read 54 ec 13
+b 27d8
+c    2  0  read 54 00 00
+c    1  0  read 46 59
+c    1  8 write 46 59
+c    1  8 write 46 d9
+c    1  0  read 42 00
+c    2  0  read 54 00 00
+c    1  0  read 42 00
+c    2  0  read 54 00 00
+c    1  0  read 42 00
+c    2  0  read 54 00 00
+c    1  0  read 42 00
+c    2  0  read 54 00 00
+c    1  0  read 42 80
+c    2  0  read 54 ec 13
+b 27d8
+c    2  0  read 54 00 00
+c    1  0  read 46 59
+c    1  8 write 46 59
+c    1  8 write 46 d9
+c    1  0  read 42 00
+c    2  0  read 54 00 00
+c    1  0  read 42 00
+c    2  0  read 54 00 00
+c    1  0  read 42 00
+c    2  0  read 54 00 00
+c    1  0  read 42 00
+c    2  0  read 54 00 00
+c    1  0  read 42 80
+c    2  0  read 54 ec 13
+b 27d8
+c    2  0  read 54 00 00
+c    1  0  read 46 59
+c   4a  8 write  1 00 00 3f ec 13 03 00 00 3f 02 00 6d 70 69 d0 00
+c    1  8 write 34 63
+c    1  8 write 49 96
+c    1  8 write 46 59
+c    1  8 write 46 d9
+c    1  0  read 42 00
+c    2  0  read 54 00 00
+c    1  0  read 42 80
+c    2  0  read 54 ec 13
+b 27d8
+c    2  0  read 54 00 00
+c    1  0  read 46 59
+c    1  8 write 46 59
+c    1  8 write 46 d9
+c    1  0  read 42 00
+c    2  0  read 54 00 00
+c    1  0  read 42 80
+c    2  0  read 54 ec 13
+b 27d8
+c    2  0  read 54 00 00
+c    1  0  read 46 59
+c    1  8 write 46 59
+c    1  8 write 46 d9
+c    1  0  read 42 00
+c    2  0  read 54 00 00
+c    1  0  read 42 80
+c    2  0  read 54 ec 13
+b 27d8
+c    1  0  read 42 80
+c    2  0  read 54 ec 13
+b 27d8
+c    1  0  read 42 80
+c    2  0  read 54 ec 13
+b 27d8
+c    2  0  read 54 00 00
+c    1  0  read 42 80
+c    2  0  read 54 9e
+c   4a  8 write  1 00 00 3f 40 00 c8 00 00 00 00 00 6d 70 69 d0 00
+c    1  0 write 46 39
+c    1  0  read 46 f9
+c    1  0  read 46 f9
+c    1  0  read 46 f9
+c    1  0  read 46 f9
+c    1  0  read 46 f9
+c    1  0  read 46 f9
+c    1  0  read 46 f9
+c    1  0  read 46 f9
+c    1  0  read 46 79
+c    3  0  read 2f 8c 90 88
+c    2  8 write 32 0b 2d
+c    1  0  read 46 79
+c    3  8 write 2f 8c 90 88
+c    2  8 write 32 0b 2d
+c    1  8 write 49 96
+c    1  8 write 46 79
+c    1  8 write 46 f9
+c    2  0  read 54 80 07
+b  f00
+c    1  0  read 42 80
+c    2  0  read 54 80 07
+b  f00
+c    1  8 write 46 f9
+c    1  0  read 42 00
+c    2  0  read 54 92 0c 3b 0c 81 0c 92 0c ae 0c d6 0c 7a 0c 77 0c
+c    1  0  read 42 00
+c    2  0  read 54 ff ff
+b 8000
+c    2  0  read 54 ff ff
+b 8000
+c    1  8 write 34 63
+c    1  8 write 49 9e
+c   4a  0 write 46 00 00 3f 40 00 44 00 00 00 00 00 6d 70 69 d0 00
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 59
+c    1  8 write 44 01
+c    1  8 write 44 01
+c    1  0  read 46 59
+c    1  8 write 46 d9
+c    2  8 write 32 4c 35
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 59
+c    1  0  read 46 f9
+c    1  0  read 46 f9
+c    1  0  read 46 f9
+c    1  0  read 46 f9
+c    1  0  read 46 f9
+c    1  0  read 46 f9
+c    1  0  read 46 f9
+c    1  0  read 46 f9
+c    1  0  read 46 f9
+c    1  0  read 46 f9
+c    1  0  read 46 f9
+c    1  0  read 46 f9
+c    1  0  read 46 f9
+c    1  0  read 46 f9
+c    1  0  read 42 00
+c    2  0  read 54 5c 10
+c    1  0  read 42 00
+c    2  0  read 54 f5 2e
+c    1  0  read 42 00
+c    2  0  read 54 b4 d9
+c    1  0  read 42 00
+c    2  0  read 54 ff ff
+c    1  0  read 42 00
+c    2  0  read 54 ff ff
+b 8000
+c    2  0  read 54 ff ff
+b 8000
+c    2  0  read 54 ff ff
+b 8000
+c    2  0  read 54 ff ff
+b 8000
+c    2  0  read 54 ff ff
+b 8000
+c    2  0  read 54 ff ff
+c    1  0  read 42 00
+c    2  0  read 54 ff ff
+c    2  0  read 54 ff ff
+b 8000
+c    2  0  read 54 ff ff
+b 8000
+b 8000
+c    1  0  read 42 00
+c    2  0  read 54 ff ff
+b 8000
+c    2  0  read 54 ff ff
+b 8000
+c    1  0  read 42 00
+c    2  0  read 54 ff ff
+b 8000
+c    2  0  read 54 ff ff
+b 8000
+c    1  0  read 42 00
+c    2  0  read 54 ff ff
+b 8000
+b 8000
+b 8000
+c    2  0  read 54 ff ff
+b 8000
+c    2  0  read 54 ff ff
+b 8000
+c    2  0  read 54 00 00
+c    1  8 write 43 03
+c    1  8 write 43 03
+c    1  8 write 46 39
+c    1  8 write 43 07
+c    1  0  read 46 d9
+c    2  0  read 52 30 1d
+c    2  0  read 52 28 1d
+c    2  8 write 47 00 88
+c    2  0  read 52 d7 1c
+c    2  0  read 52 92 1c
+c    2  8 write 47 00 70
+c    1  8 write 43 07
+c    2  0  read 52 3a 1c
+c    2  8 write 47 00 58
+c    1  8 write 43 07
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 d9
+c    1  0  read 46 59
+c    1  8 write 43 03
+c    1  8 write 46 39
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03
+c    1  0  read 46 39
+c    1  0  read 43 03
+c    1  8 write 43 03

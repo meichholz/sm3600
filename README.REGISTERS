@@ -1,0 +1,65 @@
+Register map for the Microtek 3600
+==================================
+
+$Id: README.REGISTERS,v 1.1 2001/03/23 21:58:31 eichholz Exp $
+
+Here are the registers, as far as I know them. All multi-byte registers are
+bigendian, the least significant byte first (aka "Intel byte sex").
+
+Register 06h-07h
+----------------
+
+Movement length in units of 1/600 inch, minus 1.
+The distance is given in an absolute way.
+The direction is controlled with register 4h.
+
+The maximum distance from start is about 7600 units.
+The minimum distance is 1/600 inch, which is value=0.
+Value=1 means 2/600 inch, respectively.
+
+Ermm... THIS IS NOT CORRECT! I CANNOT GET ANYTHING < 1/300 INCH.
+
+Register 32h-33h
+----------------
+
+Seems to indicate the width of a scan line, or the amount of bytes per scan
+line. In gray-scale-single-line mode, it is 5100 (whereas the transfer needs
+10200 bytes for the *two* rows).
+
+Register 42h
+------------
+
+Other control register, related to scanning (bulk transfers).
+
+Read:
+
+Bit 7: Ready. If =1, You can issue a bulk transfer.
+
+Register 44h
+------------
+
+Bit 0: 1=Lamp on, 0=Lamp off
+
+Use with care, since the lamp MUST NOT cool down unter environmental
+temperature (or You have to wait ver long until You are allowed to rezap
+it).
+
+Register 46h
+------------
+
+Control register, read/write. Is correlated to movement programs.
+
+Read:
+
+Bit 7: Busy. During carriage movement, it is usually =1. May be used also
+for other actions, that need time. *Not* used for scan line waiting.
+
+Write:
+
+Bit 6: Direction.
+0: forward movement
+1: backward movement
+
+Bit 7: If set to 1, the carriage movement program starts, including
+scanning (controlled by other means).
+
