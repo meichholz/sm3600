@@ -1,4 +1,4 @@
-# $Id: Makefile.in,v 1.33 2001/12/16 22:48:52 eichholz Exp $
+# $Id: Makefile.in,v 1.34 2001/12/16 23:15:46 eichholz Exp $
 #
 # -------------------------------------------------------------------
 #
@@ -75,7 +75,7 @@ testenc: scantool initbus
 	./scantool -v -m line -b 30 -o bitmap /tmp/pnm 300 0 0 2600 2400
 
 testcopy: scantool initbus
-	./scantool -v -b 30 -o pcl -p copy - | lpr -Ppcl
+	./scantool -v -p c - | lpr -Ppcl
 
 
 testscan: scantool initbus
