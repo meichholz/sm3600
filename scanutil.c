@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scanutil.c,v 1.11 2001/04/21 22:30:13 eichholz Exp $
+$Id: scanutil.c,v 1.12 2001/04/22 22:12:28 eichholz Exp $
 
 ====================================================================== */
 
@@ -17,6 +17,13 @@ a "debug:" and given, if the current debugging flags contain the given
 flag "ulType".
 
 ********************************************************************** */
+
+#ifdef INSANE_VERSION
+void DBG(int nLevel, const char *szFormat, ...)
+{
+  szFormat++;
+}
+#endif
 
 void debug_printf(unsigned long ulType, const char *szFormat, ...)
 {
@@ -163,21 +170,30 @@ TState ReadChunk(TInstance *this, unsigned char *achOut,
 {
   /* have we to copy more than we have? */
   /* can the current line fill the buffer ? */
+  int rc;
   *pcchRead=0;
   INST_ASSERT();
+  /* 22.4.2001: This took me hard, harder, hardest:*/
+
+  /*   We need to fill the line buffer with at least a *rest* of a
+       line. A single line will do. */
+  /*     Thus, "iLine>0" is a suitable condition. */
+  /*   Without the preread, there will a dummy line be read, if the
+       target buffer is large enough.*/
+  if (this->state.iLine)
+    rc=SANE_STATUS_GOOD;
+  else
+    rc=(*(this->state.ReadProc))(this); /* preread one line */
+  if (rc!=SANE_STATUS_GOOD) return rc;
   dprintf(DEBUG_BUFFER,"Chunk-Init: cchMax = %d\n",cchMax);
   while (this->state.iReadPos + cchMax > this->state.cchLineOut)
     {
-      int rc;
       int cch;
       /* copy rest of the line into target */
       cch = this->state.cchLineOut - this->state.iReadPos;
       memcpy(achOut,
 	     this->state.pchLineOut+this->state.iReadPos,
 	     cch);
-
-      /* memset(achOut,0x55,cch); */
-
       cchMax-=cch; /* advance parameters */
       achOut+=cch;
       (*pcchRead)+=cch;
@@ -193,9 +209,6 @@ TState ReadChunk(TInstance *this, unsigned char *achOut,
   memcpy(achOut,
 	 this->state.pchLineOut+this->state.iReadPos,
 	 cchMax);
-
-  /* memset(achOut,0xF0,cchMax); */
-
   this->state.iReadPos += cchMax;
   return SANE_STATUS_GOOD;
 }

@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+22.4.2001
+
+Found the reason for the random first line. FIXED.
+
+TODO: cyPixel calculation has to be perfected and somehow forced.
+
 21.4.2001
 
 New Feature in scantool: -O disables the initial DoOriginate()-game.

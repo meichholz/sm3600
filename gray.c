@@ -167,8 +167,6 @@ TState ReadNextGrayLine(PTInstance this)
   int           iRead; /* read position in raw line */
   int           nInterpolator;
 
-  for (iWrite=0; iWrite<this->state.cchLineOut;
-       this->state.pchLineOut[iWrite++]=(iWrite&10) ? 0xFF : 0x55); /* blur buffer */
   iWrite=0;
 
   while (iWrite<this->state.cxMax) /* max 1 time in reality */
@@ -226,7 +224,7 @@ TState ReadNextGrayLine(PTInstance this)
 		}
 	      else
 		chBit=1;
-	      /* since I sketched the Floydd-Steinberg
+	      /* since I sketched the Floyd-Steinberg
 		 algorithm from heart, I have no idea, if
 		 there is room for improvement in the
 		 coefficients.  If You know, please drop
