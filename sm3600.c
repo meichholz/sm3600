@@ -1,5 +1,6 @@
 /* sane - Scanner Access Now Easy.
-   Copyright (C) 1996, 1997 David Mosberger-Tang
+   (C) Marian Matthias Eichholz 2001
+
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -38,9 +39,8 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
 
-   This file implements a dynamic linking based SANE meta backend.  It
-   allows managing an arbitrary number of SANE backends by using
-   dynamic linking to load backends on demand.  */
+   This file implements SANE backend for Microtek scanners with M011 USB
+   chip like the Microtek ScanMaker 3600, 3700 and 3750. */
 
 
 /* ======================================================================
@@ -55,6 +55,7 @@ Start: 2.4.2001
 
 ====================================================================== */
 
+#include "sane/config.h"
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
@@ -68,7 +69,6 @@ Start: 2.4.2001
 #endif
 
 #include "sane/sane.h"
-#include "sane/config.h"
 #include "sane/sanei.h"
 #include "sane/sanei_backend.h"
 #include "sane/sanei_config.h"
@@ -167,7 +167,7 @@ InitOptions(TInstance *this)
       static double afFullBed[] = { 22.0,30.0, 50.0, 80.0 }; /* TODO: calculate exactly! */
       static const SANE_Range *aRangesXY[] = { &rangeXmm,&rangeYmm,&rangeXmm,&rangeYmm };
       SANE_Option_Descriptor *pdesc;
-      TOptionValue           *pval;
+      Option_Value           *pval;
       /* shorthands */
       pdesc=this->aoptDesc+iOpt;
       pval=this->aoptVal+iOpt;

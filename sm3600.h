@@ -1,5 +1,5 @@
 /* sane - Scanner Access Now Easy.
-   Copyright (C) 1996, 1997 David Mosberger-Tang
+   Copyright (C) Marian Matthias Eichholz 2001
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -37,10 +37,8 @@
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
+*/
 
-   This file implements a dynamic linking based SANE meta backend.  It
-   allows managing an arbitrary number of SANE backends by using
-   dynamic linking to load backends on demand.  */
 #ifndef _H_SM3600
 #define _H_SM3600
 
@@ -159,13 +157,6 @@ typedef struct TScanState {
 #define NUM_OPTIONS 16
 #endif
 
-typedef union
-  {  
-    SANE_Word w;
-    SANE_Word *wa;              /* word array */
-    SANE_String s;
-  }
-TOptionValue;
 
 typedef struct TDevice {
   struct TDevice        *pNext;
@@ -181,7 +172,7 @@ typedef struct TInstance {
 #ifndef INSANE_VERSION
   struct TInstance         *pNext;
   SANE_Option_Descriptor    aoptDesc[NUM_OPTIONS];
-  TOptionValue              aoptVal[NUM_OPTIONS];
+  Option_Value              aoptVal[NUM_OPTIONS];
 #endif
   SANE_Int           agammaY[4096];
   SANE_Int           agammaR[4096];

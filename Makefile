@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.22 2004/04/15 11:37:11 eichholz Exp $
+# $Id: Makefile,v 1.23 2004/04/15 11:38:53 eichholz Exp $
 #
 # -------------------------------------------------------------------
 #
@@ -13,7 +13,7 @@ BINDIR=		/usr/local/bin
 MANDIR=		/usr/local/man
 
 SANE_SRC=	/packin/sane-backends-1.0.4
-SANE_CVS=       /var/src/sane/sane-backends
+SANE_CVS=       ~/src/sane/sane-backends
 
 SANE_INCLUDE=	$(SANE_SRC)/include
 SANE_LIBDIR=	/usr/lib/sane
