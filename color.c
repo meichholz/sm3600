@@ -115,8 +115,6 @@ TState StartScanColor(TInstance *this)
   if (this->state.bScanning)
     return SetError(this,SANE_STATUS_DEVICE_BUSY,"scan active");
   memset(&(this->state),0,sizeof(this->state));
-  this->state.cxPixel   =this->param.cx*this->param.res/1200;
-  this->state.cyPixel   =this->param.cy*this->param.res/1200;
   this->state.nFixAspect=100;
   this->state.ReadProc  =ReadNextColorLine;
   this->state.ySensorSkew=0;
@@ -131,6 +129,7 @@ TState StartScanColor(TInstance *this)
   /* since we need 2*this->state.ySensorSkew additional scan lines for de-skewing of
      the sensor lines, we enlarge the window and shorten the initial movement
      accordingly */
+  this->state.cyPixel   =this->param.cy*this->param.res/1200;
   this->state.cyTotalPath =
     this->param.y/2-(2*this->state.ySensorSkew)*600/this->param.res;
   DoJog(this,this->state.cyTotalPath); INST_ASSERT();
@@ -176,13 +175,14 @@ TState StartScanColor(TInstance *this)
     RegWrite(this,R_SLEN, 2, (this->state.cyPixel+2*this->state.ySensorSkew)*600/this->param.res);
     this->state.szOrder=ORDER_BRG; 
     RegWrite(this,R_CCAL, 3, this->calibration.rgbBias); INST_ASSERT(); /* 0xBBGGRR */
+    this->state.cxPixel   =this->param.cx*this->param.res/1200;
     this->state.cxMax=this->state.cxPixel;
-    cxWindow=this->param.cx/2;
+    cxWindow=this->state.cxPixel*600/this->param.res;
     switch (this->param.res)
       {
       case 75:
 	RegWrite(this,R_XRES,1, 0x20); /* ups, can  do only 100 dpi horizontal */
-	this->state.cxMax=this->state.cxPixel*100/75;
+	this->state.cxMax=this->state.cxMax*100/75;
 	RegWrite(this,R_SWID, 2, 0xC000 | this->state.cxMax*6);
 	RegWrite(this,0x34, 1, 0x83); /* halfs the vertical resolution */
 	RegWrite(this,0x47,1,0xC0); /* reduces the speed a bit */
@@ -222,6 +222,10 @@ TState StartScanColor(TInstance *this)
 	break;
       }
   }
+
+  dprintf(DEBUG_SCAN,"requesting color %d[600] %d[real] %d[raw]\n",
+	  cxWindow,this->state.cxPixel,this->state.cxMax);
+
 
   /* enough for 1/100 inch sensor distance */
   this->state.cBacklog=1+2*this->state.ySensorSkew;

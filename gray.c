@@ -273,11 +273,9 @@ TState StartScanGray(TInstance *this)
   if (this->state.bScanning)
     return SetError(this,SANE_STATUS_DEVICE_BUSY,"scan active");
   memset(&(this->state),0,sizeof(this->state));
-  puchRegs=NULL;
-  this->state.cxPixel   =this->param.cx*this->param.res/1200;
-  this->state.cyPixel   =this->param.cy*this->param.res/1200;
   this->state.nFixAspect=100;
   this->state.ReadProc  =ReadNextGrayLine;
+  puchRegs=NULL;
   switch (this->param.res)
   {
   case 75:  this->state.nFixAspect=75;
@@ -297,20 +295,24 @@ TState StartScanGray(TInstance *this)
     the scanning is issued, and the driver does bulk reads,
     until there are no data left.
   */
+  this->state.cyPixel   =this->param.cy*this->param.res/1200;
   RegWriteArray(this,R_ALL, NUM_SCANREGS, puchRegs); INST_ASSERT();
   RegWrite(this,R_SPOS, 2,
 	   this->param.x/2+this->calibration.xMargin); INST_ASSERT();
   RegWrite(this,R_SLEN, 2,
 	   (this->state.cyPixel+1)*600/this->param.res); INST_ASSERT();
-  if (this->quality==fast) { }
 
-  /* this->state.cxPixel is the number os pixels, we *want* (after interpolation)
-     this->state.cxMax is the number of pixels, we *need* (before interpolation)
-     cxWindow is the scan width in 600 dpi, we have to request */
+  /* this->state.cxPixel : pixels, we *want* (after interpolation)
+     this->state.cxMax   : pixels, we *need* (before interpolation)
+     cxWindow            : scan width in 600 dpi, we have to request */
 
+  this->state.cxPixel   =this->param.cx*this->param.res/1200;
+  cxWindow=this->state.cxPixel*600/this->param.res;
   this->state.cxMax=this->state.cxPixel*100/this->state.nFixAspect;
-  cxWindow=this->param.cx/2;
   RegWrite(this,R_SWID, 2, cxWindow); INST_ASSERT();
+
+  dprintf(DEBUG_SCAN,"requesting gray %d[600] %d[real] %d[raw]\n",
+	  cxWindow,this->state.cxPixel,this->state.cxMax);
 
   /* for halftone dithering we need one history line */
   this->state.pchBuf=malloc(USB_CHUNK_SIZE);

@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scanutil.c,v 1.7 2001/04/13 12:08:55 eichholz Exp $
+$Id: scanutil.c,v 1.8 2001/04/18 22:39:56 eichholz Exp $
 
 ====================================================================== */
 
@@ -200,31 +200,32 @@ Top level caller for scantool.
 
 ====================================================================== */
 
-#define APP_CHUNK_SIZE   1024
+#define APP_CHUNK_SIZE   8192
 
 TState DoScanFile(TInstance *this)
 {
   int    cx,cy;
   long   lcchRead;
   TState rc;
-  char   achBuf[APP_CHUNK_SIZE];
-  cx=this->param.cx*this->param.res/1200;
-  cy=this->param.cy*this->param.res/1200;
+static   char   achBuf[APP_CHUNK_SIZE*10];
   rc=SANE_STATUS_GOOD; /* make compiler happy */
+  if (this->mode==color)
+    rc=StartScanColor(this);
+  else
+    rc=StartScanGray(this);
+  cx=this->state.cxPixel;
+  cy=this->state.cyPixel;
   if (this->bVerbose)
-    fprintf(stderr,"scanning %d by %d in gray\n",cx,cy);
+    fprintf(stderr,"scanning %d by %d\n",cx,cy);
   if (this->fhScan && !this->bWriteRaw)
    {
       switch (this->mode)
 	{
 	case color: fprintf(this->fhScan,"P6\n%d %d\n255\n",cx,cy);
-	            rc=StartScanColor(this);
 	            break;
 	case gray:  fprintf(this->fhScan,"P5\n%d %d\n255\n",cx,cy);
-	            rc=StartScanGray(this);
                     break;
 	default:    fprintf(this->fhScan,"P4\n%d %d\n",cx,cy);
-	            rc=StartScanGray(this);
                     break;
 	}
     }

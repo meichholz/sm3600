@@ -1,6 +1,14 @@
 CHANGELOG
 =========
 
+19.4.2001
+
+Rework of the dimension control cvariable calculation in the StartXXXScan()
+functions.
+
+BUG: Color scan is broken and smashes the stack in many situations. Even with
+"scantool". Investigation is starting...
+
 18.4.2001
 
 (New) Open/Close and Start/Read/Cancel-Semantics.
