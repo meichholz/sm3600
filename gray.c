@@ -298,10 +298,31 @@ TState StartScanGray(TInstance *this)
   RegWriteArray(this,R_ALL, NUM_SCANREGS, puchRegs); INST_ASSERT();
   RegWrite(this,R_SPOS, 2,
 	   this->param.x/2+this->calibration.xMargin); INST_ASSERT();
-  RegWrite(this,R_SLEN, 2,
-	   (this->state.cyPixel+1)*600/this->param.res); INST_ASSERT();
-
+  RegWrite(this,R_SLEN, 2, this->state.cyWindow); INST_ASSERT();
   RegWrite(this,R_SWID, 2, this->state.cxWindow); INST_ASSERT();
+
+#ifdef SUPPORT_GAMMA
+  {
+    static unsigned char aGamma[4096*2]; /* quick and dirty! */
+    int           cchStep;
+    cchStep=4096;
+    dprintf(DEBUG_SCAN,"uploading gamma\n");
+    RegWrite(this,0x41,1,0x01); /* gamma, gray */
+    RegWrite(this,0x40,1,0xF0); /* offset FIFO 1 KB spared */
+    INST_ASSERT();
+    for (i=0; i<4096; i++)
+      {
+	aGamma[2*i+1]=(4095-i)>>8; /* invert */
+	aGamma[2*i+0]=(4095-i)&0xFF;
+      }
+    for (i=0; i<sizeof(aGamma); i+=cchStep)
+      {
+	MemWriteArray(this,i/2,cchStep,aGamma+i);
+	INST_ASSERT();
+      }
+  }
+#endif
+	   
 
   /* for halftone dithering we need one history line */
   this->state.pchBuf=malloc(USB_CHUNK_SIZE);

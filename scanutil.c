@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scanutil.c,v 1.12 2001/04/22 22:12:28 eichholz Exp $
+$Id: scanutil.c,v 1.13 2001/04/30 23:49:31 eichholz Exp $
 
 ====================================================================== */
 
@@ -223,23 +223,46 @@ void GetAreaSize(TInstance *this)
 {
   /* this->state.cxPixel : pixels, we *want* (after interpolation)
      this->state.cxMax   : pixels, we *need* (before interpolation) */
-  int nRefRes;
-  nRefRes=this->param.res;
+  int nRefResX,nRefResY;
+  nRefResX=nRefResY=this->param.res;
   switch (this->param.res)
     {
-    case 75:  nRefRes=100; this->state.nFixAspect=75; break;
+    case 75:  nRefResX=100; this->state.nFixAspect=75; break;
     default: this->state.nFixAspect=100; break;
     }
   this->state.cxPixel   =this->param.cx*this->param.res/1200;
   this->state.cyPixel   =this->param.cy*this->param.res/1200;
   this->state.cxMax     =this->state.cxPixel*100/this->state.nFixAspect;
-  /* this->state.cxWindow  =this->param.cx*600/1200; */
-  this->state.cxWindow  =this->state.cxMax*600/nRefRes;
+  this->state.cxWindow  =this->state.cxMax*600/nRefResX;
+  this->state.cyWindow  =this->state.cyPixel*600/nRefResY;
   dprintf(DEBUG_SCAN,"requesting %d[600] %d[real] %d[raw]\n",
 	  this->state.cxWindow,this->state.cxPixel,this->state.cxMax);
 }
 
 #ifdef INSANE_VERSION
+
+/* ======================================================================
+
+InitExposure()
+
+Init gammy tables and gain tables within controller memory.
+
+====================================================================== */
+
+TState InitExposure(TInstance *this)
+{
+  unsigned char auchGamma[256];
+  int           i;
+  TState        rc;
+  rc=SANE_STATUS_GOOD;
+  for (i=0; i<256; i++)
+    auchGamma[i]=255-i; /* negative */
+  if (this->mode==gray)
+    {
+      rc=MemWriteArray(this,0,256,auchGamma);
+    }
+  return rc;
+}
 
 /* ======================================================================
 
@@ -260,6 +283,8 @@ TState DoScanFile(TInstance *this)
 
   achBuf=malloc(APP_CHUNK_SIZE);
   rc=SANE_STATUS_GOOD; /* make compiler happy */
+  rc=InitExposure(this);
+  if (rc!=SANE_STATUS_GOOD) return rc;
   if (this->mode==color)
     rc=StartScanColor(this);
   else

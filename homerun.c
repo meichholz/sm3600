@@ -13,8 +13,8 @@ slider movement
 /* tuning constants for DoOriginate */
 #define CCH_BONSAI              60
 #define MAX_PIXEL_PER_SCANLINE  5100
-#define BLACK_HOLE_GRAY         15
-#define CHASSIS_GRAY            90
+#define BLACK_HOLE_GRAY         30
+#define CHASSIS_GRAY            100
 
 /* **********************************************************************
 

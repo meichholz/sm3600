@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scanusb.c,v 1.6 2001/04/26 19:58:02 eichholz Exp $
+$Id: scanusb.c,v 1.7 2001/04/30 23:49:31 eichholz Exp $
 
 (C) Marian Eichholz 2001
 
@@ -121,7 +121,8 @@ MemWriteArray(iAddress, cb, ulValue)
 
 ********************************************************************** */
 
-TState MemWriteArray(TInstance *this, int iAddress, int cb, unsigned char *pchBuffer)
+TState MemWriteArray(TInstance *this, int iAddress,
+		     int cb, unsigned char *pchBuffer)
 {
   int   i;
   INST_ASSERT();
@@ -132,7 +133,7 @@ TState MemWriteArray(TInstance *this, int iAddress, int cb, unsigned char *pchBu
 		    iAddress,              /* value */
 		    0,                     /* index */
 		    pchBuffer, cb,         /* bytes, size */
-		    USB_TIMEOUT_JIFFIES);                /* TO, jiffies... */
+		    10000);                /* TO, jiffies... */
   if (i<0)
     return SetError(this,SANE_STATUS_IO_ERROR,"error during memory write");
   return SANE_STATUS_GOOD;

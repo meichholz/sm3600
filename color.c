@@ -171,7 +171,9 @@ TState StartScanColor(TInstance *this)
       0x9E /*0x49*/, 0x8C /*0x4A*/ };
     RegWriteArray(this,R_ALL, NUM_SCANREGS, uchRegs);
     RegWrite(this,R_SPOS, 2, this->param.x/2 + this->calibration.xMargin);
-    RegWrite(this,R_SLEN, 2, (this->state.cyPixel+2*this->state.ySensorSkew)*600/this->param.res);
+    RegWrite(this,R_SLEN, 2,
+	     this->state.cyWindow+
+	     (2*this->state.ySensorSkew)*600/this->param.res);
     this->state.szOrder=ORDER_BRG; 
     RegWrite(this,R_CCAL, 3, this->calibration.rgbBias); INST_ASSERT(); /* 0xBBGGRR */
     switch (this->param.res)

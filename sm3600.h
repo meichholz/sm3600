@@ -79,7 +79,8 @@ typedef struct TScanState {
   int             cchLineOut;   /* buffer size */
   int             cxPixel,cyPixel; /* real pixel */
   int             cxMax;        /* uninterpolated in real pixels */
-  int             cxWindow;     /* Window with in sensor pixel */
+  int             cxWindow;     /* Window with in 600 DPI */
+  int             cyWindow;     /* Path length in 600 DPI */
   int             cyTotalPath;  /* from bed start to window end in 600 dpi */
   int             nFixAspect;   /* aspect ratio in percent, 75-100 */
   int             cBacklog;     /* depth of ppchLines */
