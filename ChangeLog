@@ -1,3 +1,7 @@
+2002-04-17  Marian Eichholz <eichholz@computer.org>
+	* Some minor fixes to sm3600 for improved portability
+	* sm3600.desc and sane-sm3600.man improved
+
 2002-04-15  Marian Eichholz <eichholz@computer.org>
 	* Included ID for SM 3750i, thanks Andrea Mazzoleni <am@mediacom.it>
 	* patched into SANE-CVS

@@ -1,4 +1,4 @@
-# $Id: Makefile.in,v 1.37 2002/04/15 21:33:29 eichholz Exp $
+# $Id: Makefile.in,v 1.38 2002/04/17 21:43:03 eichholz Exp $
 #
 # -------------------------------------------------------------------
 #
@@ -102,6 +102,7 @@ dist:	clean
 sane:
 	cp sm3600-*.c sm3600-*.h sm3600.c sm3600.h $(SANE_CVS)/backend
 	cp sane-sm3600.man $(SANE_CVS)/doc
+	cp sm3600.desc $(SANE_CVS)/doc/descriptions
 
 sane104:
 	ssh -l root localhost make -C $(SANE_SRC)/backend
