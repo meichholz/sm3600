@@ -16,6 +16,8 @@ DoScanGray()
 
 ********************************************************************** */
 
+#define LINE_THRESHOLD   0x80
+
 static unsigned char uchRegs075[]={
    /*R_SPOS*/ 0xFC, /*R_SPOSH*/ 0x00, /*0x03*/ 0x20,
    /*R_SWID*/ 0xB0, /*R_SWIDH*/ 0x04, /*R_STPS*/ 0x06,
@@ -152,7 +154,15 @@ static unsigned char uchRegs600[]={
    /*0x49*/ 0x96, /*0x4A*/ 0x8C };
 
 
-/* Parameters are in resolution units */
+/*
+I admit, the scanning routine is somewhat bloated now, for it has some
+retention buffering for error diffusion, and it is not optimised for
+CPU usage.
+
+There is some space for optimisation and possibly a code split, if we
+really know, what we are doing. (eichholz, 12.4.2001).
+*/
+
 void DoScanGray(FILE *fh, int nResolution,
 		int xBorder, int yBorder,
 		int cxPixel, int cyPixel)
@@ -160,8 +170,10 @@ void DoScanGray(FILE *fh, int nResolution,
   int    cxWindow,cxMax; /* in real pixels */
   int    cyTotalPath;    /* from bed start to window end in 600 dpi */
   int    nFixAspect;     /* aspect ratio in percent, 75-100 */
-  char  *pchBuf;         /* bulk transfer buffer */
-  unsigned char *puchRegs;
+  unsigned char  *puchRegs;
+  unsigned char  *pchBuf;    /* bulk transfer buffer */
+  short         **ppchLines; /* for halftone error diffusion */
+  int             i;
   puchRegs=NULL;
   if (bVerbose)
     fprintf(stderr,"scanning %d by %d in gray\n",cxPixel,cyPixel);
@@ -189,31 +201,147 @@ void DoScanGray(FILE *fh, int nResolution,
   RegWrite(R_SLEN, 2, (cyPixel+1)*600/nResolution);
   if (optQuality==fast) { }
 
+  /* cxPixel is the number os pixels, we *want* (after interpolation)
+     cxMax is the number of pixels, we *need* (before interpolation)
+     cxWindow is the scan width in 600 dpi, we have to request */
+
   cxMax=cxPixel*100/nFixAspect;
-  cxWindow=cxMax*600/nResolution;
+  cxWindow=cxPixel*600/nResolution;
   RegWrite(R_SWID, 2, cxWindow);
 
+  /* for halftone dithering we need one history line */
   pchBuf=malloc(0x8000);
-  if (!pchBuf) Panic(PANIC_RUNTIME,"no buffers available");
+  ppchLines=calloc(2,sizeof(short *));
+  if (!pchBuf || !ppchLines) Panic(PANIC_RUNTIME,"no buffers available");
+  for (i=0; i<2; i++)
+    {
+      ppchLines[i]=calloc(cxMax+1,sizeof(short)); /* 1 dummy at right edge */
+      if (!ppchLines[i]) Panic(PANIC_RUNTIME,"no buffers available");
+    }
+
+  /* start the unit, when all buffers are available */
 
   RegWrite(R_CTL, 1, 0x39);
   RegWrite(R_CTL, 1, 0x79);
   RegWrite(R_CTL, 1, 0xF9);
 
   if (fh && !bWriteRaw)
-  fprintf(fh,"P5\n%d %d\n255\n",cxPixel,cyPixel);
+    {
+      if (optMode==gray)
+ 	fprintf(fh,"P5\n%d %d\n255\n",cxPixel,cyPixel);
+      else
+	fprintf(fh,"P4\n%d %d\n",cxPixel,cyPixel);
+    }
+
+  /* the line rebuffering code is a stripped down version of the color
+     processing algorithm.*/
+
+  /* The line buffer is of "short" type, becaus we use error diffusion.
+     The buffer is not directly written, but the pixel values are added,
+     to preserve the diffused error values of the last line.
+     All values are in 10 percent, thus beeing fixes decimal. */
   {
-    int cchBulk,iChunk;
+    int iFrom,iTo,iChunk,cchBulk,iLine;
+    int iDot;
+    unsigned char chBits;  
     iChunk=0;
-    cchBulk=0; /* dummy */
+    cchBulk=0;
+    iTo=0;
+    iFrom=cchBulk; /* no rest */
+    iLine=0;
     do {
       iChunk++;
+      if (!bWriteRaw)
+	{
+	  iTo=0;
+	  while (iFrom<cchBulk)
+	    ppchLines[0][iTo++] += 10*pchBuf[iFrom++];
+	}
+      
       cchBulk=BulkReadBuffer(pchBuf,0x8000);
+      FixExposure(pchBuf,cchBulk,param.nBrightness,param.nContrast);
       dprintf(DEBUG_SCAN,"bulk#%d, got %d bytes...\n",iChunk,cchBulk);
 
-      fwrite(pchBuf,1,cchBulk,fh);
+      if (bWriteRaw)
+	fwrite(pchBuf,1,cchBulk,fh);
+      else
+	{
+	  iFrom=0;
+	  while (iFrom+cxMax<=cchBulk) /* while line in buffer */
+	    {
+	      int cxToWrite,nInterpolator;
+	      cxToWrite=cxPixel;
+	      nInterpolator=100;
+	      /* dprintf(DEBUG_SCAN,"cx=%d, cxMax=%d\n",cxToWrite,cxMax); */
+	      /* iTo starts with buffer offset from copy above */
+	      while (iTo<cxMax) /* whole line or rest */
+		ppchLines[0][iTo++] += 10*pchBuf[iFrom++];
+	      iLine++;
+	      iDot=0; chBits=0; /* init pixelbuffer */
+	      for (iTo=0; iTo<cxMax && cxToWrite>0; iTo++)
+		{
+		  nInterpolator+=nFixAspect;
+		  if (nInterpolator<100) continue; /* res. reduction */
+		  nInterpolator-=100;
+		  cxToWrite--;
+		  /* dprintf(DEBUG_SCAN," i=%d",iTo); */
+		  if (optMode==gray)
+		    {
+		      char ch=ppchLines[0][iTo]/10;
+		      fwrite(&ch,1,1,fh);
+		    }
+		  else
+		    {
+		      unsigned char chBit; /* 1=white */
+		      if (optMode==line)
+			chBit=(ppchLines[0][iTo]<LINE_THRESHOLD);
+		      else
+		        {
+			  short nError=ppchLines[0][iTo];
+			  /* printf("(%d)",nError); */
+			  if (nError>=2550)
+			    {
+			      nError-=2550;
+			      chBit=0;
+			    }
+			  else
+			    chBit=1;
+			  /* since I sketched the Floydd-Steinberg
+			     algorithm from heart, I have no idea, if
+			     there is room for improvement in the
+			     coefficients.  If You know, please drop
+			     me a line (eichholz, 1.4.2001) */
+			  ppchLines[0][iTo+1]+=nError*3/10;
+			  ppchLines[1][iTo+1]+=nError*3/10;
+			  ppchLines[1][iTo]  +=nError*4/10;
+			}
+		      chBits=(chBits<<1)|chBit;
+		      iDot++;
+		      if (iDot==8)
+			{
+			  fwrite(&chBits,1,1,fh);
+			  iDot=0; chBits=0;
+			}
+		    } /* gray pixel postprocessing */
+		} /* line postprocessing */
+	      if (iDot)
+		fwrite(&chBits,1,1,fh);
+	      /* swap the history lines and clear the preread buffer*/
+	      {
+		short *p=ppchLines[0];
+		ppchLines[0]=ppchLines[1];
+		ppchLines[1]=p;
+	      }
+	      memset(ppchLines[1],0,(cxMax+1)*sizeof(short));
+	      iTo=0; /* reset buffer offset */
+	    } /* while pixels available */
+	} /* ! bWriteRaw */
+      
     } while (cchBulk==0x8000);
-  } /* color descrambling */
+  } /* buffer processing */
+  free(ppchLines[1]);
+  free(ppchLines[0]);
+  free(ppchLines);
   free(pchBuf);
   /* move slider back to start */
   DoJog(-cyTotalPath);

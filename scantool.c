@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scantool.c,v 1.12 2001/03/30 22:50:31 eichholz Exp $
+$Id: scantool.c,v 1.13 2001/04/01 17:01:18 eichholz Exp $
 
 (C) Marian Eichholz 2001
 
@@ -10,7 +10,7 @@ $Id: scantool.c,v 1.12 2001/03/30 22:50:31 eichholz Exp $
 
 #include "scantool.h"
 
-#define REVISION "$Revision: 1.12 $"
+#define REVISION "$Revision: 1.13 $"
 
 #define USAGE \
 "usage: %s <outfile> <resolution> <x> <y> <w> <h>" \
@@ -19,11 +19,15 @@ $Id: scantool.c,v 1.12 2001/03/30 22:50:31 eichholz Exp $
 "\n\t-V : tell version"\
 "\n\t-h : this help"\
 "\n\t-v : verbose output"\
-"\n\t-d : set debug <flags> and r(aw) write mode"\
-"\n"\
-"\n\t-q : set overall quality to 'fast', 'high' or 'best'"\
+"\n\t-b : brightness set to <-255-255>"\
+"\n\t-c : contrast set to <-255-255>"\
 "\n\t-m : mode for 'color', 'gray', 'line' or 'halftone'"\
 "\n\t-p : paper preset for 'a4', 'letter', 'fax'"\
+"\n\t-q : set overall quality to 'fast', 'high' or 'best'"\
+"\n"\
+"\n\t-d : set debug <flags> and r(aw) write mode"\
+"\n"\
+"\n<outfile> may be '-' for standard output"\
 "\n\n"
 
 #define SCANNER_VENDOR     0x05DA
@@ -196,15 +200,13 @@ void ScanToFile(FILE *fhOut, struct usb_device *pScanner)
 		  param.cy*param.res/1200);
       break;
     case gray:
+    case line:
+    case halftone:
       DoScanGray(fhOut,param.res,
 		  param.x*param.res/1200,
 		  param.y*param.res/1200,
 		  param.cx*param.res/1200,
 		  param.cy*param.res/1200);
-      break;
-    case line:
-      break;
-    case halftone:
       break;
     }
 
@@ -262,6 +264,8 @@ int main(int cArg, char * const ppchArg[])
   param.res=300;
   param.cx=10250;
   param.cy=14078;
+  param.nBrightness=0;
+  param.nContrast=0;
   calibration.xMargin=200;
   calibration.yMargin=0x019D;
   calibration.nHoleGray=10;
@@ -269,7 +273,7 @@ int main(int cArg, char * const ppchArg[])
   calibration.nBarGray=0xC0;
   optQuality=fast;
   optMode=color;
-  while (EOF!=(chOpt=getopt(cArg,ppchArg,"Vvhid:l:o:p:q:m:")))
+  while (EOF!=(chOpt=getopt(cArg,ppchArg,"Vvhid:l:o:p:q:m:c:b:")))
     {
       switch (chOpt)
 	{
@@ -301,6 +305,8 @@ int main(int cArg, char * const ppchArg[])
 	    default: printf(USAGE,PROG_NAME); exit(1);
 	    }
 	  break;
+	case 'b': param.nBrightness=atoi(optarg); break;
+	case 'c': param.nContrast  =atoi(optarg); break;
         case 'd':
 	  switch (*optarg)
 	    {
@@ -353,7 +359,7 @@ int main(int cArg, char * const ppchArg[])
 	Panic(PANIC_SETUP,"cannot open log file \%s\": %s",
 	      szLogFile,strerror(errno));
     }
-  if (szScanFile)
+  if (szScanFile && strcmp(szScanFile,"-"))
     {
       fhScan=fopen(szScanFile, bWriteRaw ? "a" : "w");
       if (!fhScan)

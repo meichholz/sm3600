@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.12 2001/03/30 22:50:31 eichholz Exp $
+# $Id: Makefile,v 1.13 2001/04/01 17:01:18 eichholz Exp $
 #
 # -------------------------------------------------------------------
 #
@@ -41,13 +41,16 @@ test:	scantool initbus
 	./scantool -i -d 5 temp.out
 
 testscan: scantool initbus
-#	./scantool -d 1 -v -m color /tmp/scan.pnm 300 000 000 3610 4800
-	./scantool -d 1 -v -m gray /tmp/scan.pnm 300 000 000 3600 4800
+	./scantool -d 1 -v -m color -b 30 -c 40 /tmp/scan.pnm 200 000 000 3610 5400
+#	./scantool -d 1 -v -m gray -b 20 -c -50 /tmp/scan.pnm 100 000 000 4800 5400
+#	./scantool -d 1 -v -m line -b 30 /tmp/scan.pnm 200 000 000 3600 4800
+#	./scantool -d 1 -v -m halftone /tmp/scan.pnm 300 000 000 3600 4800
 	xv /tmp/scan.pnm
 
 testraw: scantool initbus
-	echo -e "P5\n200 100\n255" >/tmp/scan.pnm
-	./scantool -v -d 1 -d r /tmp/scan.pnm 100 600 300 2400 1200
+	echo >/tmp/scan.pnm
+	echo -e "P5\n200 150\n255" >/tmp/scan.pnm
+	./scantool -v -m g -d 1 -d r /tmp/scan.pnm 75 600 300 2400 2400
 	xv /tmp/scan.pnm
 
 dist:	clean

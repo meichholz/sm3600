@@ -3,7 +3,7 @@
 
 /*
 
- $Id: scantool.h,v 1.9 2001/03/29 22:01:51 eichholz Exp $
+ $Id: scantool.h,v 1.10 2001/04/01 17:01:18 eichholz Exp $
 
  common declarations and definitions.
 
@@ -57,6 +57,8 @@ typedef struct {
   int cx;
   int cy;
   int res; /* like all parameters in 1/1200 inch */
+  int nBrightness; /* -255 ... 255 */
+  int nContrast;   /* -128 ... 127 */
 } TScanParam;
 
 typedef enum { fast, high, best } TQuality;
@@ -134,6 +136,12 @@ if (!p) Panic(PANIC_RUNTIME,"memory failed in %d",__LINE__);
 void Panic(int nError, const char *szFormat, ...);
 void dprintf(unsigned long ulType, const char *szFormat, ...);
 void DumpBuffer(FILE *fh, const char *pch, int cch);
+
+void FixExposure(unsigned char *pchBuf,
+		 int cchBulk,
+		 int nBrightness,
+		 int nContrast);
+
 
 /* scanmtek.c */
 void DoInit(void);

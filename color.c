@@ -95,7 +95,7 @@ void DoScanColor(FILE *fh, int nResolution,
       0x9E /*0x49*/, 0x8C /*0x4A*/ };
     RegWriteArray(R_ALL, NUM_SCANREGS, uchRegs);
     RegWrite(R_SPOS, 2, xBorder*600/nResolution+calibration.xMargin);
-    RegWrite(R_SLEN, 2, (cyPixel+1+2*ySensorSkew)*600/nResolution);
+    RegWrite(R_SLEN, 2, (cyPixel+2*ySensorSkew)*600/nResolution);
     szOrder=ORDER_BRG; 
     RegWrite(R_CCAL, 3, 0x808080); /* 0xBBGGRR */
     if (optQuality==fast)
@@ -184,6 +184,7 @@ void DoScanColor(FILE *fh, int nResolution,
 	}
       /* read new buffer */
       cchBulk=BulkReadBuffer(pchBuf,0x8000);
+      FixExposure(pchBuf,cchBulk,param.nBrightness,param.nContrast);
 
       dprintf(DEBUG_SCAN,"bulk#%d, got %d bytes...\n",iChunk,cchBulk);
 
@@ -197,7 +198,7 @@ void DoScanColor(FILE *fh, int nResolution,
 	  iOffsetG=(szOrder[1]-'0')*cxMax;
 	  iOffsetB=(szOrder[2]-'0')*cxMax;
 	  iFrom=0;
-	  while (iFrom+3*cxMax<cchBulk)
+	  while (iFrom+3*cxMax<=cchBulk) /* rest of line complete in buffer */
 	    {
 	      char *pchLineSwap;
 	      int   cxToWrite=cxPixel;

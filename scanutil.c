@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scanutil.c,v 1.2 2001/03/27 22:34:05 eichholz Exp $
+$Id: scanutil.c,v 1.3 2001/04/01 17:01:18 eichholz Exp $
 
 ====================================================================== */
 
@@ -53,7 +53,7 @@ void Panic(int nError, const char *szFormat, ...)
     }
   if (hScanner) usb_close(hScanner);
   if (fhLog) fclose(fhLog);
-  if (fhScan) fclose(fhScan);
+  if (fhScan && fhScan!=stdout) fclose(fhScan);
   exit(nError);
 }
 
@@ -77,6 +77,33 @@ void DumpBuffer(FILE *fh, const char *pch, int cch)
       i++;
     }
   fprintf(fh,"\n");
+}
+
+/* **********************************************************************
+
+FixExposure()
+
+Exposure is done by adding brightness to the original scan value and
+augmenting the result around the middle value of 128.
+
+********************************************************************** */
+
+void FixExposure(unsigned char *pchBuf,
+		 int cchBulk,
+		 int nBrightness,
+		 int nContrast)
+{
+  int i;
+  int nOffB=nBrightness-128;
+  int nFakC=(nContrast+128)*100; /* in percent, to get smoother interpolation */
+  for (i=0; i<cchBulk; i++)
+  {
+    int nNew=pchBuf[i];
+    nNew=(nNew+nOffB)*nFakC/12800+128;
+    if (nNew<0) nNew=0;
+    else if (nNew>255) nNew=255;
+    pchBuf[i]=(unsigned char)nNew;
+  }
 }
 
 

@@ -1,4 +1,4 @@
-# $Id: mkdist.sh,v 1.2 2001/03/24 17:02:48 eichholz Exp $
+# $Id: mkdist.sh,v 1.3 2001/04/01 17:01:18 eichholz Exp $
 NAME=$1 ; cd .. ; tar cfpzv \
 	$NAME.tar.gz \
 	--exclude=glenn_ramsey \
@@ -8,4 +8,4 @@ NAME=$1 ; cd .. ; tar cfpzv \
 WWW="/home/marian/www/export/en/sm3600"
 
 cp $NAME.tar.gz $WWW
-cp $NAME/README.HISTORY $WWW
+cp $NAME/README.CHANGELOG $WWW

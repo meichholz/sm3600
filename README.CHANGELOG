@@ -1,6 +1,15 @@
 CHANGELOG
 =========
 
+1.4.2001
+
+DoScanGray() augmented. It does line art separation,
+floyd-steinberg-dithering, and has exposure parameters.
+
+Exposure added to color scan.
+
+You can scan to "-", which means STDOUT for postprocessing pipes.
+
 30.3.2001
 
 Interpolation code fixed against off-by-one-pixel-width.
