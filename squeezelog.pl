@@ -1,13 +1,16 @@
 #!/usr/bin/perl -wT
 use strict;
-# $Id: squeezelog.pl,v 1.4 2001/05/21 05:48:14 glennr Exp $
+# $Id: squeezelog.pl,v 1.5 2001/05/26 21:04:20 eichholz Exp $
 #
 # Originally, this script should compact USB-SNOOPY's log files for protocol
 # analysis. Is it designed to preserve as much information as is "possible".
 #
 # It has support for human analysis as well as roboted protocol replay.
 #
-#        consmetic in C code and optional marking
+# 1.26 : Thanks Glenn for the register map. (lamp) had to be removed.
+#        BUG: The "plain" lister seem to have an "off by one" problem.
+#
+#        cosmetic in C code and optional marking
 # 0.14 : C-code-generation. New output format flags.
 # 0.11 : Scanmaker-specific human format
 # 0.10 : me-robot-length with 4 digits, URB index, end-of-data-detection
@@ -204,7 +207,7 @@ my %hRegNames=qw(
 41 datFmt
 42 inVal
 43 GPIOmode
-44 GPIOout(lamp)
+44 GPIOout
 45 GPIOin 
 46 mtrCntl1
 47 mtrStpLen1

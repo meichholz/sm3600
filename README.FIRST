@@ -1,0 +1,79 @@
+Tools for the ScanMaker 3600 scanner
+====================================
+
+Content
+-------
+
+- Purpose
+- Broken Links and special names
+- Installing
+- Permissions
+- Contact
+
+
+Purpose
+-------
+
+This is the source code and the tools for development of a scanning
+tool for the Microtek SanMaker 3600 scanner.
+
+It is intended with two goals:
+
+1) A standalone tool (scantool) for the command line with specific
+optimisations and options.
+
+2) A SANE backend module.
+
+
+Broken Links and special names
+------------------------------
+
+This is a DEVELOPMENT TREE, no "shrinkwrapped package". It is *very*
+alpha, but might me useful for You, if You are brave :-)
+
+Please have this notion in mind, if You find mysterious scripts with
+magic SSH stuff, hard coded directories and all such things.
+
+There might me links to directories outside of the package (RCS or
+so), that make the tree somewhat leaner. This is perfectly ok. Just
+ignore them.
+
+
+Installing
+----------
+
+Read README.INSTALL for the installing procedure with the
+sane-backends 1.0.4 (see http://www.mostang.com/sane/ for download
+procedures)
+
+For the scantool target use the following procedure:
+
+	./configure
+	make bin
+
+There is no "make install" available now. So, just copy the binary to
+an appropriate place.
+
+
+Permissions and USBFS
+---------------------
+
+Since we use the usblib-Interface for now, You are on Your own to
+grant scanenr access to anyone other than Root. if You have no special
+USB devices, it is completely sufficient to do a
+
+	chown YOURUID /proc/bus/usb/???
+
+
+Contact
+-------
+
+If You have ideas and suggestions about the code, please ask
+
+	mailto:eichholz@computer.org
+
+There is a web site with a mailing list. Please have a look at
+
+	http://sm3600.sourceforge.net/
+
+

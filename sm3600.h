@@ -234,51 +234,51 @@ typedef enum { none, hpos, hposH, hres } TRegIndex;
 /* ====================================================================== */
 #define USB_CHUNK_SIZE 0x8000
 
-/* scanutil.c */
-int SetError(TInstance *this, int nError, const char *szFormat, ...);
-void debug_printf(unsigned long ulType, const char *szFormat, ...);
-void DumpBuffer(FILE *fh, const char *pch, int cch);
-void FixExposure(unsigned char *pchBuf,
-		 int cchBulk,
-		 int nBrightness,
-		 int nContrast);
-TState FreeState(TInstance *this, TState nReturn);
-TState EndScan(TInstance *this);
-TState ReadChunk(TInstance *this, unsigned char *achOut,
-		 int cchMax, int *pcchRead);
-TState DoScanFile(TInstance *this);
-void   GetAreaSize(TInstance *this);
-TState InitGammaTables(TInstance *this);
-TState CancelScan(TInstance *this);
+/* sm3600-scanutil.c */
+__SM3600EXPORT__ int SetError(TInstance *this, int nError, const char *szFormat, ...);
+__SM3600EXPORT__ void debug_printf(unsigned long ulType, const char *szFormat, ...);
+__SM3600EXPORT__ void DumpBuffer(FILE *fh, const char *pch, int cch);
+__SM3600EXPORT__ void FixExposure(unsigned char *pchBuf,
+				  int cchBulk,
+				  int nBrightness,
+				  int nContrast);
+__SM3600EXPORT__ TState FreeState(TInstance *this, TState nReturn);
+__SM3600EXPORT__ TState EndScan(TInstance *this);
+__SM3600EXPORT__ TState ReadChunk(TInstance *this, unsigned char *achOut,
+				  int cchMax, int *pcchRead);
+__SM3600EXPORT__ TState DoScanFile(TInstance *this);
+__SM3600EXPORT__ void   GetAreaSize(TInstance *this);
+__SM3600EXPORT__ TState InitGammaTables(TInstance *this);
+__SM3600EXPORT__ TState CancelScan(TInstance *this);
 
-/* scanmtek.c */
-extern unsigned short aidProduct[];
-TState DoInit(TInstance *this);
-TState DoReset(TInstance *this);
-TState WaitWhileBusy(TInstance *this,int cSecs);
-TState WaitWhileScanning(TInstance *this,int cSecs);
-TState DoJog(TInstance *this,int nDistance);
-TState DoLampSwitch(TInstance *this,int nPattern);
-TState DoCalibration(TInstance *this);
-TState UploadGammaTable(TInstance *this, int iByteAddress, SANE_Int *pnGamma);
+/* sm3600-scanmtek.c */
+__SM3600EXPORT__ extern unsigned short aidProduct[];
+__SM3600EXPORT__ TState DoInit(TInstance *this);
+__SM3600EXPORT__ TState DoReset(TInstance *this);
+__SM3600EXPORT__ TState WaitWhileBusy(TInstance *this,int cSecs);
+__SM3600EXPORT__ TState WaitWhileScanning(TInstance *this,int cSecs);
+__SM3600EXPORT__ TState DoLampSwitch(TInstance *this,int nPattern);
+__SM3600EXPORT__ TState DoCalibration(TInstance *this);
+__SM3600EXPORT__ TState UploadGammaTable(TInstance *this, int iByteAddress, SANE_Int *pnGamma);
 
-/* scanusb.c */
-TState RegWrite(TInstance *this,int iRegister, int cb, unsigned long ulValue);
-TState RegWriteArray(TInstance *this,int iRegister, int cb, unsigned char *pchBuffer);
-TState RegCheck(TInstance *this,int iRegister, int cch, unsigned long ulValue);
-int BulkRead(TInstance *this,FILE *fhOut, unsigned int cchBulk);
-int BulkReadBuffer(TInstance *this,unsigned char *puchBufferOut, unsigned int cchBulk); /* gives count */
-unsigned int RegRead(TInstance *this,int iRegister, int cch);
-TState MemReadArray(TInstance *this, int iAddress, int cb, unsigned char *pchBuffer);
-TState MemWriteArray(TInstance *this, int iAddress, int cb, unsigned char *pchBuffer);
+/* sm3600-scanusb.c */
+__SM3600EXPORT__ TState RegWrite(TInstance *this,int iRegister, int cb, unsigned long ulValue);
+__SM3600EXPORT__ TState RegWriteArray(TInstance *this,int iRegister, int cb, unsigned char *pchBuffer);
+__SM3600EXPORT__ TState RegCheck(TInstance *this,int iRegister, int cch, unsigned long ulValue);
+__SM3600EXPORT__ int BulkRead(TInstance *this,FILE *fhOut, unsigned int cchBulk);
+__SM3600EXPORT__ int BulkReadBuffer(TInstance *this,unsigned char *puchBufferOut, unsigned int cchBulk); /* gives count */
+__SM3600EXPORT__ unsigned int RegRead(TInstance *this,int iRegister, int cch);
+__SM3600EXPORT__ TState MemReadArray(TInstance *this, int iAddress, int cb, unsigned char *pchBuffer);
+__SM3600EXPORT__ TState MemWriteArray(TInstance *this, int iAddress, int cb, unsigned char *pchBuffer);
 
-/* gray.c */
-TState StartScanGray(TInstance *this);
-/* color.c */
-TState StartScanColor(TInstance *this);
+/* sm3600-gray.c */
+__SM3600EXPORT__ TState StartScanGray(TInstance *this);
+/* sm3600-color.c */
+__SM3600EXPORT__ TState StartScanColor(TInstance *this);
 
-/* homerun.c */
-TState DoOriginate(TInstance *this, TBool bStepOut);
+/* sm3600-homerun.c */
+__SM3600EXPORT__ TState DoOriginate(TInstance *this, TBool bStepOut);
+__SM3600EXPORT__ TState DoJog(TInstance *this,int nDistance);
 
 /* ====================================================================== */
 

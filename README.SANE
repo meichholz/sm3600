@@ -1,7 +1,29 @@
 How to include our little stuff into SANE
 =========================================
 
-Do *not* use the sane-targets in the makefile. They jsut don't produce
+sane-backends > 1.0.4
+---------------------
+
+There is now sm3600-support in the SANE-backends package, curerntly
+available by anoncvs:
+
+	cvs -d :pserver:anoncvs@anoncvs.hungry.com:/cvsroot login
+	[say "anoncvs" as password]
+	cvs -d :pserver:anoncvs@anoncvs.hungry.com:/cvsroot -z3 co sane
+
+You can incorporate the new source modules by simple copying:
+
+	for i in scantool.h color.c homerun.c scanutil.c gray.c \
+		scanmtek.c scanusb.c
+		do
+			ln -s $SRC/$i sane/sane-backends/backend/sm3600-$i
+		done
+
+
+sane-backends 1.0.4
+-------------------
+
+DO *NOT* USE the sane-targets in the makefile. They just don't produce
 sensible code. For now, we must use the original SANE environment. I am not happy with that. Perhaps later...
 
 First, extract and prepare the SANE backend-package. I used version 1.0.4.
@@ -13,7 +35,7 @@ Modify the SANE package:
 	for i in scantool.h color.c homerun.c scanutil.c gray.c \
 		scanmtek.c scanusb.c
 		do
-			ln -s $SRC/$i backend/sm3600-$i
+			ln -s $SRC/sm3600-$i backend/sm3600-$i
 		done
 
 

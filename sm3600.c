@@ -80,6 +80,9 @@ Start: 2.4.2001
 
 /* prevent inclusion of scantool.h */
 #define SCANTOOL_H
+/* make no real function export, since we include the modules */
+#define __SM3600EXPORT__ static
+
 
 #include "sm3600.h"
 
