@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scantool.c,v 1.5 2001/03/24 22:42:45 eichholz Exp $
+$Id: scantool.c,v 1.6 2001/03/25 15:11:43 eichholz Exp $
 
 (C) Marian Eichholz 2001
 
@@ -14,7 +14,7 @@ $Id: scantool.c,v 1.5 2001/03/24 22:42:45 eichholz Exp $
 
 #include "scantool.h"
 
-#define REVISION "$Revision: 1.5 $"
+#define REVISION "$Revision: 1.6 $"
 
 #define USAGE \
 "usage: %s <outfile> <resolution> <x> <y> <w> <h>" \
@@ -24,6 +24,10 @@ $Id: scantool.c,v 1.5 2001/03/24 22:42:45 eichholz Exp $
 "\n\t-h : this help"\
 "\n\t-v : verbose output"\
 "\n\t-d : set debug <flags> and r(aw) write mode"\
+"\n"\
+"\n\t-q : set overall quality to 'speed' or 'best'"\
+"\n\t-m : mode for 'color', 'gray', 'line' or 'halftone'"\
+"\n\t-p : paper preset for 'a4', 'letter', 'fax'"\
 "\n\n"
 
 #define SCANNER_VENDOR     0x05DA
@@ -98,16 +102,6 @@ void DoScanColor(FILE *fh, int nResolution,
   RegWrite(0x34, 1, 0x83);    /* #1527[004.9] */
   RegWrite(0x49, 1, 0x9E);    /* #1528[004.9] */
 
-  /*
-  switch (nResolution)
-    {
-    case 200: CtlReal200dpi(); szOrder=ORDER_BRG; break;
-    case 600: CtlReal600dpi(); szOrder=ORDER_BRG; break;
-    case 300: CtlReal300dpi(); szOrder=ORDER_RGB; break;
-    case 100: CtlReal100dpi(); szOrder=ORDER_BRG; break;
-    default:  CtlHalfTone(); szOrder=ORDER_RGB; break;
-    }
-  */
   {
     unsigned char uchRegs[]={
       0xAB /*!!0x01!!*/, 0x05 /*!!0x02!!*/, 0x2A /*!!0x03!!*/,
@@ -141,18 +135,25 @@ void DoScanColor(FILE *fh, int nResolution,
     RegWrite(R_SLEN, 2, (cyPixel+1)*600/nResolution);
     szOrder=ORDER_RGB; 
     RegWrite(R_CCAL, 3, 0xFFFFFF); /* 0xBBGGRR */
+    RegWrite(0x4a, 1, 0xD8);
+    RegWrite(0x49, 1, 0x9E);
     switch (nResolution)
       {
+      case 100:
+	RegWrite(R_XRES,1, 0x20);
+	RegWrite(R_SWID, 2, 0xC000 | (cxPixel*600/nResolution));
+	RegWrite(0x08, 2, 0xFFFF);
+	break;
       case 300:
 	RegWrite(R_XRES,1, 0x2A);
-	RegWrite(0x08,2, 0x6A6A);
 	RegWrite(R_SWID, 2, 0x4000 | (cxPixel*600/nResolution));
+	RegWrite(0x08,2, 0x6A6A);
 	szOrder=ORDER_RGB; 
 	break;
       case 600:
 	RegWrite(R_XRES,1, 0x3F);
-	RegWrite(0x08,2, 0xFFFF);
 	RegWrite(R_SWID, 2, 0xC000 | (cxPixel*600/nResolution));
+	RegWrite(0x08,2, 0xFFFF);
 	szOrder=ORDER_BRG; 
 	break;
       }
@@ -327,8 +328,11 @@ void ScanToFile(FILE *fhOut, struct usb_device *pScanner)
 
   hScanner=OpenScanner(pScanner);
 
-  DoInit();
-  DoOriginate();
+  if (RegRead(R_INIT,2)!=RVAL_INIT)
+    {
+      DoInit();
+      DoOriginate();
+    }
   DoJog(YMARGIN);
   DoScanColor(fhOut,param.res,
 	      param.x*param.res/1200,
@@ -396,7 +400,7 @@ int main(int cArg, char * const ppchArg[])
   param.res=300;
   param.cx=10250;
   param.cy=14078;
-  while (EOF!=(chOpt=getopt(cArg,ppchArg,"Vvhid:l:o:")))
+  while (EOF!=(chOpt=getopt(cArg,ppchArg,"Vvhid:l:o:p:q:m:")))
     {
       switch (chOpt)
 	{
@@ -408,6 +412,9 @@ int main(int cArg, char * const ppchArg[])
 	case 'V': TellRevision(); exit(0); break;
 	case 'l': szLogFile=strdup(optarg); break;
         case 'i': bInteractive=true; break;
+	case 'p': /* preset */ break;
+	case 'q': /* quality */ break;
+	case 'm': /* mode */ break;
         case 'd':
 	  switch (*optarg)
 	    {
@@ -473,7 +480,7 @@ int main(int cArg, char * const ppchArg[])
   if (bInteractive)
     RunDialog(fhScan,pdevScanner);
   else
-  ScanToFile(fhScan,pdevScanner);
+    ScanToFile(fhScan,pdevScanner);
 
   Panic(0,NULL); /* close all files, free resources and exit */
   return 0; /* not reached */

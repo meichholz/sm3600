@@ -3,7 +3,7 @@
 
 /*
 
- $Id: scantool.h,v 1.5 2001/03/24 22:42:45 eichholz Exp $
+ $Id: scantool.h,v 1.6 2001/03/25 15:11:43 eichholz Exp $
 
  common declarations and definitions.
 
@@ -91,6 +91,9 @@ GLOBAL TScanParam         param;
 #define R_STPS   0x06
 /* WORD */
 #define R_SLEN   0x0A
+/* WORD*/
+#define R_INIT   0x12
+#define RVAL_INIT 0x1540
 /* RGB */
 #define R_CCAL   0x2F
 
@@ -102,17 +105,10 @@ GLOBAL TScanParam         param;
 #define R_POS    0x52
 /* WORD */
 #define R_LMP    0x44
+#define R_QLTY   0x4A
 #define R_STAT   0x54
 
 #define LEN_MAGIC   0x24EA
-
-/* some magic constant for "bonsai" line processing */
-#define CCH_BONSAI  60
-#define MAX_PIXEL_PER_SCANLINE  5100
-#define X_BONSAI_BLACK1 7
-#define X_BONSAI_BLACK2 21
-#define X_BONSAI_BLACK3 36
-#define MIN_BONSAI_WHITE 35
 
 /* ====================================================================== */
 

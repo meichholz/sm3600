@@ -1,7 +1,7 @@
 Register map for the Microtek 3600
 ==================================
 
-$Id: README.REGISTERS,v 1.3 2001/03/24 22:42:45 eichholz Exp $
+$Id: README.REGISTERS,v 1.4 2001/03/25 15:11:43 eichholz Exp $
 
 Here are the registers, as far as I know them. All multi-byte registers are
 bigendian, the least significant byte first (aka "Intel byte sex").
@@ -59,6 +59,15 @@ Register 0Ah-0Bh
 Vertical scan length in units of 1/600 inch. Apparently You have to
 add 1 more step (600/resolution) to get the correct count of lines.
 
+Register 12h-13h
+----------------
+
+Being 0000h at power up, and checked by the driver,
+it is initialised to 1540h by the driver.
+
+But with my scanner there are values of 60h in 12h, too. So this is
+at least questionable...
+
 Register 2Fh
 ------------
 
@@ -81,17 +90,19 @@ Register 32h-33h
 ----------------
 
 Seems to indicate the width of a scan line, or the amount of bytes per scan
-line. In gray-scale-single-line mode, it is 5100 (whereas the transfer needs
-10200 bytes for the *two* rows).
+line. In scnchronous mode it is mostly it is 5100.
+
+Note: The transfer contains actually *two* lines with 10200 bytes.
 
 Register 42h
 ------------
 
-Other control register, related to scanning (bulk transfers).
+Other control register, related to synchronous scanning (bulk transfers).
 
 Read:
 
-Bit 7: Ready. If =1, You can issue a bulk transfer.
+Bit 7: Ready. If =1, You can issue a bulk transfer. In ansychronous scanning
+this is not needed.
 
 Register 44h
 ------------
@@ -120,4 +131,23 @@ Bit 6: Direction.
 
 Bit 7: If set to 1, the carriage movement program starts, including
 scanning (controlled by other means).
+
+Register 47h-48h
+----------------
+
+Seems to be a duplicate of 18h-19h.
+
+Register 4Ah
+------------
+
+Control quality or speed mode.
+D8h means slow scanning (good quality) and
+8Ch means speeed scanning.
+
+Register 54h-55h
+----------------
+
+Read: Number of 16 bit words in the bulk transfer buffer until now (thanks,
+Glenn). You can wait, until the buffer is filled enough, but it seems
+not to be really necessary.
 

@@ -1,7 +1,13 @@
 History and Changelog
 =====================
 
-==== $Id: README.HISTORY,v 1.4 2001/03/24 20:56:21 eichholz Exp $ ====x
+==== $Id: README.HISTORY,v 1.5 2001/03/25 15:11:43 eichholz Exp $ ====x
+
+	25.3.2001
+
+README.REGISTERS updated.
+Experiments with 100 DPI.
+Formal interface for quality, mode, preset
 
 	24.3.2001
 

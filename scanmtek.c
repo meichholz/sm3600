@@ -2,11 +2,19 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scanmtek.c,v 1.2 2001/03/24 20:56:21 eichholz Exp $
+$Id: scanmtek.c,v 1.3 2001/03/25 15:11:43 eichholz Exp $
 
 ====================================================================== */
 
 #include "scantool.h"
+
+/* some magic constant for "bonsai" line processing */
+#define CCH_BONSAI  100
+#define MAX_PIXEL_PER_SCANLINE  5100
+#define X_BONSAI_BLACK1 13
+#define X_BONSAI_BLACK2 36
+#define X_BONSAI_BLACK3 60
+#define MIN_BONSAI_WHITE 70
 
 /* **********************************************************************
 
@@ -168,17 +176,19 @@ No idea, hoiw to achieve this, for now...
 
 ********************************************************************** */
 
-void DoOriginate(void)
+void DoOriginate()
 {
   int cWhite,cBlack,iStripe;
   
   if (bVerbose)
     fprintf(stderr,"carriage return...\n");
   dprintf(DEBUG_ORIG,"originate 1...\n");
+#ifdef ORIGINATE_INIT_JOG
   /* part job: switch on the lamp and move
      approx. 4 mm. forward (100 units, 4.23 mm). */
   DoJog(100);
   dprintf(DEBUG_ORIG,"originate 2...\n");
+#endif
 
   /* This moves make some steps (a third of the initial one) backwards.
      Three times goes nearly back to the starting point (-1 mm) */
@@ -233,6 +243,7 @@ void DoOriginate(void)
       Panic(PANIC_COMM,"truncated 10200-bulk");
     lSum=0;
     memset(anLine,0,sizeof(anLine));
+#ifdef ORIGINATE_BY_AVERAGE
     for (i=0; i<cchBulk; i++)
       {
 	int iBonsai=(i*(2*CCH_BONSAI-1))/(cchBulk-1); /* 0..119 */
@@ -241,6 +252,14 @@ void DoOriginate(void)
 	lSum+=puchBuffer[i];
 	anLine[iBonsai]+=puchBuffer[i]; /* simple, basta */
       }
+#else
+    for (i=0; i<CCH_BONSAI; i++)
+      {
+	int iBulk=i*(cchBulk/2)/CCH_BONSAI;
+	lSum+=puchBuffer[iBulk];
+	achLine[i]=puchBuffer[iBulk+40]; /* simple, basta */
+      }
+#endif
     cWhite=0;
     cBlack=0;
     /* renormalize */
@@ -248,13 +267,15 @@ void DoOriginate(void)
     lMedian=cchBulk/CCH_BONSAI; /* the maximum accumulatable value/256 */
     for (i=0; i<CCH_BONSAI; i++)
       {
+#ifdef ORIGINATE_BY_AVERAGE
 	achLine[i]=anLine[i]/lMedian; /* 0..256 */
+#endif
 	achLine[i]=achLine[i]/26+'0'; /* '0'...'9' */
       }
     /* check for the three circles */
     for (i=0; i<CCH_BONSAI; i++)
       {
-	if (achLine[i]>='5') cWhite++;
+	if (achLine[i]>='4') cWhite++;
 	switch (i)
 	  {
 	  case X_BONSAI_BLACK1:
