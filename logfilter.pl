@@ -1,31 +1,16 @@
 #!/usr/bin/perl -w
 
-# $Id: logfilter.pl,v 1.1 2001/03/23 21:58:22 eichholz Exp $
-
-# this filter is a hacked version og Glenn Ramsey's own filter.
-# Thank You, Glenn!
-#
-# It helps to squeeze the *relevant* protocol information out of a
-# USB-Snoopy-Log.
-#
-# (eichholz@computer.org, 18.02.2001)
-
-
 my $tblen;
 my $req;
 my $val;
 my $dir;
 my $type;
-my $data;
+my @data;
 
-# this makes each line printed after it have a \r\n instead of just a \n.
-#print "type length request dir value (first 16 bytes of data buffer])";
-#printf "%s\n", "type length request dir value (first 16 bytes of data buffer])";
-#printf "%1s", "\n";
-
-print "type length request dir value (first 16 bytes of data buffer])";
+print "dir\tvalue\tbuflen\tdata\n";
 
 while( get_line() ) {
+
     #print "read: $_";
     do {
         if ( />>>>>/ ){
@@ -38,59 +23,62 @@ leave:
         $type = "c";
         get_line() while( !/USBD_TRANSFER_DIRECTION_/);
         if (/OUT/) {
-            $dir = "out";
-        } else {
-    	    $dir = "in";
-        }
-        get_line() while( !/TransferBufferLength[\s]*= 0*([a-zA-Z0-9]+)/);
-        $tblen = hex $1;
-        if ( $dir eq "out" ) {
-            $data = get_buffer_contents();
-        }
-        get_line() while( !/Request[\s]*= 0*([a-zA-Z0-9]+)/);
-        $req = hex $1;
-        get_line() while( !/Value[\s]*= 0*([a-zA-Z0-9]+)/);
-        $val = hex $1;
-        if ( $dir eq "in") {
-            $data = get_buffer_contents();
-        }
-        if ( $dir eq "out" ) {
             $dir = "write";
         } else {
-            $dir = "read";
+    	    $dir = "read";
         }
-        printf "%s %4x %2x %5s %2x %s\n", $type, $tblen, $req, $dir, $val, $data;
-    } elsif ( /-- URB_FUNCTION_BULK/ ){
-        $type = "b";
-        get_line() while( !/TransferBufferLength = 0*([a-zA-Z0-9]+)/);
+        get_line() while( !/TransferBufferLength[\s]*= 0*([\da-f]+)/);
         $tblen = hex $1;
-        printf "%s %4x\n", $type, $tblen;
-    }
+        if ( $dir eq "write" ) {
+            @data = get_buffer_contents();
+        }
+        get_line() while( !/Request[\s]*= 0*([\da-f]+)/);
+        $req = hex $1;
+        get_line() while( !/Value[\s]*= 0*([\da-f]+)/);
+        $val = hex $1;
+        if ( $dir eq "read") {
+            @data = get_buffer_contents();
+        }
+		#if ($dir eq "read") {
+        	printf "\n%s\t%2x\t%2x\t", $dir, $val, $tblen;
+			foreach ( @data ) {
+				print " ",$_;
+			}
+		#}
+        #printf "%s %4x %2x %5s %2x %s\n", $type, $tblen, $req, $dir, $val, $data if ($dir eq "read") ;
+    } elsif ( /-- URB_FUNCTION_BULK/ ){
+        
+		$type = "b";
+        get_line() while( !/TransferBufferLength = 0*([\da-f]+)/);
+        $tblen = hex $1;
+        printf "\n%s %4x", $type, $tblen;
+	}
     next;
+	print "\n";
 }
 
+
 sub get_line {
-    $_ = (<> or die( "end of input\n" ));
-    #GR uncommented this
-    #print STDERR "read: $_";
-    #/GR
-    s/\r//g;
+    #$_ = (<> or die( "end of input\n" ));
+    $_=<STDIN>;
+	#print STDOUT "get_line: $_";
+    s/\r//g if ($_);                         # eliminate CR
     return $_;
   }
 
 
-# this only gets the first line of data, it wouldn't be too hard
-# to expand it to get the whole buffer, but then the output wouldn't
-# be condensed by very much 
 sub get_buffer_contents {
-    get_line() while ( !/0000:/ );
-    get_line();
-    my @data;
-    #remove the line no and timestamp
-    @data = split /[\s]{3}/;        
-    $data = pop @data;
-    #remove the newline - there has to be a better way than this 
-    @data = split /\n/, $data;
-    $data = pop @data;
-    return $data;               
+	#print STDOUT "get_buffer_contents: entered\n";
+    my @localdata;
+    do {
+        get_line();
+    	# Thanks to Marian Eichholz for this regex
+    	#s/^\d+\s+[\d\.]+\s+//;           # throw away line index and time
+    	s/^\d+\s+[\d\.]+\s+//;           # throw away line index and time
+    	#print STDOUT "remaining: $_\n";
+		s/\s+\n//g;                         # eliminate whitespace preceding NL and NL    
+	    push @localdata,"$_" if /^[\da-f]{2}( |$)/; # append byte buffer data line
+	} while (!/(^Urb)/);   # extract current byte buffer index
+	#print STDOUT "\nget_buffer_contents: returning: @data";
+    return @localdata;               
 }
