@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+26.4.2001
+
+Abstract Read/Write funktions in scanusb().
+Memory-Transfer-Funktions...
+
 22.4.2001
 
 Found the reason for the random first line. FIXED.

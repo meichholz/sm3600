@@ -216,6 +216,8 @@ TState RegCheck(TInstance *this,int iRegister, int cch, unsigned long ulValue);
 int BulkRead(TInstance *this,FILE *fhOut, unsigned int cchBulk);
 int BulkReadBuffer(TInstance *this,unsigned char *puchBufferOut, unsigned int cchBulk); /* gives count */
 unsigned int RegRead(TInstance *this,int iRegister, int cch);
+TState MemReadArray(TInstance *this, int iAddress, int cb, unsigned char *pchBuffer);
+TState MemWriteArray(TInstance *this, int iAddress, int cb, unsigned char *pchBuffer);
 
 /* gray.c */
 TState StartScanGray(TInstance *this);

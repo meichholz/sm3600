@@ -2,13 +2,59 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scanusb.c,v 1.5 2001/04/19 22:40:16 eichholz Exp $
+$Id: scanusb.c,v 1.6 2001/04/26 19:58:02 eichholz Exp $
 
 (C) Marian Eichholz 2001
+
+26.4.2001: Added an abstraction layer for TransferControlMsg.
 
 ====================================================================== */
 
 #include "scantool.h"
+
+/* **********************************************************************
+
+TransferControlMsg()
+
+********************************************************************** */
+
+static int TransferControlMsg(TInstance *this,
+		       int nReqType,
+		       int nRequest, 
+		       int nValue,
+		       int nIndex,
+		       void *pBuffer,
+		       int  cchBuffer,
+		       int  cJiffiesTimeout)
+{
+  return usb_control_msg(this->hScanner,
+			 nReqType,
+			 nRequest,
+			 nValue,
+			 nIndex,
+			 pBuffer,
+			 cchBuffer,
+			 cJiffiesTimeout);
+}
+
+/* **********************************************************************
+
+cch=BulkRead()
+
+********************************************************************** */
+
+static int TransferBulkRead(TInstance *this,
+	     int nEndPoint,
+	     void *pBuffer,
+	     int cchMax,
+	     int cJiffiesTimeout)
+{
+  return usb_bulk_read(this->hScanner,
+		       nEndPoint,
+		       pBuffer,
+		       cchMax,
+		       cJiffiesTimeout);
+}
 
 /* **********************************************************************
 
@@ -39,7 +85,7 @@ TState RegWrite(TInstance *this, int iRegister, int cb, unsigned long ulValue)
     return SetError(this,SANE_STATUS_IO_ERROR,
 		    "error in reg out: %d,%d,%08X",iRegister,cb,ulValue);
   }
-  i=usb_control_msg(this->hScanner,  /* handle */
+  i=TransferControlMsg(this,  /* handle */
 		    0x40,                  /* request type */
 		    0x08,                  /* request */
 		    iRegister,             /* value */
@@ -57,7 +103,7 @@ TState RegWriteArray(TInstance *this, int iRegister, int cb, unsigned char *pchB
   int   i;
   INST_ASSERT();
   /* some rough assertions */
-  i=usb_control_msg(this->hScanner,        /* handle */
+  i=TransferControlMsg(this,        /* handle */
 		    0x40,                  /* request type */
 		    0x08,                  /* request */
 		    iRegister,             /* value */
@@ -66,6 +112,52 @@ TState RegWriteArray(TInstance *this, int iRegister, int cb, unsigned char *pchB
 		    USB_TIMEOUT_JIFFIES);                /* TO, jiffies... */
   if (i<0)
     return SetError(this,SANE_STATUS_IO_ERROR,"error during register write");
+  return SANE_STATUS_GOOD;
+}
+
+/* **********************************************************************
+
+MemWriteArray(iAddress, cb, ulValue)
+
+********************************************************************** */
+
+TState MemWriteArray(TInstance *this, int iAddress, int cb, unsigned char *pchBuffer)
+{
+  int   i;
+  INST_ASSERT();
+  /* some rough assertions */
+  i=TransferControlMsg(this,
+		    0x40,                  /* request type */
+		    0x09,                  /* request */
+		    iAddress,              /* value */
+		    0,                     /* index */
+		    pchBuffer, cb,         /* bytes, size */
+		    USB_TIMEOUT_JIFFIES);                /* TO, jiffies... */
+  if (i<0)
+    return SetError(this,SANE_STATUS_IO_ERROR,"error during memory write");
+  return SANE_STATUS_GOOD;
+}
+
+/* **********************************************************************
+
+MemReadArray(iRegister, cb, ulValue)
+
+********************************************************************** */
+
+TState MemReadArray(TInstance *this, int iAddress, int cb, unsigned char *pchBuffer)
+{
+  int   i;
+  INST_ASSERT();
+  /* some rough assertions */
+  i=TransferControlMsg(this,
+		    0xC0,                  /* request type */
+		    0x01,                  /* request */
+		    iAddress,              /* value */
+		    0,                     /* index */
+		    pchBuffer, cb,         /* bytes, size */
+		    USB_TIMEOUT_JIFFIES);                /* TO, jiffies... */
+  if (i<0)
+    return SetError(this,SANE_STATUS_IO_ERROR,"error during memory read");
   return SANE_STATUS_GOOD;
 }
 
@@ -105,7 +197,7 @@ TState RegCheck(TInstance *this, int iRegister, int cch, unsigned long ulValue)
 			"error in reg out: %d,%d,%08X",iRegister,cch,ulValue);
       else
 	{
-	  i=usb_control_msg(this->hScanner,  /* handle */
+	  i=TransferControlMsg(this,  /* handle */
 		    0xC0,                  /* request type */
 		    0x00,                  /* request */
 		    iRegister,             /* value */
@@ -151,11 +243,11 @@ int BulkRead(TInstance *this, FILE *fhOut, unsigned int cchBulk)
       cchChunk=cchBulk;
       if (cchChunk>0x1000)
 	cchChunk=0x1000;
-      cchReal=usb_bulk_read(this->hScanner,
-			    0x82,
-			    pchBuffer+cchRead,
-			    cchChunk,
-			    USB_TIMEOUT_JIFFIES);
+      cchReal=TransferBulkRead(this,
+		       0x82,
+		       pchBuffer+cchRead,
+		       cchChunk,
+		       USB_TIMEOUT_JIFFIES);
       dprintf(DEBUG_COMM,"bulk read: %d -> %d\n",cchChunk,cchReal);
       if (cchReal>=0)
 	{
@@ -210,11 +302,11 @@ int BulkReadBuffer(TInstance *this,
       cchChunk=cchBulk;
       if (cchChunk>0x1000)
 	cchChunk=0x1000;
-      cchReal=usb_bulk_read(this->hScanner,
-			    0x82,
-			    pchBuffer+cchRead,
-			    cchChunk,
-			    USB_TIMEOUT_JIFFIES);
+      cchReal=TransferBulkRead(this,
+		       0x82,
+		       pchBuffer+cchRead,
+		       cchChunk,
+		       USB_TIMEOUT_JIFFIES);
       dprintf(DEBUG_COMM,"bulk read: %d -> %d\n",cchChunk,cchReal);
       if (cchReal>=0)
 	{
@@ -258,7 +350,7 @@ unsigned int RegRead(TInstance *this, int iRegister, int cch)
     }
   pchTransfer=calloc(1,cch);
   CHECK_POINTER(pchTransfer);
-  i=usb_control_msg(this->hScanner,  /* handle */
+  i=TransferControlMsg(this,  /* handle */
         0xC0,                  /* request type */
 	0x00,                  /* request */
 	iRegister,             /* value */
