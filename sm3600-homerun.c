@@ -182,6 +182,8 @@ static TLineType GetLineType(TInstance *this)
   else
     bHolesOk=false;
   lMedian=lSum/cchBulk;
+  /* this is *definitly* dirty style. We should pass the information
+     by other means... */
   if (bHolesOk)
     {
       this->calibration.xMargin=axHoles[0]-480;           /* left bed corner */
@@ -255,7 +257,9 @@ TState DoOriginate(TInstance *this, TBool bStepOut)
     }
   DoJog(this,1); INST_ASSERT(); /* Correction for 1 check line */
   DBG(DEBUG_JUNK,"lt3=%d\n",(int)lt);
-  return (this->state.bCanceled ? SANE_STATUS_CANCELLED : SANE_STATUS_GOOD);
+  if (this->state.bCanceled)
+    return SANE_STATUS_CANCELLED;
+  return DoCalibration(this);
 }
 
 /* **********************************************************************
@@ -346,8 +350,6 @@ TState DoJog(TInstance *this, int nDistance)
     }
   INST_ASSERT();
   usleep(100);
-  WaitWhileBusy(this,100);
-  INST_ASSERT();
-  return DoCalibration(this);
+  return WaitWhileBusy(this,100);
 }
 
