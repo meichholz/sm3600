@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scantool.c,v 1.23 2001/05/05 22:42:23 eichholz Exp $
+$Id: scantool.c,v 1.24 2001/05/06 15:15:30 eichholz Exp $
 
 (C) Marian Eichholz 2001
 
@@ -10,7 +10,7 @@ $Id: scantool.c,v 1.23 2001/05/05 22:42:23 eichholz Exp $
 
 #include "scantool.h"
 
-#define REVISION "$Revision: 1.23 $"
+#define REVISION "$Revision: 1.24 $"
 
 #define USAGE \
 "usage: %s <outfile> <resolution> <x> <y> <w> <h>" \
@@ -236,7 +236,6 @@ static int ScanToFile(TInstance *this)
   if (rc==SANE_STATUS_GOOD) rc=DoInit(this);
   if (!this->bOptSkipOriginate)
     {
-      if (rc==SANE_STATUS_GOOD) rc=DoJog(this,200); 
       if (rc==SANE_STATUS_GOOD) rc=DoOriginate(this); 
     }
   if (rc==SANE_STATUS_GOOD) rc=DoJog(this,this->calibration.yMargin);

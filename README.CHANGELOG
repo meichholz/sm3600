@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+6.5.2001
+
+Perfected DoOriginate(). It now detects the "I am home" rigzht from start.
+Oops: We have a problem with small colored(?) scans.
+
 5.5.2001
 
 Oops: Quickfix of SANE_STATUS_CANCELLED...

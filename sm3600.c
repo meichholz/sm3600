@@ -650,7 +650,6 @@ sane_start (SANE_Handle handle)
   if (this->state.bScanning) return SANE_STATUS_DEVICE_BUSY;
   rc=SetupInternalParameters(this);
   this->state.bCanceled=false;
-  if (!rc) rc=DoJog(this,200);
   if (!rc) rc=DoOriginate(this);
   if (!rc) rc=DoJog(this,this->calibration.yMargin);
   if (rc) return rc;

@@ -160,7 +160,9 @@ TState DoOriginate(TInstance *this)
   if (this->bVerbose)
     fprintf(stderr,"carriage return...\n");
   INST_ASSERT();
-  lt=ltUnknown;
+  lt=GetLineType(this);
+  /* if we are already at home, fine. If not, first jump a bit forward */
+  if (lt!=ltHome) DoJog(this,200);
   while (lt!=ltHome && !this->state.bCanceled)
     {
       lt=GetLineType(this);
@@ -168,8 +170,8 @@ TState DoOriginate(TInstance *this)
       switch (lt)
 	{
 	case ltHome: continue;
-	case ltBed:  DoJog(this,-500); break;
-	default:     DoJog(this,-20); break;
+	case ltBed:  DoJog(this,-240); break; /* worst case: 1 cm */
+	default:     DoJog(this,-24); break; /* 1 mm */
 	}
     }
   DoJog(this,1); INST_ASSERT(); /* Correction for 1 check line */
