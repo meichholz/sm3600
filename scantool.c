@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scantool.c,v 1.18 2001/04/13 12:08:55 eichholz Exp $
+$Id: scantool.c,v 1.19 2001/04/13 22:22:33 eichholz Exp $
 
 (C) Marian Eichholz 2001
 
@@ -10,7 +10,7 @@ $Id: scantool.c,v 1.18 2001/04/13 12:08:55 eichholz Exp $
 
 #include "scantool.h"
 
-#define REVISION "$Revision: 1.18 $"
+#define REVISION "$Revision: 1.19 $"
 
 #define USAGE \
 "usage: %s <outfile> <resolution> <x> <y> <w> <h>" \
@@ -29,14 +29,6 @@ $Id: scantool.c,v 1.18 2001/04/13 12:08:55 eichholz Exp $
 "\n"\
 "\n<outfile> may be '-' for standard output"\
 "\n\n"
-
-#define SCANNER_VENDOR     0x05DA
-
-static unsigned short aidProduct[] = {
-  0x40B3, 0x40CA, 0x40FF /* not official */, /* ScanMaker 3600 */
-  0x40B8, 0x40CB, /* ScanMaker 3700 */
-  /* SM3750 unknown */
-  0x0 };
 
 /* **********************************************************************
 

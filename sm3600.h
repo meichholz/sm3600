@@ -24,6 +24,8 @@ Start: 2.4.2001
 
 #define USB_TIMEOUT_JIFFIES  2000
 
+#define SCANNER_VENDOR     0x05DA
+
 /* ====================================================================== */
 
 typedef enum { false, true } TBool;
@@ -102,8 +104,9 @@ typedef struct TInstance {
 
 typedef struct SM3600_Device {
   struct SM3600_Device  *next;
+  struct usb_device     *pdev;
   SANE_Device            sane;
-  TInstance             *pInst;
+
 } SM3600_Device;
 
 typedef struct SM3600_Scanner
@@ -187,6 +190,7 @@ TState DoScanFile(TInstance *this);
 
 
 /* scanmtek.c */
+extern unsigned short aidProduct[];
 TState DoInit(TInstance *this);
 TState WaitWhileBusy(TInstance *this,int cSecs);
 TState WaitWhileScanning(TInstance *this,int cSecs);

@@ -15,6 +15,9 @@ In <backend/Makefile.in> include the "sm3600" module to
 PRELOADABLE_BACKENDS, and make comments to every unneeded module to
 speed up things.
 
+Don't forget to include "-lusb" to the BACKENDLIBS.
+I have no idea yet how to to this with "configure".
+
 Reconfigure everything after You modified the Makefile.in.
 
 Include an "sm3600" line to the dll.conf in the source code. This is
@@ -36,4 +39,16 @@ You can switch debugging on with
 	export SANE_DEBUG_SM3600=1
 
 or with higher values for higher debugging levels.
+
+
+I see no debugging output. What's wrong?
+========================================
+
+Well, perhaps there are unresolved symbols in the backend.
+You can check it by running "scanimage -L" with an
+
+	export SANE_DEBUG_DLL=9
+
+Thus some dynamic linking info is spit out. This works much, much better
+than "strace"-ing the "scanimage" call.
 

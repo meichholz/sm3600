@@ -2,11 +2,17 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scanmtek.c,v 1.10 2001/04/10 22:23:00 eichholz Exp $
+$Id: scanmtek.c,v 1.11 2001/04/13 22:22:33 eichholz Exp $
 
 ====================================================================== */
 
 #include "scantool.h"
+
+unsigned short aidProduct[] = {
+  0x40B3, 0x40CA, 0x40FF /* not official */, /* ScanMaker 3600 */
+  0x40B8, 0x40CB, /* ScanMaker 3700 */
+  /* SM3750 unknown */
+  0x0 };
 
 /* **********************************************************************
 

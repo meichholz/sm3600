@@ -42,7 +42,6 @@ unsigned long ulDebugMask;
 
 int num_devices;
 static SM3600_Device  *first_dev;
-static SM3600_Scanner *first_handle;
 
 /* ====================================================================== */
 
@@ -56,9 +55,10 @@ static SM3600_Scanner *first_handle;
 /* ====================================================================== */
 
 static SANE_Status
-RegisterSaneDev (const char *devname, SM3600_Device **devp)
+RegisterSaneDev (struct usb_device *pdevUSB, int nBus, int nDev)
 {
   SM3600_Device * q;
+  char ach[100];
 
   errno = 0;
 
@@ -66,81 +66,64 @@ RegisterSaneDev (const char *devname, SM3600_Device **devp)
   if (!q)
     return SANE_STATUS_NO_MEM;
 
-  memset (q, 0, sizeof (*q));
-
-  q->sane.name   = strdup (devname);
+  memset (q, 0, sizeof (*q)); /* clear every field */
+  sprintf(ach,"bus %d, dev %d",nBus,nDev);
+  q->sane.name   = strdup (ach);
   q->sane.vendor = "Microtek";
   q->sane.model  = "ScanMaker 3600";
   q->sane.type   = "flatbed scanner";
 
+  q->pdev=pdevUSB;
+
   ++num_devices;
-  q->next = first_dev;
+  q->next = first_dev; /* link backwards */
   first_dev = q;
 
-
-  if (devp)
-    *devp = q;
   return SANE_STATUS_GOOD;
-
-  free (q);
-  return SANE_STATUS_INVAL;
 }
 
-SANE_Status sane_init (SANE_Int *version_code, SANE_Auth_Callback authorize)
+SANE_Status
+sane_init (SANE_Int *version_code, SANE_Auth_Callback authCB)
 {
+  struct usb_bus    *pbus;
+  struct usb_device *pdev;
+  int                iBus;
+
   DBG_INIT();
+
+  authCB++; /* compiler */
 
   if (version_code)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, 0);
 
-  DBG(1,"init() called\n");
+  DBG(1,"SM3600 init\n");
   first_dev=NULL;
-  first_handle=NULL; /* dunno, why we need it at all */
-  RegisterSaneDev("/proc/usb/001/002",0);
 
-#ifdef READ_V4L_CODE
-  char dev_name[PATH_MAX], * str;
-  size_t len;
-  FILE *fp;
-
-  fp = sanei_config_open (SM3600_CONFIG_FILE);
-  if (!fp)
+  if (usb_find_busses())
+    return SANE_STATUS_GOOD;
+  usb_find_devices();
+  if (!usb_busses) return SANE_STATUS_IO_ERROR;
+  iBus=0;
+  for (pbus = usb_busses; pbus; pbus = pbus->next)
     {
-      DBG(1, "sane_init: file `%s' not accessible\n", SM3600_CONFIG_FILE);
-      return SANE_STATUS_INVAL;
+      int iDev=0;
+      iBus++;
+      /* 0.1.3b no longer has a "busnum" member */
+      DBG(3,"scanning bus %s\n", pbus->dirname);
+      for (pdev=pbus->devices; pdev; pdev  = pdev->next)
+	{
+	  unsigned short *pidProduct;
+	  iDev++;
+	  DBG(3,"found dev %04X/%04X\n",
+		  pdev->descriptor.idVendor,
+		  pdev->descriptor.idProduct);
+	  /* the loop is not SO effective, but straight! */
+	  for (pidProduct=aidProduct; *pidProduct; pidProduct++)
+	      if (pdev->descriptor.idVendor  ==  SCANNER_VENDOR &&
+		  pdev->descriptor.idProduct == *pidProduct)
+		RegisterSaneDev(pdev,iBus,iDev);
+	}
     }
-
-  while (sanei_config_read(dev_name, sizeof (dev_name), fp))
-    {
-      if (dev_name[0] == '#')           /* ignore line comments */
-        continue;
-      len = strlen (dev_name);
-
-      if (!len)
-        continue;                       /* ignore empty lines */
-
-      /* Remove trailing space and trailing comments */
-      for (str = dev_name; *str && !isspace (*str) && *str != '#'; ++str);
-      *str = '\0';
-      v4ldev = open ( dev_name,O_RDWR);
-      if (-1 != v4ldev)
-        {
-          if (-1 != ioctl(v4ldev,VIDIOCGCAP,&capability))
-            {
-              DBG(1, "sane_init: found videodev on `%s'\n", dev_name);
-              attach (dev_name, 0);
-            }
-          else
-            DBG(1, "sane_init: ioctl(%d,VIDIOCGCAP,..) failed on `%s'\n",
-                v4ldev, dev_name);
-          close (v4ldev);
-        }
-      else
-        DBG(1, "sane_init: failed to open device `%s'\n", dev_name);
-    }
-  fclose (fp);
-#endif
-
   return SANE_STATUS_GOOD;
 }
 
@@ -153,6 +136,7 @@ sane_exit (void)
     {
       next = dev->next;
       free ((void *) dev->sane.name);
+      free (dev->pdev);
       free (dev);
     }
 }
@@ -194,7 +178,7 @@ void sane_close (SANE_Handle handle)
 const SANE_Option_Descriptor *
 sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 {
-  return SANE_STATUS_GOOD;
+  return NULL;
 }
 
 SANE_Status sane_control_option (SANE_Handle handle, SANE_Int option,
