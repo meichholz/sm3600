@@ -92,7 +92,7 @@ typedef struct TScanState {
 
 #ifndef INSANE_VERSION
 
-#define NUM_OPTIONS 12
+#define NUM_OPTIONS 14
 
 typedef union
   {  
@@ -116,11 +116,12 @@ typedef struct TInstance {
   SANE_Option_Descriptor    aoptDesc[NUM_OPTIONS];
   TOptionValue              aoptVal[NUM_OPTIONS];
 #endif
+  TScanState         state;
+  TCalibration       calibration;
   TState             nErrorState;
   char              *szErrorReason;
   TBool              bSANE;
   TScanParam         param;
-  TCalibration       calibration;
   TBool              bWriteRaw;
   TBool              bVerbose;
   TQuality           quality;
@@ -128,7 +129,6 @@ typedef struct TInstance {
   usb_dev_handle    *hScanner;
   FILE              *fhLog;
   FILE              *fhScan;
-  TScanState         state;
 } TInstance;
 
 #define TRUE  1

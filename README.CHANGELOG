@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+17.4.2001
+
+Parameter reconstruction from options ok.
+Mode switching and getparameters() synchronized with Xsane.
+TODO: "Standard Parameters" meaning unclear.
+
 15.4.2001
 
 First integration of options. It's still formal. The options are not evaluated.

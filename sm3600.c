@@ -62,7 +62,9 @@ Initialise SANE options
 ====================================================================== */
 
 typedef enum { optCount,
-	       optGroupMode, optMode, optResolution, optPreview, optGrayPreview,
+	       optGroupMode, optMode, optResolution,
+	       optBrightness, optContrast,
+	       optPreview, optGrayPreview,
 	       optGroupGeometry,optTLX, optTLY, optBRX, optBRY,
 	       optGroupEnhancement,
 	       optLast } TOptionIndex;
@@ -70,9 +72,20 @@ typedef enum { optCount,
 static const SANE_String_Const aScanModes[]= {  "color", "gray", "lineart",
 						"halftone", NULL };
 
-static const SANE_Range rangeXmm = { SANE_FIX(0), SANE_FIX(210), SANE_FIX(0.1) };
+static const SANE_Range rangeXmm = {
+  SANE_FIX(0),
+  SANE_FIX(210),
+  SANE_FIX(0.1) };
 
-static const SANE_Range rangeYmm = { SANE_FIX(0), SANE_FIX(295), SANE_FIX(0.1) };
+static const SANE_Range rangeYmm = {
+  SANE_FIX(0),
+  SANE_FIX(295),
+  SANE_FIX(0.1) };
+
+static const SANE_Range rangeLumi = {
+  SANE_FIX(-100.0),
+  SANE_FIX(100.0),
+  SANE_FIX(1.0) };
 
 static const SANE_Int setResolutions[] = { 6, 75,100,150,200,300,600 };
 
@@ -147,6 +160,26 @@ InitOptions(TInstance *this)
 	  pdesc->constraint_type = SANE_CONSTRAINT_WORD_LIST;
 	  pdesc->constraint.word_list = setResolutions;
 	  pval->w       =75;
+	  break;
+	case optBrightness:
+	  pdesc->name   =SANE_NAME_BRIGHTNESS;
+	  pdesc->title  =SANE_TITLE_BRIGHTNESS;
+	  pdesc->desc   =SANE_DESC_BRIGHTNESS;
+	  pdesc->type   =SANE_TYPE_FIXED;
+	  pdesc->unit   =SANE_UNIT_PERCENT;
+	  pdesc->constraint_type =SANE_CONSTRAINT_RANGE;
+	  pdesc->constraint.range=&rangeLumi;
+	  pval->w       =SANE_FIX(0);
+	  break;
+	case optContrast:
+	  pdesc->name   =SANE_NAME_CONTRAST;
+	  pdesc->title  =SANE_TITLE_CONTRAST;
+	  pdesc->desc   =SANE_DESC_CONTRAST;
+	  pdesc->type   =SANE_TYPE_FIXED;
+	  pdesc->unit   =SANE_UNIT_PERCENT;
+	  pdesc->constraint_type =SANE_CONSTRAINT_RANGE;
+	  pdesc->constraint.range=&rangeLumi;
+	  pval->w       =SANE_FIX(0);
 	  break;
 	case optPreview:
 	  pdesc->name   =SANE_NAME_PREVIEW;
@@ -405,6 +438,8 @@ SANE_Status sane_control_option (SANE_Handle handle, SANE_Int iOpt,
 	case optPreview:
 	case optGrayPreview:
 	case optResolution:
+	case optBrightness:
+	case optContrast:
 	case optTLX: case optTLY: case optBRX: case optBRY:
 	  *(SANE_Word*)pVal = this->aoptVal[iOpt].w;
 	  return SANE_STATUS_GOOD;
@@ -430,12 +465,16 @@ SANE_Status sane_control_option (SANE_Handle handle, SANE_Int iOpt,
 	case optTLX: case optTLY: case optBRX: case optBRY:
 	  if (pnInfo) (*pnInfo) |= SANE_INFO_RELOAD_PARAMS;
 	  /* fall through side effect free */
+	case optBrightness:
+	case optContrast:
 	case optPreview:
 	case optGrayPreview:
 	  this->aoptVal[iOpt].w = *(SANE_Word*)pVal;
 	  return SANE_STATUS_GOOD;
 	case optMode:
-	  if (pnInfo) (*pnInfo) |= SANE_INFO_RELOAD_PARAMS; /* and OPTIONS? */
+	  if (pnInfo)
+	    (*pnInfo) |= SANE_INFO_RELOAD_PARAMS
+	      | SANE_INFO_RELOAD_OPTIONS;
 	  strcpy(this->aoptVal[iOpt].s,pVal);
 	  return SANE_STATUS_GOOD;
 	default:
@@ -449,17 +488,56 @@ SANE_Status sane_control_option (SANE_Handle handle, SANE_Int iOpt,
   return rc;
 }
 
+static void SetupInternalParameters(TInstance *this)
+{
+  int         i;
+  this->param.res=(int)this->aoptVal[optResolution].w;
+  this->param.nBrightness=(int)(this->aoptVal[optBrightness].w>>SANE_FIXED_SCALE_SHIFT);
+  this->param.nContrast=(int)(this->aoptVal[optContrast].w>>SANE_FIXED_SCALE_SHIFT);
+  this->param.x=(int)(SANE_UNFIX(this->aoptVal[optTLX].w)*1200.0/25.4);
+  this->param.y=(int)(SANE_UNFIX(this->aoptVal[optTLY].w)*1200.0/25.4);
+  this->param.cx=(int)(SANE_UNFIX(this->aoptVal[optBRX].w-this->aoptVal[optTLX].w)*1200.0/25.4)+1;
+  this->param.cy=(int)(SANE_UNFIX(this->aoptVal[optBRY].w-this->aoptVal[optTLY].w)*1200.0/25.4)+1;
+  for (i=0; aScanModes[i]; i++)
+    if (!strcasecmp(this->aoptVal[optMode].s,aScanModes[i]))
+      {
+	this->mode=(TMode)i;
+	break;
+      }
+  DBG(DEBUG_INFO,"mode=%d, res=%d, BC=[%d,%d], xywh=[%d,%d,%d,%d]\n",
+      this->mode, this->param.res,
+      this->param.nBrightness, this->param.nContrast,
+      this->param.x,this->param.y,this->param.cx,this->param.cy);
+}
+
 SANE_Status sane_get_parameters (SANE_Handle handle, SANE_Parameters *p)
 {
   /* extremly important for xscanimage */
   TInstance *this;
   this=(TInstance*)handle;
-  p->format=SANE_FRAME_GRAY; /* or RGB */
-  p->lines=100;
-  p->depth=24;
-  p->pixels_per_line=100;
-  p->bytes_per_line=107/8;
+  SetupInternalParameters(this);
+  p->pixels_per_line=this->param.cx*this->param.res/1200;
+  p->lines=this->param.cy*this->param.res/1200;
   p->last_frame=SANE_TRUE;
+  switch (this->mode)
+    {
+    case color:
+      p->format=SANE_FRAME_RGB;
+      p->depth=24;
+      p->bytes_per_line=p->pixels_per_line*3;
+      break;
+    case gray:
+      p->format=SANE_FRAME_GRAY;
+      p->depth=8;
+      p->bytes_per_line=p->pixels_per_line*3;
+      break;
+    case halftone:
+    case line:
+      p->format=SANE_FRAME_GRAY;
+      p->depth=1;
+      p->bytes_per_line=(p->pixels_per_line+7)/8;
+      break;
+    }      
   return SANE_STATUS_GOOD;
 }
 
