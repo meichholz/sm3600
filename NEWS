@@ -1,6 +1,6 @@
 New on 16.4.2004
 
-* A MaxOS/X - user spotted portability issues in gain correction.
+* A MacOS/X - user spotted portability issues in gain correction.
 * case gray level constant set from 100 -> 75 (should relay homerun)
 * fixed the off by one in PBM line count
 * incorporated the corrected SANE copyright lines

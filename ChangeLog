@@ -1,3 +1,7 @@
+2004-04-15  Marian Eichholz <eichholz@computer.org>
+	* see news, touched every module
+	* scancopy.sh : added -o raw for CUPS printing
+
 2002-04-17  Marian Eichholz <eichholz@computer.org>
 	* Some minor fixes to sm3600 for improved portability
 	* sm3600.desc and sane-sm3600.man improved
