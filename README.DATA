@@ -1,0 +1,18 @@
+Notes on the logs
+=================
+
+"data/" holds textual logs and C code translations.
+There are some log groups, according to variations in parameters:
+
+"cfNNN" holds "speed" color scans with approx. 0x0-2x3 inch^2 at resolution
+NNN.
+
+The logs named "NxNxNxN" are 300 dpi "quality" scans used to identify the
+window parameters, the "NNNxNxN" are variations like above, but with
+"quality" scanning, where the scanner seems to be driven at high
+resolutions.
+
+Other logs are occasionally requested and mostly obsolete. Perhaps they are
+of any statistical use.
+
+

@@ -1,6 +1,14 @@
 CHANGELOG
 =========
 
+26.3.200	11.9
+
+- Added color descewing code. The stripes are at 2/300 inch distance.
+- Accelerated jogging supported only for movements >1 inch.
+- TODO: Reactivation of slow scan modes.
+
+README.HISTORY no longer supported...
+
 ======= 1.8
 
 - Horizontal interpolation in the color scan routine.
