@@ -3,7 +3,7 @@
 
 /*
 
- $Id: scantool.h,v 1.1 2001/03/23 21:58:30 eichholz Exp $
+ $Id: scantool.h,v 1.2 2001/03/24 01:19:44 eichholz Exp $
 
  common declarations and definitions
 
@@ -55,6 +55,7 @@ typedef enum { false, true } TBool;
 GLOBAL unsigned long      ulDebugMask;
 GLOBAL TBool              bVerbose;
 GLOBAL TBool              bInteractive;
+GLOBAL TBool              bWriteRaw;
 
 GLOBAL usb_dev_handle     *hScanner;
 
@@ -65,18 +66,28 @@ GLOBAL FILE               *fhScan;
 
 /* ====================================================================== */
 
+#define NUM_SCANREGS      74
+
 #define R_ALL    0x01
-/* 2B */
+
+/* WORD */
+#define R_SPOS   0x01
+/* WORD */
+#define R_SWID   0x04
+/* WORD */
 #define R_STPS   0x06
-/* 3B */
+/* WORD */
+#define R_SLEN   0x0A
+/* RGB */
 #define R_CCAL   0x2F
-/* 2B */
+
 #define R_LEN    0x32
+/* WORD */
 #define R_CSTAT  0x42
 #define R_CTL    0x46
-/* 2B */
+/* WORD */
 #define R_POS    0x52
-/* 2B */
+/* WORD */
 #define R_LMP    0x44
 #define R_STAT   0x54
 

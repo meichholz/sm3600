@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scantool.c,v 1.1 2001/03/23 21:58:30 eichholz Exp $
+$Id: scantool.c,v 1.2 2001/03/24 01:19:44 eichholz Exp $
 
 ====================================================================== */
 
@@ -14,7 +14,7 @@ $Id: scantool.c,v 1.1 2001/03/23 21:58:30 eichholz Exp $
 
 #include "scantool.h"
 
-#define REVISION "$Revision: 1.1 $"
+#define REVISION "$Revision: 1.2 $"
 
 #define USAGE \
 "usage: %s <outfile>" \
@@ -64,7 +64,7 @@ DoScanColor()
 
 ********************************************************************** */
 
-static void CtlHalfTone(void)
+void CtlHalfTone(void)
 {
  unsigned char uchRegs4470[]={
    0xFB /*!!0x01!!*/, 0x00 /*0x02*/, 0x3F /*0x03*/,
@@ -83,7 +83,7 @@ static void CtlHalfTone(void)
    0x00 /*0x28*/, 0x00 /*0x29*/, 0x4E /*0x2A*/,
    0xF0 /*0x2B*/, 0x00 /*0x2C*/, 0x00 /*0x2D*/,
    0x4E /*0x2E*/, 0x88 /*!!R_CCAL!!*/, 0x88 /*!!R_CCAL2!!*/,
-   0x84 /*!!R_CCAL3!!*/, 0x0B /*!!R_LEN!!*/, 0x2D /*!!R_LENH!!*/,
+   0x84 /*!!R_CCAL3!!*/, 0x0B /*!!0x32!!*/, 0x2D /*!!0x32H!!*/,
    0x63 /*0x34*/, 0x29 /*0x35*/, 0x00 /*0x36*/,
    0x00 /*0x37*/, 0x00 /*0x38*/, 0x00 /*0x39*/,
    0x00 /*0x3A*/, 0x00 /*0x3B*/, 0xFF /*0x3C*/,
@@ -96,7 +96,7 @@ static void CtlHalfTone(void)
 }    /* #4470[656.6] */
 
 
-static void CtlReal100dpi(void) /* overview, gives BRG and something like 9x12" at 100 DPI */
+void CtlReal100dpi(void) /* overview, gives BRG and something like 9x12" at 100 DPI */
 {
   /* gives B,R,G  */
   unsigned char uchRegs1529[]={
@@ -116,7 +116,7 @@ static void CtlReal100dpi(void) /* overview, gives BRG and something like 9x12" 
     0x00 /*0x28*/, 0x00 /*0x29*/, 0x4E /*0x2A*/,
     0xF0 /*0x2B*/, 0x00 /*0x2C*/, 0x00 /*0x2D*/,
     0x4E /*0x2E*/, 0x80 /*R_CCAL*/, 0x80 /*R_CCAL2*/,
-    0x80 /*R_CCAL3*/, 0xC9 /*R_LEN*/, 0x20 /*R_LENH*/,
+    0x80 /*R_CCAL3*/, 0xC9 /*0x32*/, 0x20 /*0x32H*/,
     0x83 /*!!0x34!!*/, 0x29 /*0x35*/, 0x00 /*0x36*/,
     0x00 /*0x37*/, 0x00 /*0x38*/, 0x00 /*0x39*/,
     0x00 /*0x3A*/, 0x00 /*0x3B*/, 0xFF /*0x3C*/,
@@ -128,7 +128,7 @@ static void CtlReal100dpi(void) /* overview, gives BRG and something like 9x12" 
   RegWriteArray(R_ALL, 74, uchRegs1529);
 }    /* #1529[004.9] */
 
-static void CtlReal200dpi(void) /* BRG, 4 by 6 inch, requested as 50dpi */
+void CtlReal200dpi(void) /* BRG, 4 by 6 inch, requested as 50dpi */
 {
  unsigned char uchRegs9489[]={
    0xAB /*!!0x01!!*/, 0x05 /*!!0x02!!*/, 0x24 /*!!0x03!!*/,
@@ -147,7 +147,7 @@ static void CtlReal200dpi(void) /* BRG, 4 by 6 inch, requested as 50dpi */
    0x00 /*0x28*/, 0x00 /*0x29*/, 0x4E /*0x2A*/,
    0xF0 /*0x2B*/, 0x00 /*0x2C*/, 0x00 /*0x2D*/,
    0x4E /*0x2E*/, 0x88 /*R_CCAL*/, 0x88 /*R_CCAL2*/,
-   0x84 /*R_CCAL3*/, 0xEA /*R_LEN*/, 0x24 /*R_LENH*/,
+   0x84 /*R_CCAL3*/, 0xEA /*0x32*/, 0x24 /*0x32H*/,
    0x03 /*!!0x34!!*/, 0x29 /*0x35*/, 0x00 /*0x36*/,
    0x00 /*0x37*/, 0x00 /*0x38*/, 0x00 /*0x39*/,
    0x00 /*0x3A*/, 0x00 /*0x3B*/, 0xFF /*0x3C*/,
@@ -160,7 +160,7 @@ static void CtlReal200dpi(void) /* BRG, 4 by 6 inch, requested as 50dpi */
 }    /* #9489[044.7] */
 
 
-static void CtlReal300dpi(void) /* RGB, 4 by 6 inch, really 300 dpi */
+void CtlReal300dpi(void) /* RGB, 4 by 6 inch, really 300 dpi */
 {
  unsigned char uchRegs12964[]={
    0xAB /*!!0x01!!*/, 0x05 /*!!0x02!!*/, 0x2A /*!!0x03!!*/,
@@ -179,7 +179,7 @@ static void CtlReal300dpi(void) /* RGB, 4 by 6 inch, really 300 dpi */
    0x00 /*0x28*/, 0x00 /*0x29*/, 0x4E /*0x2A*/,
    0xF0 /*0x2B*/, 0x00 /*0x2C*/, 0x00 /*0x2D*/,
    0x4E /*0x2E*/, 0x88 /*R_CCAL*/, 0x88 /*R_CCAL2*/,
-   0x84 /*R_CCAL3*/, 0xEA /*R_LEN*/, 0x24 /*R_LENH*/,
+   0x84 /*R_CCAL3*/, 0xEA /*0x32*/, 0x24 /*0x32H*/,
    0x03 /*!!0x34!!*/, 0x29 /*0x35*/, 0x00 /*0x36*/,
    0x00 /*0x37*/, 0x00 /*0x38*/, 0x00 /*0x39*/,
    0x00 /*0x3A*/, 0x00 /*0x3B*/, 0xFF /*0x3C*/,
@@ -191,7 +191,7 @@ static void CtlReal300dpi(void) /* RGB, 4 by 6 inch, really 300 dpi */
   RegWriteArray(R_ALL, 74, uchRegs12964);
 }    /* #12964[340.1] */
 
-static void CtlReal600dpi(void) /* 1 by 1 inch, requested as 1200 DPI */
+void CtlReal600dpi(void) /* 1 by 1 inch, requested as 1200 DPI */
 {
  unsigned char uchRegs15508[]={
    0xAB /*!!0x01!!*/, 0x05 /*!!0x02!!*/, 0x3F /*0x03*/,
@@ -210,7 +210,7 @@ static void CtlReal600dpi(void) /* 1 by 1 inch, requested as 1200 DPI */
    0x00 /*0x28*/, 0x00 /*0x29*/, 0x4E /*0x2A*/,
    0xF0 /*0x2B*/, 0x00 /*0x2C*/, 0x00 /*0x2D*/,
    0x4E /*0x2E*/, 0x88 /*R_CCAL*/, 0x88 /*R_CCAL2*/,
-   0x84 /*R_CCAL3*/, 0xEA /*R_LEN*/, 0x24 /*R_LENH*/,
+   0x84 /*R_CCAL3*/, 0xEA /*0x32*/, 0x24 /*0x32H*/,
    0x03 /*!!0x34!!*/, 0x29 /*0x35*/, 0x00 /*0x36*/,
    0x00 /*0x37*/, 0x00 /*0x38*/, 0x00 /*0x39*/,
    0x00 /*0x3A*/, 0x00 /*0x3B*/, 0xFF /*0x3C*/,
@@ -225,11 +225,15 @@ static void CtlReal600dpi(void) /* 1 by 1 inch, requested as 1200 DPI */
 #define ORDER_RGB             "012"
 #define ORDER_BRG             "120"
 
+#define YMARGIN 0x0192
+#define XMARGIN 0x00FB
+
 void DoScanColor(FILE *fh, int nResolution,
 		 int xBorder, int yBorder,
 		 int cxPixel, int cyPixel)
 {
   char *pchLine,*pchBuf,*szOrder;
+  int cyTotalPath; /* in 600 dpi */
   pchLine=malloc(3*cxPixel); /* must be less than 0x8000 */
   pchBuf=malloc(0x8000);
   if (!pchLine || !pchBuf)
@@ -238,7 +242,9 @@ void DoScanColor(FILE *fh, int nResolution,
   if (bVerbose)
     fprintf(stderr,"scanning %d by %d in color\n",cxPixel,cyPixel);
 
-  DoJog(0x0192 + yBorder*600/nResolution);
+  cyTotalPath = YMARGIN + yBorder*600/nResolution;
+  DoJog(cyTotalPath);
+  cyTotalPath += cyPixel*600/nResolution; /* for jogging back */
 
   /*
     regular scan is asynchronously, that is,
@@ -251,6 +257,7 @@ void DoScanColor(FILE *fh, int nResolution,
   RegWrite(0x34, 1, 0x83);    /* #1527[004.9] */
   RegWrite(0x49, 1, 0x9E);    /* #1528[004.9] */
 
+#ifdef USE_FIX_BLOCKS
   switch (nResolution)
     {
     case 200: CtlReal200dpi(); szOrder=ORDER_BRG; break;
@@ -259,61 +266,96 @@ void DoScanColor(FILE *fh, int nResolution,
     case 100: CtlReal100dpi(); szOrder=ORDER_BRG; break;
     default:  CtlHalfTone(); szOrder=ORDER_RGB; break;
     }
+#else
+  {
+    unsigned char uchRegs[]={
+      0xAB /*!!0x01!!*/, 0x05 /*!!0x02!!*/, 0x2A /*!!0x03!!*/,
+      0x60 /*!!0x04!!*/, 0x49 /*!!0x05!!*/, 0x10 /*!!R_STPS!!*/,
+      0x00 /*!!R_STPSH!!*/, 0x6A /*!!0x08!!*/, 0x6A /*!!0x09!!*/,
+      0x1E /*!!0x0A!!*/, 0x0E /*!!0x0B!!*/, 0x6D /*0x0C*/,
+      0x70 /*0x0D*/, 0x69 /*0x0E*/, 0xD0 /*0x0F*/,
+      0x00 /*0x10*/, 0x00 /*0x11*/, 0x60 /*!!0x12!!*/,
+      0x15 /*0x13*/, 0xA0 /*!!0x14!!*/, 0x2A /*0x15*/,
+      0xE0 /*!!0x16!!*/, 0x3F /*!!0x17!!*/, 0x20 /*!!0x18!!*/,
+      0x56 /*!!0x19!!*/, 0xFF /*0x1A*/, 0x0F /*!!0x1B!!*/,
+      0x44 /*!!0x1C!!*/, 0x40 /*0x1D*/, 0x4C /*0x1E*/,
+      0x50 /*0x1F*/, 0x00 /*0x20*/, 0x0C /*0x21*/,
+      0x21 /*0x22*/, 0xF0 /*0x23*/, 0x40 /*0x24*/,
+      0x00 /*0x25*/, 0x0A /*0x26*/, 0xF0 /*0x27*/,
+      0x00 /*0x28*/, 0x00 /*0x29*/, 0x4E /*0x2A*/,
+      0xF0 /*0x2B*/, 0x00 /*0x2C*/, 0x00 /*0x2D*/,
+      0x4E /*0x2E*/, 0x88 /*R_CCAL*/, 0x88 /*R_CCAL2*/,
+      0x84 /*R_CCAL3*/, 0xEA /*0x32*/, 0x24 /*0x32H*/,
+      0x03 /*!!0x34!!*/, 0x29 /*0x35*/, 0x00 /*0x36*/,
+      0x00 /*0x37*/, 0x00 /*0x38*/, 0x00 /*0x39*/,
+      0x00 /*0x3A*/, 0x00 /*0x3B*/, 0xFF /*0x3C*/,
+      0x0F /*0x3D*/, 0x00 /*0x3E*/, 0x00 /*0x3F*/,
+      0x01 /*0x40*/, 0x00 /*0x41*/, 0x80 /*R_CSTAT*/,
+      0x03 /*!!0x43!!*/, 0x01 /*R_LMP*/, 0x00 /*0x45*/,
+      0x39 /*R_CTL*/, 0x20 /*!!0x47!!*/, 0x56 /*!!0x48!!*/,
+      0x96 /*!!0x49!!*/, 0xD8 /*0x4A*/ };
+    
+    RegWriteArray(R_ALL, NUM_SCANREGS, uchRegs);
+    RegWrite(R_SPOS, 2, xBorder*600/nResolution+XMARGIN);
+    RegWrite(R_SWID, 2, (0x40<<8) | (cxPixel*600/nResolution));
+    RegWrite(R_SLEN, 2, (cyPixel+1)*600/nResolution);
+    szOrder=ORDER_RGB; 
+  }
+#endif
 
   RegWrite(R_CTL, 1, 0x39);    /* #1532[005.0] */
   RegWrite(R_CTL, 1, 0x79);    /* #1533[005.0] */
   RegWrite(R_CTL, 1, 0xF9);    /* #1534[005.0] */
 
-  if (fh)
-#ifdef RAW_WRITE
-    fprintf(fh,"P5\n%d %d\n255\n",3*cxPixel,cyPixel);
-#else
+  if (fh && !bWriteRaw)
     fprintf(fh,"P6\n%d %d\n255\n",cxPixel,cyPixel);
-#endif
-
   {
-    int iFrom,iTo,iChunk,cchBulk;
+    int iFrom,iTo,iChunk,cchBulk,iLine;
     iChunk=0;
     cchBulk=0;
     iTo=0;
     iFrom=cchBulk; /* no rest */
+    iLine=0;
     do {
       /* "flush" rest of last buffer run */
       iChunk++;
-#ifndef RAW_WRITE
-      iTo=0;
-      while (iFrom<cchBulk)
-	pchLine[iTo++]=pchBuf[iFrom++];
+      if (!bWriteRaw)
+	{
+	  iTo=0;
+	  while (iFrom<cchBulk)
+	    pchLine[iTo++]=pchBuf[iFrom++];
+	}
       /* read new buffer */
-#endif
-
       cchBulk=BulkReadBuffer(pchBuf,0x8000);
 
       dprintf(DEBUG_SCAN,"bulk#%d, got %d bytes...\n",iChunk,cchBulk);
 
-#ifdef RAW_WRITE
-      fwrite(pchBuf,1,cchBulk,fh);
-#else
-      iFrom=0;
-      while (iFrom+3*cxPixel<cchBulk)
+      if (bWriteRaw)
+	fwrite(pchBuf,1,cchBulk,fh);
+      else
 	{
-	  /* iTo starts with buffer offset from copy above */
-	  while (iTo<3*cxPixel) /* whole line or rest */
-	    pchLine[iTo++]=pchBuf[iFrom++];
-	  /* TODO: pchLine ausgeben/auswürfeln */
-	  for (iTo=0; iTo<cxPixel; iTo++)
+	  iFrom=0;
+	  while (iFrom+3*cxPixel<cchBulk)
 	    {
-	      fwrite(pchLine+iTo+(szOrder[0]-'0')*cxPixel,1,1,fh); /* R */
-	      fwrite(pchLine+iTo+(szOrder[1]-'0')*cxPixel,1,1,fh); /* G */
-	      fwrite(pchLine+iTo+(szOrder[2]-'0')*cxPixel,1,1,fh); /* B */
-	    }
-	  iTo=0; /* reset buffer offset */
-	} /* while pixels available */
-#endif
+	      /* iTo starts with buffer offset from copy above */
+	      while (iTo<3*cxPixel) /* whole line or rest */
+		pchLine[iTo++]=pchBuf[iFrom++];
+	      /* re-assemble pchLine */
+	      dprintf(DEBUG_SCAN,"assembling line %d\n",++iLine);
+	      for (iTo=0; iTo<cxPixel; iTo++)
+		{
+		  fwrite(pchLine+iTo+(szOrder[0]-'0')*cxPixel,1,1,fh); /* R */
+		  fwrite(pchLine+iTo+(szOrder[1]-'0')*cxPixel,1,1,fh); /* G */
+		  fwrite(pchLine+iTo+(szOrder[2]-'0')*cxPixel,1,1,fh); /* B */
+		}
+	      iTo=0; /* reset buffer offset */
+	    } /* while pixels available */
+	} /* ! bWriteRaw */
       /* Rest from iFrom is to be written into next line buffer */
     } while (cchBulk==0x8000);
   }
   free(pchBuf); free(pchLine); 
+  DoJog(-cyTotalPath);
 }
 
 /* **********************************************************************
@@ -420,12 +462,12 @@ void ScanToFile(FILE *fhOut, struct usb_device *pScanner)
   DoInit();
   DoOriginate();
 
-  DoScanColor(fhOut,301,0,0,800,1200); DoJog(-4000);
+  /* DoScanColor(fhOut,301,0,0,800,1200); DoJog(-4000); */
 
   /* DoScanColor(fhOut,200,0,0,800,1200); DoJog(-4000); */
   /* DoScanColor(fhOut,100,0,0,826,883); DoJog(-7400); */
   /* DoScanColor(fhOut,200,0,0,1200,1800); DoJog(-4000); */
-  /* DoScanColor(fhOut,300,0,0,1200,1800); DoJog(-4000); */
+  DoScanColor(fhOut,300,200,200,600,600);
   /* DoScanColor(fhOut,600,0,0,600,600); DoJog(-1000); */
   DoOriginate(); /* should be done faster :-) */
 

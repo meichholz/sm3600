@@ -1,7 +1,10 @@
 CHANGELOG
 =========
 
-$Id: README.CHANGELOG,v 1.1 2001/03/23 21:58:31 eichholz Exp $
+======= 0.27
+
+Different numbering due to CVS hosting at sourceforge (1.1.1.1).
+Basic "scan arbitrary colored window" functionality for 300 DPI.
 
 =======	0.26
 

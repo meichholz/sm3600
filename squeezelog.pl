@@ -1,6 +1,6 @@
 #!/usr/bin/perl -wT
 use strict;
-# $Id: squeezelog.pl,v 1.1 2001/03/23 21:58:23 eichholz Exp $
+# $Id: squeezelog.pl,v 1.2 2001/03/24 01:19:44 eichholz Exp $
 #
 # Originally, this script should compact USB-SNOOPY's log files for protocol
 # analysis. Is it designed to preserve as much information as is "possible".
@@ -132,10 +132,12 @@ sub FlushNewRobot {
 
 my $bVendorPending=0;
 my $nRegister;
-my %hRegNames=qw( 06 STPS 07 STPSH 42 CSTAT 44 LMP 46 CTL 52 POS 53 POSH
+my %hRegNames=qw( 01 SPOS 02 SPOSH 04 SWID 05 SWIDH
+		  06 STPS 07 STPSH 0A LEN 0B LENH
+		  42 CSTAT 44 LMP 46 CTL 52 POS 53 POSH
 		  54 STAT 55 STATH
 		  2F CCAL 30 CCAL2 31 CCAL3
-		  32 LEN 33 LENH );
+		  );
 
 sub FlushRegisterStyle {
   $_=shift;

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.1 2001/03/23 21:58:23 eichholz Exp $
+# $Id: Makefile,v 1.2 2001/03/24 01:19:44 eichholz Exp $
 #
 # -------------------------------------------------------------------
 #
@@ -33,12 +33,14 @@ bin:	$(BINARIES)
 
 all:	bin
 
-test:	scantool
+initbus:
 	ssh -l root localhost chown -R marian /proc/bus/usb/001	
+
+test:	scantool initbus
 	./scantool -i -d 1 temp.out
 #	./scantool -v -d 1 temp.out
 
-testscan: scantool
+testscan: scantool initbus
 	./scantool -v -d 1 /tmp/scan.pnm
 	xv /tmp/scan.pnm
 
