@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+======= 1.7
+
+Jogging now uses controlled acceleration of the slider unit.
+
 ======= 1.4
 
 Better resolution of the black whole detection code (60->100).

@@ -5,10 +5,14 @@ if [ -z "$NAME" ] ; then
   exit 1
 fi
 
-mount /dos/c
-cp /dos/c/temp/$NAME.log ../logs || exit 1
-squeezelog.pl -fc < ../microtek3600-logs/$NAME.log >data/$NAME.c
-squeezelog.pl -fr < ../microtek3600-logs/$NAME.log >data/$NAME.txt
-umount /dos/c
+LOGS=../microtek3600-logs
+DOS=/dos/c
+
+mount $DOS
+cp $DOS/temp/$NAME.log  $LOGS || exit 1
+squeezelog.pl -fc < $LOGS/$NAME.log >data/$NAME.c
+squeezelog.pl -fr < $LOGS/$NAME.log >data/$NAME.txt
+umount $DOS
+
 
 

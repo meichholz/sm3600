@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scanmtek.c,v 1.3 2001/03/25 15:11:43 eichholz Exp $
+$Id: scanmtek.c,v 1.4 2001/03/25 18:01:29 eichholz Exp $
 
 ====================================================================== */
 
@@ -113,6 +113,7 @@ The distance is given in 600 DPI.
 void DoJog(int nDistance)
 {
   int cSteps;
+  int nSpeed,nRest;
   dprintf(DEBUG_SCAN,"jogging %d units...\n",nDistance);
   if (!nDistance) return;
   RegWrite(0x34, 1, 0x63);
@@ -152,6 +153,13 @@ void DoJog(int nDistance)
     RegWriteArray(R_ALL, 74, uchRegs2587);
   }    /* #2587[065.4] */
   RegWrite(R_STPS,2,(cSteps-1));
+  /* do some magic for slider acceleration */
+  /*
+    RegWrite(0x4A, 1, 0x8C);
+    RegWrite(0x43, 1, 0x07);
+  */
+  RegWrite(0x34, 1, 0xC3);
+  RegWrite(0x47, 2, 0xA000);    /* initial speed */
   if (nDistance>0)
     {
       RegWrite(R_CTL, 1, 0x39);    /* #2588[065.4] */
@@ -163,7 +171,16 @@ void DoJog(int nDistance)
       RegWrite(R_CTL, 1, 0x59);
       RegWrite(R_CTL, 1, 0xD9);
     }
-  RegWrite(R_LEN, 2, LEN_MAGIC);    /* #2591[065.4] */
+  /* accelerate the slider each 100 us */
+  nRest=cSteps;
+  for (nSpeed=0x9800; nRest>600 && nSpeed>=0x4000; nSpeed-=0x800)
+    {
+      nRest=RegRead(R_POS, 2);
+      usleep(100);
+      /* perhaps 40C0 is the fastest possible value */
+      RegWrite(0x47, 2, nSpeed>0x4000 ? nSpeed : 0x40C0);
+    }
+  usleep(100);
   WaitWhileBusy(100);
 }
 

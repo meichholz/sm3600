@@ -1,7 +1,7 @@
 Register map for the Microtek 3600
 ==================================
 
-$Id: README.REGISTERS,v 1.4 2001/03/25 15:11:43 eichholz Exp $
+$Id: README.REGISTERS,v 1.5 2001/03/25 18:01:29 eichholz Exp $
 
 Here are the registers, as far as I know them. All multi-byte registers are
 bigendian, the least significant byte first (aka "Intel byte sex").
@@ -94,6 +94,16 @@ line. In scnchronous mode it is mostly it is 5100.
 
 Note: The transfer contains actually *two* lines with 10200 bytes.
 
+Register 34h
+------------
+
+Controls fast slider movement ind conjuction with 47h/48h.
+
+Perhaps controlles an interrupt clock.
+
+63h : Normal speed.
+C3h : Accelerated speed.
+
 Register 42h
 ------------
 
@@ -137,12 +147,24 @@ Register 47h-48h
 
 Seems to be a duplicate of 18h-19h.
 
+Controls slider speed. Values range from A000h (modest speed) to 40C0
+(fastest). On jogging great distances, the driver accelerates in steps of
+0x800 every 100-200 ms.
+
 Register 4Ah
 ------------
 
 Control quality or speed mode.
 D8h means slow scanning (good quality) and
 8Ch means speeed scanning.
+
+Register 52h-53h
+----------------
+
+Read: Holds the rest of the movement. Used when jogging, for example to accelerate
+the slider under program control.
+
+The values start with the content of 06h/07h and are decremented.
 
 Register 54h-55h
 ----------------

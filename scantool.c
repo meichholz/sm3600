@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scantool.c,v 1.6 2001/03/25 15:11:43 eichholz Exp $
+$Id: scantool.c,v 1.7 2001/03/25 18:01:29 eichholz Exp $
 
 (C) Marian Eichholz 2001
 
@@ -14,7 +14,7 @@ $Id: scantool.c,v 1.6 2001/03/25 15:11:43 eichholz Exp $
 
 #include "scantool.h"
 
-#define REVISION "$Revision: 1.6 $"
+#define REVISION "$Revision: 1.7 $"
 
 #define USAGE \
 "usage: %s <outfile> <resolution> <x> <y> <w> <h>" \
@@ -328,11 +328,14 @@ void ScanToFile(FILE *fhOut, struct usb_device *pScanner)
 
   hScanner=OpenScanner(pScanner);
 
+#ifdef CHECK_INITIALISATION
   if (RegRead(R_INIT,2)!=RVAL_INIT)
     {
-      DoInit();
-      DoOriginate();
     }
+#else
+  DoInit();
+  DoOriginate();
+#endif
   DoJog(YMARGIN);
   DoScanColor(fhOut,param.res,
 	      param.x*param.res/1200,
