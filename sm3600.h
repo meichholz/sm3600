@@ -202,6 +202,8 @@ typedef struct TInstance {
 
 /* ====================================================================== */
 
+/* note: The first register has address 0x01 */
+
 #define R_ALL    0x01
 
 /* have to become an enumeration */

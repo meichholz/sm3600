@@ -3,6 +3,7 @@ CHANGELOG
 
 27.6.2001
 
+Added some experimental stuff for gain correction
 Fixed much compiler warnings.
 Removed memory leak in sane_exit() [devlist]
 Changed "GammaGray" to "GammaY".
