@@ -211,6 +211,7 @@ TState CancelScan(TInstance *this);
 /* scanmtek.c */
 extern unsigned short aidProduct[];
 TState DoInit(TInstance *this);
+TState DoReset(TInstance *this);
 TState WaitWhileBusy(TInstance *this,int cSecs);
 TState WaitWhileScanning(TInstance *this,int cSecs);
 TState DoJog(TInstance *this,int nDistance);
@@ -234,7 +235,7 @@ TState StartScanGray(TInstance *this);
 TState StartScanColor(TInstance *this);
 
 /* homerun.c */
-TState DoOriginate(TInstance *this);
+TState DoOriginate(TInstance *this, TBool bStepOut);
 
 /* ====================================================================== */
 

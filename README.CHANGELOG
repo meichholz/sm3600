@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+15.5.2001
+
+Fixed the cancellation stuff.
+
 10.5.2001
 
 Did some tests with scanimage, xscanimage, xsane.

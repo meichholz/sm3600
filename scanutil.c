@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scanutil.c,v 1.16 2001/05/11 21:41:35 eichholz Exp $
+$Id: scanutil.c,v 1.17 2001/05/15 20:23:45 eichholz Exp $
 
 ====================================================================== */
 
@@ -167,17 +167,26 @@ TState CancelScan(TInstance *this)
 
 TState CancelScan(TInstance *this)
 {
+  TBool bCanceled;
   DBG(DEBUG_INFO,"CancelScan() called\n");
-  this->state.cyTotalPath=0;
-  this->nErrorState=SANE_STATUS_GOOD; /* force sane status */
-  DoInit(this); /* force scanner processor to be clean */
-  this->nErrorState=SANE_STATUS_GOOD; /* force sane status */
-  DoInit(this);
-  this->nErrorState=SANE_STATUS_GOOD; /* force sane status */
-  EndScan(this);
-  DoOriginate(this);
+
+  this->state.cyTotalPath-=RegRead(this,R_POS,2);
+  DBG(DEBUG_JUNK,"stepping back %d steps\n",this->state.cyTotalPath);
+  /* this->state.cyTotalPath=0; */
+
+  usleep(200);
+  DoReset(this);
+  EndScan(this); /* and step back! */
+  
+  DBG(DEBUG_JUNK,"cs4: %d\n",(int)this->nErrorState);
+  bCanceled=this->state.bCanceled;
+  this->state.bCanceled=false; /* re-enable Origination! */
+  DoOriginate(this,false); /* have an error here... */
+  this->state.bCanceled=bCanceled;
+  DBG(DEBUG_JUNK,"cs5: %d\n",(int)this->nErrorState);
   INST_ASSERT();
-  return SANE_STATUS_CANCELLED;
+  DBG(DEBUG_INFO,"cs6: ok.\n");
+  return SANE_STATUS_CANCELLED; /* or shall be say GOOD? */
 }
 
 

@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scantool.c,v 1.24 2001/05/06 15:15:30 eichholz Exp $
+$Id: scantool.c,v 1.25 2001/05/15 20:23:45 eichholz Exp $
 
 (C) Marian Eichholz 2001
 
@@ -10,7 +10,7 @@ $Id: scantool.c,v 1.24 2001/05/06 15:15:30 eichholz Exp $
 
 #include "scantool.h"
 
-#define REVISION "$Revision: 1.24 $"
+#define REVISION "$Revision: 1.25 $"
 
 #define USAGE \
 "usage: %s <outfile> <resolution> <x> <y> <w> <h>" \
@@ -199,7 +199,7 @@ static int RunDialog(TInstance *this)
 	case 'i': DoInit(this); break;
 	case 'g': this->mode=gray; DoScanFile(this); break;
 	case 'c': this->mode=color; DoScanFile(this); break;
-	case 'o': DoOriginate(this); break;
+	case 'o': DoOriginate(this,true); break;
 	case 'j': DoJog(this, nParam*nSign); break;
 	case 'l': DoLampSwitch(this, nParam); break;
 	case '-': nSign=-1; nParam=0; break;
@@ -236,7 +236,7 @@ static int ScanToFile(TInstance *this)
   if (rc==SANE_STATUS_GOOD) rc=DoInit(this);
   if (!this->bOptSkipOriginate)
     {
-      if (rc==SANE_STATUS_GOOD) rc=DoOriginate(this); 
+      if (rc==SANE_STATUS_GOOD) rc=DoOriginate(this,true); 
     }
   if (rc==SANE_STATUS_GOOD) rc=DoJog(this,this->calibration.yMargin);
   if (rc==SANE_STATUS_GOOD) rc=DoScanFile(this);

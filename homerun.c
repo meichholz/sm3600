@@ -154,18 +154,21 @@ static TLineType GetLineType(TInstance *this)
   return ltUnknown;
 }
 
-TState DoOriginate(TInstance *this)
+TState DoOriginate(TInstance *this, TBool bStepOut)
 {
   TLineType lt;
   if (this->bVerbose)
     fprintf(stderr,"carriage return...\n");
+  DBG(DEBUG_INFO,"DoOriginate()\n");
   INST_ASSERT();
   lt=GetLineType(this);
   /* if we are already at home, fine. If not, first jump a bit forward */
-  if (lt!=ltHome) DoJog(this,200);
+  DBG(DEBUG_JUNK,"lt1=%d\n",(int)lt);
+  if (lt!=ltHome && bStepOut) DoJog(this,200);
   while (lt!=ltHome && !this->state.bCanceled)
     {
       lt=GetLineType(this);
+      DBG(DEBUG_JUNK,"lt2=%d\n",(int)lt);
       INST_ASSERT();
       switch (lt)
 	{
@@ -175,6 +178,7 @@ TState DoOriginate(TInstance *this)
 	}
     }
   DoJog(this,1); INST_ASSERT(); /* Correction for 1 check line */
+  DBG(DEBUG_JUNK,"lt3=%d\n",(int)lt);
   return (this->state.bCanceled ? SANE_STATUS_CANCELLED : SANE_STATUS_GOOD);
 }
 
