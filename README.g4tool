@@ -1,0 +1,20 @@
+About the g4tool stuff
+======================
+
+I decided to incorporate some features to the scantool, like:
+
+- direct G4-TIFF-encoding
+- compressed PCL encoding
+- landscape rotating
+
+The functions are implemented in an old package of mine, called "g4tools".
+It is not yet published (have a look at www.bugslayer.de).
+
+Well, the internal interfaces are completely different from the one of
+scantool, so ther eis additional interfacing for the two worlds, and it
+looks really, really ugly now.
+
+Perhaps we can make the whole thing configurable.
+
+<marian@computer.org>, 26.7.2001
+

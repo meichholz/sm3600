@@ -1,8 +1,10 @@
-# $Id: Makefile.in,v 1.29 2001/06/01 22:42:30 eichholz Exp $
+# $Id: Makefile.in,v 1.30 2001/07/30 07:48:11 eichholz Exp $
 #
 # -------------------------------------------------------------------
 #
 # 16.02.2001
+#
+# DO NOT EDIT DIRECTLY! Edit Makefile.in
 #
 # -------------------------------------------------------------------
 
@@ -26,7 +28,7 @@ V_REV=		4
 
 # mit -pedantic warnt eine Include-Datei!
 CCFLAGS=	-g -DPROG_NAME=\"$*\" -I $(USBDIR)/include -I $(SANE_INCLUDE) \
-		-fno-common -Wall -O2
+		-fno-common -Wall -O2 @USE_G4TOOL@
 LDFLAGS=	-g -L$(USBDIR)/lib -L$(SANE_LIBDIR)
 LIBS=		-lusb @USE_EFENCE@
 
@@ -38,7 +40,10 @@ LIBTOOL= 	/usr/bin/libtool
 
 BINARIES=	scantool
 
+G4TOOL_MODS=	g4compat.o g4tiff.o g4encode.o g4tables.o pcl.o
+
 SCANTOOL_MODS=  scantool.o scanvars.o \
+		$(G4TOOL_MODS) \
 		sm3600-scanutil.o sm3600-gray.o sm3600-color.o \
 		sm3600-homerun.o sm3600-scanusb.o sm3600-scanmtek.o
 SCANTOOL_H=	sm3600.h sm3600-scantool.h
@@ -54,6 +59,8 @@ default: testscan
 bin:	$(BINARIES)
 
 $(SCANTOOL_MODS) : $(SCANTOOL_H)
+
+$(G4TOOL_MODS)   : g4.h
 
 all:	bin
 
@@ -154,7 +161,7 @@ initbus:
 	@sh initbus.sh
 
 copy:	initbus scantool
-	@scantool -p copy -c 32 -l h - \
+	@scantool -p copy -c 32 -m l - 300 \
 	cat /tmp/scan.pnm | pnmtops -dpi 300 -center \
 		-scale 0.25 -width 8.26 -height 11.6 | \
 	lpr

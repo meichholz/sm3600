@@ -45,7 +45,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: sm3600-scanutil.c,v 1.3 2001/06/01 22:42:30 eichholz Exp $
+$Id: sm3600-scanutil.c,v 1.4 2001/07/30 07:48:11 eichholz Exp $
 
 ====================================================================== */
 
@@ -369,7 +369,7 @@ Top level caller for scantool.
 
 ====================================================================== */
 
-#define APP_CHUNK_SIZE   8192
+#define APP_CHUNK_SIZE   0x8000
 
 __SM3600EXPORT__
 TState DoScanFile(TInstance *this)

@@ -1,0 +1,416 @@
+#727[000.0]: [mtrCntl1]=39
+#728[000.0]: [SH2pos1]=40 [SH2pos2]=15
+#729[000.0]: [mtrCntl1]=39
+#730[000.0]: [GPIOout]=02
+#731[000.0]: 29=>[VGAgain1] 35=>[VGAGain2]
+#732[000.0]: 00=>[Xstart1] 00=>[Xstart2] 3F=>[Xscale] 10=>[Xlen1] C0=>[Xlen2] 00=>[Ystart1]
+             00=>[Ystart2] FF=>[Yscale1] FF=>[Yscale2] 20=>[Ylen1] 00=>[Ylen2]
+             6D=>[dumPix] 70=>[blckPix] 69=>[SHwidth] D0=>[SHpg] 00=>[SH1pos1]
+             00=>[SH1pos2] 40=>[SH2pos1] 15=>[SH2pos2] 80=>[SH3pos1] 2A=>[SH3pos2]
+             C0=>[SH4pos1] 40=>[SH4pos2] C0=>[SH5pos1] 40=>[SH5pos2] FF=>[SHevent1]
+             81=>[SHevent2] 88=>[ScInSeq1] 40=>[ScInSeq2] 4B=>[RSpulse] 4D=>[GCpulse1]
+             00=>[GCpulse2] 3C=>[CPcont] 01=>[sampPos] F0=>[LED1pos1] 40=>[LED1pos2]
+             00=>[LED1pos3] 0A=>[LED1pos4] F0=>[LED2pos1] 00=>[LED2pos2] 00=>[LED2pos3]
+             4E=>[LED2pos4] F0=>[LED3pos1] 00=>[LED3pos2] 00=>[LED3pos3] 4E=>[LED3pos4]
+             B3=>[offsDAC1] B3=>[offsDAC2] AC=>[offsDAC3] AA=>[VGAgain1] 20=>[VGAGain2]
+             63=>[sgnlCntl] 29=>[ADCcont] 00=>[offsO1] 00=>[offsO2] 00=>[offsO3]
+             00=>[offsE1] 00=>[offsE2] 00=>[offsE3] FF=>[fGain1] 0F=>[fGain2]
+             00=>[ofbase] 00=>[gbase] 01=>[Fbase] 00=>[datFmt] 00=>[inVal]
+             03=>[GPIOmode] 01=>[GPIOout] 00=>[GPIOin] 39=>[mtrCntl1] C0=>[mtrStpLen1]
+             40=>[mtrStpLen2] 96=>[mtrCntl2] 8C=>[mtrBufCntl]
+#733[000.0]: 03=>[GPIOmode]
+#734[000.0]: [offsDAC1]=B3 [offsDAC2]=B3 [offsDAC3]=AC
+#735[000.0]: BB=>[offsDAC1] BB=>[offsDAC2] B4=>[offsDAC3]
+#736[000.0]: AA=>[VGAgain1] 20=>[VGAGain2]
+#737[000.0]: AA=>[VGAgain1] 20=>[VGAGain2]
+#738[000.0]: [mtrCntl1]=39
+#739[000.0]: [mtrCntl1]=39
+#740[000.0]: AA=>[VGAgain1] 20=>[VGAGain2]
+#741[000.0]: 00=>[Xstart1] 00=>[Xstart2] 3F=>[Xscale] 10=>[Xlen1] C0=>[Xlen2] 00=>[Ystart1]
+             00=>[Ystart2] FF=>[Yscale1] FF=>[Yscale2] 20=>[Ylen1] 00=>[Ylen2]
+             6D=>[dumPix] 70=>[blckPix] 69=>[SHwidth] D0=>[SHpg] 00=>[SH1pos1]
+             00=>[SH1pos2] 40=>[SH2pos1] 15=>[SH2pos2] 80=>[SH3pos1] 2A=>[SH3pos2]
+             C0=>[SH4pos1] 40=>[SH4pos2] C0=>[SH5pos1] 40=>[SH5pos2] FF=>[SHevent1]
+             81=>[SHevent2] 88=>[ScInSeq1] 40=>[ScInSeq2] 4B=>[RSpulse] 4D=>[GCpulse1]
+             00=>[GCpulse2] 3C=>[CPcont] 01=>[sampPos] F0=>[LED1pos1] 40=>[LED1pos2]
+             00=>[LED1pos3] 0A=>[LED1pos4] F0=>[LED2pos1] 00=>[LED2pos2] 00=>[LED2pos3]
+             4E=>[LED2pos4] F0=>[LED3pos1] 00=>[LED3pos2] 00=>[LED3pos3] 4E=>[LED3pos4]
+             B3=>[offsDAC1] B3=>[offsDAC2] AC=>[offsDAC3] AA=>[VGAgain1] 20=>[VGAGain2]
+             63=>[sgnlCntl] 29=>[ADCcont] 00=>[offsO1] 00=>[offsO2] 00=>[offsO3]
+             00=>[offsE1] 00=>[offsE2] 00=>[offsE3] FF=>[fGain1] 0F=>[fGain2]
+             00=>[ofbase] 00=>[gbase] 01=>[Fbase] 00=>[datFmt] 00=>[inVal]
+             03=>[GPIOmode] 01=>[GPIOout] 00=>[GPIOin] 39=>[mtrCntl1] C0=>[mtrStpLen1]
+             40=>[mtrStpLen2] 96=>[mtrCntl2] 8C=>[mtrBufCntl]
+#742[000.0]: 03=>[GPIOmode]
+#743[000.0]: B3=>[offsDAC1] B3=>[offsDAC2] AC=>[offsDAC3]
+#744[000.0]: AA=>[VGAgain1] 20=>[VGAGain2]
+#745[000.0]: AA=>[VGAgain1] 20=>[VGAGain2]
+#746[000.0]: 00=>[GPIOout]
+#747[000.0]: 02=>[GPIOout]
+#748[002.9]: [mtrCntl1]=39
+#749[002.9]: [mtrCntl1]=39
+#750[002.9]: 39=>[mtrCntl1]
+#751[002.9]: C3=>[sgnlCntl]
+#752[002.9]: 9E=>[mtrCntl2]
+#753[002.9]: A6=>[Xstart1] 00=>[Xstart2] 20=>[Xscale] EC=>[Xlen1] D3=>[Xlen2] A0=>[Ystart1]
+             01=>[Ystart2] FF=>[Yscale1] FF=>[Yscale2] A8=>[Ylen1] 1B=>[Ylen2]
+             6D=>[dumPix] 70=>[blckPix] 69=>[SHwidth] D0=>[SHpg] 00=>[SH1pos1]
+             00=>[SH1pos2] 40=>[SH2pos1] 15=>[SH2pos2] 20=>[SH3pos1] 46=>[SH3pos2]
+             40=>[SH4pos1] 96=>[SH4pos2] 40=>[SH5pos1] 96=>[SH5pos2] FF=>[SHevent1]
+             81=>[SHevent2] 88=>[ScInSeq1] 40=>[ScInSeq2] 4B=>[RSpulse] 4D=>[GCpulse1]
+             00=>[GCpulse2] 3C=>[CPcont] 01=>[sampPos] F0=>[LED1pos1] 40=>[LED1pos2]
+             00=>[LED1pos3] 0A=>[LED1pos4] F0=>[LED2pos1] 00=>[LED2pos2] 00=>[LED2pos3]
+             4E=>[LED2pos4] F0=>[LED3pos1] 00=>[LED3pos2] 00=>[LED3pos3] 4E=>[LED3pos4]
+             B3=>[offsDAC1] B3=>[offsDAC2] AC=>[offsDAC3] AA=>[VGAgain1] 20=>[VGAGain2]
+             C3=>[sgnlCntl] 29=>[ADCcont] 00=>[offsO1] 00=>[offsO2] 00=>[offsO3]
+             00=>[offsE1] 00=>[offsE2] 00=>[offsE3] FF=>[fGain1] 0F=>[fGain2]
+             00=>[ofbase] 00=>[gbase] 01=>[Fbase] 00=>[datFmt] 00=>[inVal]
+             03=>[GPIOmode] 02=>[GPIOout] 00=>[GPIOin] 39=>[mtrCntl1] 40=>[mtrStpLen1]
+             96=>[mtrStpLen2] 9E=>[mtrCntl2] 8C=>[mtrBufCntl]
+#754[002.9]: [mtrCntl1]=39
+#755[002.9]: [mtrCntl1]=39
+#756[002.9]: 03=>[GPIOmode]
+#757[002.9]: 00=>[Ystart1] 00=>[Ystart2]
+#758[002.9]: 48=>[Ylen1] 1D=>[Ylen2]
+#759[003.0]: 00=>[mtrStpLen1] A0=>[mtrStpLen2]
+#760[003.0]: C3=>[sgnlCntl]
+#761[003.0]: 9E=>[mtrCntl2]
+#762[003.0]: 39=>[mtrCntl1]
+#763[003.0]: 79=>[mtrCntl1]
+#764[003.0]: F9=>[mtrCntl1]
+#765[003.0]: [Ycntr1]=00 [Ycntr2]=00
+#766[003.0]: 00=>[mtrStpLen1] A0=>[mtrStpLen2]
+#767[003.0]: [Ycntr1]=47 [Ycntr2]=1D
+#768[003.0]: [Ycntr1]=45 [Ycntr2]=1D
+#769[003.0]: [Ycntr1]=43 [Ycntr2]=1D
+#770[003.0]: [Ycntr1]=41 [Ycntr2]=1D
+#771[003.0]: [Ycntr1]=3F [Ycntr2]=1D
+#772[003.0]: [Ycntr1]=3E [Ycntr2]=1D
+#773[003.0]: [Ycntr1]=3C [Ycntr2]=1D
+#774[003.0]: [Ycntr1]=3A [Ycntr2]=1D
+#775[003.0]: [Ycntr1]=38 [Ycntr2]=1D
+#776[003.0]: [Ycntr1]=36 [Ycntr2]=1D
+#777[003.0]: [Ycntr1]=34 [Ycntr2]=1D
+#778[003.0]: [Ycntr1]=32 [Ycntr2]=1D
+#779[003.0]: [Ycntr1]=30 [Ycntr2]=1D
+#780[003.0]: [Ycntr1]=29 [Ycntr2]=1D
+#781[003.1]: [Ycntr1]=28 [Ycntr2]=1D
+#782[003.1]: [Ycntr1]=23 [Ycntr2]=1D
+#783[003.1]: 00=>[mtrStpLen1] 98=>[mtrStpLen2]
+#784[003.1]: [Ycntr1]=1E [Ycntr2]=1D
+#785[003.1]: [Ycntr1]=16 [Ycntr2]=1D
+#786[003.1]: [Ycntr1]=14 [Ycntr2]=1D
+#787[003.1]: [Ycntr1]=0C [Ycntr2]=1D
+#788[003.1]: 40=>[mtrStpLen1] 96=>[mtrStpLen2]
+#789[003.1]: [Ycntr1]=06 [Ycntr2]=1D
+#790[003.1]: [Ycntr1]=02 [Ycntr2]=1D
+#791[003.1]: [Ycntr1]=00 [Ycntr2]=1D
+#792[003.1]: [Ycntr1]=FA [Ycntr2]=1C
+#793[003.1]: 40=>[mtrStpLen1] 96=>[mtrStpLen2]
+#794[003.2]: [Ycntr1]=F6 [Ycntr2]=1C
+#795[003.2]: [Ycntr1]=EE [Ycntr2]=1C
+#796[003.2]: [Ycntr1]=EC [Ycntr2]=1C
+#797[003.2]: [Ycntr1]=E9 [Ycntr2]=1C
+#798[003.2]: [Ycntr1]=E4 [Ycntr2]=1C
+#799[003.2]: [Ycntr1]=E2 [Ycntr2]=1C
+#800[003.2]: 40=>[mtrStpLen1] 96=>[mtrStpLen2]
+#801[003.2]: [Ycntr1]=D9 [Ycntr2]=1C
+#802[003.2]: [Ycntr1]=D2 [Ycntr2]=1C
+#803[003.2]: [Ycntr1]=D0 [Ycntr2]=1C
+#804[003.2]: [Ycntr1]=CD [Ycntr2]=1C
+#805[003.2]: [Ycntr1]=C8 [Ycntr2]=1C
+#806[003.2]: 40=>[mtrStpLen1] 96=>[mtrStpLen2]
+#807[003.3]: [Ycntr1]=BE [Ycntr2]=1C
+#808[003.3]: [Ycntr1]=B4 [Ycntr2]=1C
+#809[003.3]: [Ycntr1]=B2 [Ycntr2]=1C
+#810[003.3]: [Ycntr1]=B0 [Ycntr2]=1C
+#811[003.3]: 40=>[mtrStpLen1] 96=>[mtrStpLen2]
+#812[003.3]: [Ycntr1]=A8 [Ycntr2]=1C
+#813[003.3]: [Ycntr1]=A2 [Ycntr2]=1C
+#814[003.3]: [Ycntr1]=9F [Ycntr2]=1C
+#815[003.3]: [Ycntr1]=9D [Ycntr2]=1C
+#816[003.3]: [Ycntr1]=9A [Ycntr2]=1C
+#817[003.3]: [Ycntr1]=98 [Ycntr2]=1C
+#818[003.3]: [Ycntr1]=97 [Ycntr2]=1C
+#819[003.3]: [Ycntr1]=95 [Ycntr2]=1C
+#820[003.3]: 40=>[mtrStpLen1] 96=>[mtrStpLen2]
+#821[003.3]: [Ycntr1]=91 [Ycntr2]=1C
+#822[003.3]: [Ycntr1]=8F [Ycntr2]=1C
+#823[003.3]: [Ycntr1]=8D [Ycntr2]=1C
+#824[003.3]: [Ycntr1]=8B [Ycntr2]=1C
+#825[003.4]: [Ycntr1]=89 [Ycntr2]=1C
+#826[003.4]: [Ycntr1]=87 [Ycntr2]=1C
+#827[003.4]: [Ycntr1]=85 [Ycntr2]=1C
+#828[003.4]: [Ycntr1]=83 [Ycntr2]=1C
+#829[003.4]: [Ycntr1]=81 [Ycntr2]=1C
+#830[003.4]: [Ycntr1]=7F [Ycntr2]=1C
+#831[003.4]: [Ycntr1]=7D [Ycntr2]=1C
+#832[003.4]: [Ycntr1]=7B [Ycntr2]=1C
+#833[003.4]: [Ycntr1]=79 [Ycntr2]=1C
+#834[003.4]: [Ycntr1]=77 [Ycntr2]=1C
+#835[003.4]: 40=>[mtrStpLen1] 96=>[mtrStpLen2]
+#836[003.4]: [Ycntr1]=73 [Ycntr2]=1C
+#837[003.4]: [Ycntr1]=71 [Ycntr2]=1C
+#838[003.4]: [Ycntr1]=6F [Ycntr2]=1C
+#839[003.4]: [Ycntr1]=6D [Ycntr2]=1C
+#840[003.4]: [Ycntr1]=6B [Ycntr2]=1C
+#841[003.4]: [Ycntr1]=69 [Ycntr2]=1C
+#842[003.4]: [Ycntr1]=67 [Ycntr2]=1C
+#843[003.4]: [Ycntr1]=65 [Ycntr2]=1C
+#844[003.4]: [Ycntr1]=63 [Ycntr2]=1C
+#845[003.4]: [Ycntr1]=61 [Ycntr2]=1C
+#846[003.4]: [Ycntr1]=5F [Ycntr2]=1C
+#847[003.4]: [Ycntr1]=5D [Ycntr2]=1C
+#848[003.4]: [Ycntr1]=5B [Ycntr2]=1C
+#849[003.4]: [Ycntr1]=59 [Ycntr2]=1C
+#850[003.4]: [Ycntr1]=57 [Ycntr2]=1C
+#851[003.5]: [Ycntr1]=55 [Ycntr2]=1C
+#852[003.5]: 40=>[mtrStpLen1] 96=>[mtrStpLen2]
+#853[003.5]: [Ycntr1]=51 [Ycntr2]=1C
+#854[003.5]: [Ycntr1]=4F [Ycntr2]=1C
+#855[003.5]: [Ycntr1]=4D [Ycntr2]=1C
+#856[003.5]: [Ycntr1]=4B [Ycntr2]=1C
+#857[003.5]: [Ycntr1]=49 [Ycntr2]=1C
+#858[003.5]: [Ycntr1]=47 [Ycntr2]=1C
+#859[003.5]: [Ycntr1]=45 [Ycntr2]=1C
+#860[003.5]: [Ycntr1]=43 [Ycntr2]=1C
+#861[003.5]: [Ycntr1]=41 [Ycntr2]=1C
+#862[003.5]: [Ycntr1]=3F [Ycntr2]=1C
+#863[003.5]: [Ycntr1]=3D [Ycntr2]=1C
+#864[003.5]: [Ycntr1]=3B [Ycntr2]=1C
+#865[003.5]: [Ycntr1]=39 [Ycntr2]=1C
+#866[003.5]: [Ycntr1]=37 [Ycntr2]=1C
+#867[003.5]: [Ycntr1]=35 [Ycntr2]=1C
+#868[003.5]: [Ycntr1]=33 [Ycntr2]=1C
+#869[003.5]: [Ycntr1]=31 [Ycntr2]=1C
+#870[003.5]: 40=>[mtrStpLen1] 96=>[mtrStpLen2]
+#871[003.5]: [Ycntr1]=2D [Ycntr2]=1C
+#872[003.5]: [Ycntr1]=2B [Ycntr2]=1C
+#873[003.5]: [Ycntr1]=29 [Ycntr2]=1C
+#874[003.5]: [Ycntr1]=27 [Ycntr2]=1C
+#875[003.5]: [Ycntr1]=25 [Ycntr2]=1C
+#876[003.5]: [Ycntr1]=23 [Ycntr2]=1C
+#877[003.6]: [Ycntr1]=21 [Ycntr2]=1C
+#878[003.6]: [Ycntr1]=1F [Ycntr2]=1C
+#879[003.6]: [Ycntr1]=1A [Ycntr2]=1C
+#880[003.6]: [Ycntr1]=18 [Ycntr2]=1C
+#881[003.6]: [Ycntr1]=11 [Ycntr2]=1C
+#882[003.6]: [Ycntr1]=0F [Ycntr2]=1C
+#883[003.6]: [Ycntr1]=08 [Ycntr2]=1C
+#884[003.6]: 40=>[mtrStpLen1] 96=>[mtrStpLen2]
+#885[003.6]: [inVal]=00
+#886[003.6]: [FIFOstat1]=97 [FIFOstat2]=68
+#887[003.9]: 32768 bytes BULK
+#888[004.1]: [inVal]=00
+#889[004.1]: [FIFOstat1]=51 [FIFOstat2]=6E
+#890[004.3]: 32768 bytes BULK
+#891[004.5]: [inVal]=00
+#892[004.5]: [FIFOstat1]=5B [FIFOstat2]=73
+#893[004.7]: 32768 bytes BULK
+#895[004.9]: [FIFOstat1]=CA [FIFOstat2]=74
+#896[004.9]: [inVal]=00
+#897[004.9]: [FIFOstat1]=1C [FIFOstat2]=78
+#898[005.3]: 32768 bytes BULK
+#900[005.3]: [FIFOstat1]=D6 [FIFOstat2]=7D
+#901[005.3]: [inVal]=00
+#902[005.4]: [FIFOstat1]=D1 [FIFOstat2]=82
+#903[005.6]: 32768 bytes BULK
+#911[006.2]: [inVal]=00
+#912[006.2]: [FIFOstat1]=4F [FIFOstat2]=94
+#913[006.7]: 32768 bytes BULK
+#915[006.7]: [FIFOstat1]=20 [FIFOstat2]=97
+#916[006.7]: [inVal]=00
+#917[006.9]:
+#925[007.5]: [FIFOstat1]=1C [FIFOstat2]=A1
+#926[007.5]: [inVal]=00
+#927[007.5]: [FIFOstat1]=9A [FIFOstat2]=A7
+#928[008.0]: 32768 bytes BULK
+#930[008.0]: [FIFOstat1]=23 [FIFOstat2]=AF
+#931[008.0]: [inVal]=00
+#932[008.0]: [FIFOstat1]=CC [FIFOstat2]=B0
+#933[008.2]: 32768 bytes BULK
+#941[008.9]: [inVal]=00
+#942[008.9]: [FIFOstat1]=3B [FIFOstat2]=C1
+#943[009.1]: 32768 bytes BULK
+#946[009.3]: [inVal]=00
+#947[009.3]: [FIFOstat1]=B7 [FIFOstat2]=CA
+#948[009.8]: 32768 bytes BULK
+#950[009.8]: [FIFOstat1]=AA [FIFOstat2]=D1
+#951[009.8]: [inVal]=00
+#952[009.8]: [FIFOstat1]=37 [FIFOstat2]=D6
+#953[010.0]: 32768 bytes BULK
+#960[010.6]: [FIFOstat1]=3B [FIFOstat2]=DD
+#961[010.7]: [inVal]=00
+#962[010.7]: [FIFOstat1]=19 [FIFOstat2]=E2
+#963[011.1]: 32768 bytes BULK
+#965[011.1]: [FIFOstat1]=D3 [FIFOstat2]=E7
+#966[011.1]: [inVal]=00
+#967[011.1]: [FIFOstat1]=47 [FIFOstat2]=EB
+#968[011.3]: 32768 bytes BULK
+#976[012.0]: [inVal]=00
+#977[012.0]: [FIFOstat1]=E6 [FIFOstat2]=FE
+#978[012.3]: 32768 bytes BULK
+#981[012.5]: [inVal]=00
+#982[012.5]: [FIFOstat1]=FF [FIFOstat2]=FF
+#983[012.7]: 32768 bytes BULK
+#986[012.9]: [inVal]=00
+#987[012.9]: [FIFOstat1]=FF [FIFOstat2]=FF
+#988[013.1]: 32768 bytes BULK
+#991[013.4]: [inVal]=00
+#992[013.4]: [FIFOstat1]=FF [FIFOstat2]=FF
+#993[013.6]: 32768 bytes BULK
+#1000[014.3]: [FIFOstat1]=FF [FIFOstat2]=FF
+#1001[014.3]: [inVal]=00
+#1002[014.3]: [FIFOstat1]=FF [FIFOstat2]=FF
+#1003[014.5]: 32768 bytes BULK
+#1011[015.2]: [inVal]=00
+#1012[015.2]: [FIFOstat1]=FF [FIFOstat2]=FF
+#1013[015.6]: 32768 bytes BULK
+#1015[015.6]: [FIFOstat1]=FF [FIFOstat2]=FF
+#1016[015.6]: [inVal]=00
+#1017[015.6]: [FIFOstat1]=FF [FIFOstat2]=FF
+#1018[015.9]: 32768 bytes BULK
+#1026[016.5]: [inVal]=00
+#1027[016.5]: [FIFOstat1]=FF [FIFOstat2]=FF
+#1028[016.7]: 32768 bytes BULK
+#1031[017.0]: [inVal]=00
+#1032[017.0]: [FIFOstat1]=FF [FIFOstat2]=FF
+#1033[017.2]: 32768 bytes BULK
+#1035[017.4]: [FIFOstat1]=FF [FIFOstat2]=FF
+#1036[017.4]: [FIFOstat1]=FF [FIFOstat2]=FF
+#1037[017.8]: 32768 bytes BULK
+#1039[017.9]: [FIFOstat1]=FF [FIFOstat2]=FF
+#1040[018.1]: 32768 bytes BULK
+#1048[019.1]: [FIFOstat1]=8B [FIFOstat2]=5E
+#1049[019.4]: 32768 bytes BULK
+#1056[019.8]: 39=>[mtrCntl1]
+#1057[019.8]: 00=>[Xstart1] 00=>[Xstart2] 00=>[Xscale] 00=>[Xlen1] 00=>[Xlen2] 00=>[Ystart1]
+             00=>[Ystart2] 00=>[Yscale1] 00=>[Yscale2] 00=>[Ylen1] 00=>[Ylen2]
+             6D=>[dumPix] 70=>[blckPix] 69=>[SHwidth] D0=>[SHpg] 00=>[SH1pos1]
+             00=>[SH1pos2] 40=>[SH2pos1] 15=>[SH2pos2] 20=>[SH3pos1] 46=>[SH3pos2]
+             40=>[SH4pos1] 96=>[SH4pos2] 40=>[SH5pos1] 96=>[SH5pos2] FF=>[SHevent1]
+             81=>[SHevent2] 88=>[ScInSeq1] 40=>[ScInSeq2] 4B=>[RSpulse] 4D=>[GCpulse1]
+             00=>[GCpulse2] 3C=>[CPcont] 01=>[sampPos] F0=>[LED1pos1] 40=>[LED1pos2]
+             00=>[LED1pos3] 0A=>[LED1pos4] F0=>[LED2pos1] 00=>[LED2pos2] 00=>[LED2pos3]
+             4E=>[LED2pos4] F0=>[LED3pos1] 00=>[LED3pos2] 00=>[LED3pos3] 4E=>[LED3pos4]
+             B3=>[offsDAC1] B3=>[offsDAC2] AC=>[offsDAC3] AA=>[VGAgain1] 20=>[VGAGain2]
+             C3=>[sgnlCntl] 29=>[ADCcont] 00=>[offsO1] 00=>[offsO2] 00=>[offsO3]
+             00=>[offsE1] 00=>[offsE2] 00=>[offsE3] FF=>[fGain1] 0F=>[fGain2]
+             00=>[ofbase] 00=>[gbase] 01=>[Fbase] 80=>[datFmt] 80=>[inVal]
+             03=>[GPIOmode] 02=>[GPIOout] 00=>[GPIOin] 39=>[mtrCntl1] 40=>[mtrStpLen1]
+             96=>[mtrStpLen2] 9E=>[mtrCntl2] 8C=>[mtrBufCntl]
+#1058[019.8]: 39=>[FFFFFFFF]
+#1062[019.8]: [inVal]=80
+#1063[019.8]: 39=>[mtrCntl1]
+#1064[019.8]: 07=>[GPIOmode]
+#1065[019.9]: [mtrCntl1]=39
+#1066[019.9]: AA=>[VGAgain1] 20=>[VGAGain2]
+#1068[019.9]: 9E=>[mtrCntl2]
+#1069[019.9]: 00=>[Xstart1] 00=>[Xstart2] 3F=>[Xscale] 40=>[Xlen1] 00=>[Xlen2] 48=>[Ystart1]
+             1D=>[Ystart2] 00=>[Yscale1] 00=>[Yscale2] 00=>[Ylen1] 00=>[Ylen2]
+             6D=>[dumPix] 70=>[blckPix] 69=>[SHwidth] D0=>[SHpg] 00=>[SH1pos1]
+             00=>[SH1pos2] 40=>[SH2pos1] 15=>[SH2pos2] 80=>[SH3pos1] 2A=>[SH3pos2]
+             C0=>[SH4pos1] 40=>[SH4pos2] C0=>[SH5pos1] 40=>[SH5pos2] FF=>[SHevent1]
+             81=>[SHevent2] 88=>[ScInSeq1] 40=>[ScInSeq2] 4B=>[RSpulse] 4D=>[GCpulse1]
+             00=>[GCpulse2] 3C=>[CPcont] 01=>[sampPos] F0=>[LED1pos1] 40=>[LED1pos2]
+             00=>[LED1pos3] 0A=>[LED1pos4] F0=>[LED2pos1] 00=>[LED2pos2] 00=>[LED2pos3]
+             4E=>[LED2pos4] F0=>[LED3pos1] 00=>[LED3pos2] 00=>[LED3pos3] 4E=>[LED3pos4]
+             B3=>[offsDAC1] B3=>[offsDAC2] AC=>[offsDAC3] AA=>[VGAgain1] 20=>[VGAGain2]
+             C3=>[sgnlCntl] 29=>[ADCcont] 00=>[offsO1] 00=>[offsO2] 00=>[offsO3]
+             00=>[offsE1] 00=>[offsE2] 00=>[offsE3] FF=>[fGain1] 0F=>[fGain2]
+             00=>[ofbase] 00=>[gbase] 01=>[Fbase] 00=>[datFmt] 80=>[inVal]
+             07=>[GPIOmode] 02=>[GPIOout] 00=>[GPIOin] 39=>[mtrCntl1] C0=>[mtrStpLen1]
+             40=>[mtrStpLen2] 9E=>[mtrCntl2] 8C=>[mtrBufCntl]
+#1070[019.9]: 03=>[FFFFFFFF]
+#1071[019.9]: 00=>[Ystart1] 00=>[Ystart2]
+#1072[019.9]: 48=>[Ylen1] 1D=>[Ylen2]
+#1073[019.9]: 00=>[mtrStpLen1] A0=>[mtrStpLen2]
+#1074[019.9]: C3=>[sgnlCntl]
+#1075[019.9]: 9E=>[mtrCntl2]
+#1076[020.0]: 19=>[mtrCntl1]
+#1125[020.2]: [Ycntr1]=ED [Ycntr2]=1C
+#1126[020.2]: [Ycntr1]=EA [Ycntr2]=1C
+#1127[020.2]: [Ycntr1]=E2 [Ycntr2]=1C
+#1128[020.2]: 00=>[mtrStpLen1] 80=>[mtrStpLen2]
+#1129[020.2]: 07=>[GPIOmode]
+#1130[020.2]: [Ycntr1]=CE [Ycntr2]=1C
+#1131[020.2]: [Ycntr1]=CA [Ycntr2]=1C
+#1132[020.2]: 00=>[mtrStpLen1] 78=>[mtrStpLen2]
+#1133[020.2]: 07=>[GPIOmode]
+#1134[020.2]: [Ycntr1]=B1 [Ycntr2]=1C
+#1135[020.3]: 00=>[mtrStpLen1] 70=>[mtrStpLen2]
+#1136[020.3]: 07=>[GPIOmode]
+#1137[020.3]: [Ycntr1]=A3 [Ycntr2]=1C
+#1138[020.3]: [Ycntr1]=A0 [Ycntr2]=1C
+#1139[020.3]: [Ycntr1]=96 [Ycntr2]=1C
+#1140[020.3]: [Ycntr1]=88 [Ycntr2]=1C
+#1141[020.3]: 00=>[mtrStpLen1] 68=>[mtrStpLen2]
+#1142[020.3]: 07=>[GPIOmode]
+#1143[020.3]: [Ycntr1]=7A [Ycntr2]=1C
+#1144[020.3]: [Ycntr1]=77 [Ycntr2]=1C
+#1145[020.3]: 00=>[mtrStpLen1] 60=>[mtrStpLen2]
+#1148[020.4]: [Ycntr1]=5C [Ycntr2]=1C
+#1149[020.4]: [Ycntr1]=58 [Ycntr2]=1C
+#1150[020.4]: [Ycntr1]=4C [Ycntr2]=1C
+#1151[020.4]: 00=>[mtrStpLen1] 58=>[mtrStpLen2]
+#1152[020.4]: 07=>[GPIOmode]
+#1154[020.4]: [Ycntr1]=2E [Ycntr2]=1C
+#1155[020.4]: 00=>[mtrStpLen1] 50=>[mtrStpLen2]
+#1156[020.4]: 07=>[GPIOmode]
+#1166[020.9]: [mtrCntl1]=D9
+#1167[021.0]: [mtrCntl1]=D9
+#1168[021.1]: [mtrCntl1]=D9
+#1169[021.2]: [mtrCntl1]=D9
+#1170[021.3]: [mtrCntl1]=D9
+#1171[021.4]: [mtrCntl1]=D9
+#1172[021.5]: [mtrCntl1]=D9
+#1173[021.6]: [mtrCntl1]=D9
+#1174[021.7]: [mtrCntl1]=D9
+#1175[021.8]: [mtrCntl1]=D9
+#1176[021.9]: [mtrCntl1]=D9
+#1177[022.0]: [mtrCntl1]=D9
+#1178[022.1]: [mtrCntl1]=D9
+#1179[022.2]: [mtrCntl1]=D9
+#1180[022.3]: [mtrCntl1]=D9
+#1181[022.4]: [mtrCntl1]=D9
+#1182[022.5]: [mtrCntl1]=D9
+#1183[022.7]: [mtrCntl1]=D9
+#1184[022.8]: [mtrCntl1]=D9
+#1185[022.9]: [mtrCntl1]=D9
+#1186[023.0]: [mtrCntl1]=D9
+#1187[023.1]: [mtrCntl1]=D9
+#1188[023.2]: [mtrCntl1]=D9
+#1189[023.3]: [mtrCntl1]=D9
+#1190[023.4]: [mtrCntl1]=D9
+#1191[023.5]: [mtrCntl1]=D9
+#1192[023.6]: [mtrCntl1]=D9
+#1193[023.7]: [mtrCntl1]=D9
+#1194[023.8]: [mtrCntl1]=D9
+#1195[023.9]: [mtrCntl1]=D9
+#1196[024.0]: [mtrCntl1]=D9
+#1197[024.1]: [mtrCntl1]=D9
+#1198[024.2]: [mtrCntl1]=D9
+#1199[024.3]: [mtrCntl1]=D9
+#1200[024.4]: [mtrCntl1]=D9
+#1201[024.5]: [mtrCntl1]=D9
+#1202[024.6]: [mtrCntl1]=D9
+#1203[024.7]: [mtrCntl1]=D9
+#1204[024.8]: [mtrCntl1]=D9
+#1205[024.9]: [mtrCntl1]=D9
+#1206[025.0]: [mtrCntl1]=D9
+#1207[025.1]: [mtrCntl1]=D9
+#1208[025.2]: [mtrCntl1]=D9
+#1209[025.3]: [mtrCntl1]=D9
+#1210[025.4]: [mtrCntl1]=D9
+#1211[025.6]: [mtrCntl1]=D9
+#1212[025.7]: [mtrCntl1]=D9
+#1213[025.8]: [mtrCntl1]=D9
+#1214[025.9]: [mtrCntl1]=D9
+#1215[026.0]: [mtrCntl1]=D9
+#1216[026.1]: [mtrCntl1]=D9
+#1217[026.2]: [mtrCntl1]=D9
+#1218[026.3]: [mtrCntl1]=D9
+#1219[026.4]: [mtrCntl1]=D9
+#1220[026.4]: [mtrCntl1]=59
+#1221[026.4]: 03=>[GPIOmode]
+#1222[026.4]: 39=>[mtrCntl1]

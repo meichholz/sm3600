@@ -46,7 +46,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: sm3600-scanmtek.c,v 1.2 2001/05/27 18:43:55 eichholz Exp $
+$Id: sm3600-scanmtek.c,v 1.3 2001/07/30 07:48:11 eichholz Exp $
 
 ====================================================================== */
 
@@ -55,6 +55,7 @@ $Id: sm3600-scanmtek.c,v 1.2 2001/05/27 18:43:55 eichholz Exp $
 unsigned short aidProduct[] = {
   0x40B3, 0x40CA, 0x40FF /* not official */, /* ScanMaker 3600 */
   0x40B8, 0x40CB, /* ScanMaker 3700 */
+  0x40FF, /* unofficial, reported my Nate */
   /* SM3750 unknown */
   0x0 };
 

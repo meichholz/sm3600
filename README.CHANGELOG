@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+26.7.2001-30.7.2001
+
+Started to include g4tool stuff. Optional feature yet.
+New product-ID (40FF)
+
 1.6.2001
 
 Removed FixExposure() and Brightness-Contrast-Options.

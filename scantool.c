@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scantool.c,v 1.27 2001/05/27 18:43:55 eichholz Exp $
+$Id: scantool.c,v 1.28 2001/07/30 07:48:11 eichholz Exp $
 
 (C) Marian Eichholz 2001
 
@@ -10,7 +10,7 @@ $Id: scantool.c,v 1.27 2001/05/27 18:43:55 eichholz Exp $
 
 #include "sm3600-scantool.h"
 
-#define REVISION "$Revision: 1.27 $"
+#define REVISION "$Revision: 1.28 $"
 
 #define USAGE \
 "usage: %s <outfile> <resolution> <x> <y> <w> <h>" \
@@ -332,8 +332,8 @@ int main(int cArg, char * const ppchArg[])
 	    case 'c': /* copy */
 	      this->param.res=300;
 	      this->param.x=this->param.y=300;
-	      this->param.cx=9200;
-	      this->param.cy=12990;
+	      this->param.cx=9600;
+	      this->param.cy=13937;
 	      break;
 	    case 'f': /* fax */
 	      this->param.res=200;
