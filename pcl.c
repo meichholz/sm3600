@@ -62,7 +62,8 @@ BOOL DumpPagePCL(FILE *f)
      }
     liNextBlock--;
    }
-  printf("\x1B*rC\f");
+  fprintf(f,"\x1B*rC");
+  fprintf(f,"\x1B-12345X");
   return TRUE;
  }
  

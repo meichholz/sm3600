@@ -45,7 +45,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: sm3600-scanutil.c,v 1.5 2001/09/30 19:44:27 eichholz Exp $
+$Id: sm3600-scanutil.c,v 1.6 2001/12/16 22:48:52 eichholz Exp $
 
 ====================================================================== */
 
@@ -393,7 +393,7 @@ TState DoScanFile(TInstance *this)
   cy=this->state.cyPixel;
   if (this->bVerbose)
     fprintf(stderr,"scanning %d by %d\n",cx,cy);
-  if (this->fhScan && !this->bWriteRaw)
+  if (this->fhScan && !this->bWriteRaw && !this->pchPageBuffer)
    {
       switch (this->mode)
 	{
@@ -413,7 +413,14 @@ TState DoScanFile(TInstance *this)
       rc=ReadChunk(this,achBuf,APP_CHUNK_SIZE,&cch);
       if (cch>0 && this->fhScan && cch<=APP_CHUNK_SIZE)
 	{
-	  if (!this->bWriteRaw)
+	  if (this->pchPageBuffer)
+	    {
+	      CHECK_ASSERTION(this->ichPageBuffer+cch<=this->cchPageBuffer);
+	      memcpy(this->pchPageBuffer+this->ichPageBuffer,
+		     achBuf,cch);
+	      this->ichPageBuffer+=cch;
+	    }
+	  else if (!this->bWriteRaw)
 	    fwrite(achBuf,1,cch,this->fhScan);
 	  lcchRead+=cch;
 	}

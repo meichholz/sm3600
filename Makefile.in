@@ -1,4 +1,4 @@
-# $Id: Makefile.in,v 1.32 2001/10/25 20:02:31 eichholz Exp $
+# $Id: Makefile.in,v 1.33 2001/12/16 22:48:52 eichholz Exp $
 #
 # -------------------------------------------------------------------
 #
@@ -11,6 +11,8 @@
 NAME=		sm3600
 
 USBDIR=		@USBDIR@
+BINDIR=		@PREFIX@/bin
+MANDIR=		@PREFIX@/man
 
 SANE_SRC=	/packin/sane-backends-1.0.4
 SANE_CVS=       /packin/sane/sane-backends
@@ -50,7 +52,7 @@ SCANTOOL_H=	sm3600.h sm3600-scantool.h
 
 # ======================================================================
 
-default: testscan
+default: testenc
 
 .c.o :
 	@echo "compiling $* "
@@ -68,6 +70,13 @@ all:	bin
 
 test:	scantool initbus
 	./scantool -v -i -d 5 temp.out
+
+testenc: scantool initbus
+	./scantool -v -m line -b 30 -o bitmap /tmp/pnm 300 0 0 2600 2400
+
+testcopy: scantool initbus
+	./scantool -v -b 30 -o pcl -p copy - | lpr -Ppcl
+
 
 testscan: scantool initbus
 #	./scantool -d 25 -v -m color /tmp/scan.pnm 600 000 000 3600 1400
@@ -182,7 +191,11 @@ fax:	initbus scantool
 	> ~/data/faxout/new.ps
 
 
-install: install-sane
+install: install-scantool
+
+install-scantool:	scantool
+	@install -m 755 scantool $(BINDIR) 
+	@install -m 644 scantool.man $(MANDIR)/man1/scantool.1
 
 getif:
 	ssh -l root localhost chown -R marian /proc/bus/usb/001

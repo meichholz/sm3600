@@ -2,15 +2,16 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scantool.c,v 1.30 2001/09/30 20:38:07 eichholz Exp $
+$Id: scantool.c,v 1.31 2001/12/16 22:48:52 eichholz Exp $
 
 (C) Marian Eichholz 2001
 
 ====================================================================== */
 
 #include "sm3600-scantool.h"
+#include "g4.h"
 
-#define REVISION "$Revision: 1.30 $"
+#define REVISION "$Revision: 1.31 $"
 
 #define USAGE \
 "usage: %s <outfile> <resolution> <x> <y> <w> <h>" \
@@ -22,9 +23,10 @@ $Id: scantool.c,v 1.30 2001/09/30 20:38:07 eichholz Exp $
 "\n\t-b : brightness set to <-255-255>"\
 "\n\t-c : contrast set to <-255-255>"\
 "\n\t-m : mode for 'color', 'gray', 'line' or 'halftone'"\
-"\n\t-p : paper preset for 'a4', 'letter', 'fax'"\
+"\n\t-p : preset for 'copy', 'fax'"\
 "\n\t-q : set overall quality to 'fast', 'high' or 'best'"\
 "\n\t-O : skip initial slider returning and calibration"\
+"\n\t-o : output encoding as 'g4tiff', 'pcl', 'bitmap', 'noenc'"\
 "\n"\
 "\n\t-d : set debug <flags> and r(aw) write mode"\
 "\n"\
@@ -240,9 +242,53 @@ static int ScanToFile(TInstance *this)
     rc=  this->bOptSkipOriginate
       ? FakeCalibration(this)
       : DoOriginate(this,true);
+#ifdef G4TOOL
+  GetAreaSize(this); /* get cxPixel/cyPixel */
+  if (idOutputFormat!=PFMT_DEFAULT)
+    {
+      BOOL bOk;
+      lcchFullPageLine   =(this->state.cxPixel+7L)/8L;
+      lcFullPageLines    =this->state.cyPixel;
+      this->cchPageBuffer=lcchFullPageLine*lcFullPageLines;
+      pchFullPage        =this->pchPageBuffer
+	                 =calloc(1,this->cchPageBuffer);
+      bRotate            =FALSE;
+      bVerboseX          =this->bVerbose;
+      CHECK_POINTER(pchFullPage);
+      /* bit buffer must not overflow */
+      bOk=SetTables();
+      CHECK_ASSERTION(bOk);
+      CHECK_ASSERTION(this->state.cxPixel<=CX_MAX);
+    }
+#endif
   if (rc==SANE_STATUS_GOOD) rc=DoJog(this,this->calibration.yMargin);
   if (rc==SANE_STATUS_GOOD) rc=DoScanFile(this);
   if (rc==SANE_STATUS_GOOD) rc=DoJog(this,-this->calibration.yMargin);
+
+#ifdef G4TOOL
+  if (idOutputFormat==PFMT_DEFAULT)
+    return rc;
+  nClipType=CLIP_FIX_BORDERS;
+  /* nClipType=CLIP_NONE; */
+  switch (idOutputFormat)
+    {
+    case PFMT_TIFFG4: nFileFormat=OFMT_G4; break;
+    case PFMT_PBM:    nFileFormat=OFMT_PBM; break;
+    case PFMT_PCL:    nFileFormat=OFMT_PCL; break;
+    }
+  /* engineer the encoder modules */
+  /* use the original values from the scanner driver */
+  GetAreaSize(this); /* get cxPixel/cyPixel */
+  nPCLResolution=this->param.res;
+  cxPaper       =this->state.cxPixel;
+  cyPaper       =this->state.cyPixel;
+
+  /* to the transcoding job */
+  if (!EncodePage(this->fhScan)) rc=SANE_STATUS_IO_ERROR;
+
+  /* TODO: Puffer aufsetzen und Seite transkodieren */
+  if (this->pchPageBuffer) free(this->pchPageBuffer);
+#endif
   return rc;
 }
 
@@ -309,6 +355,8 @@ int main(int cArg, char * const ppchArg[])
   this->param.nBrightness=0;
   this->param.nContrast=0;
 
+  idOutputFormat=PFMT_DEFAULT; /* direct PBM */
+
   ResetCalibration(this);
 
   this->quality=fast;
@@ -327,20 +375,34 @@ int main(int cArg, char * const ppchArg[])
 	case 'V': TellRevision(); exit(0); break;
 	case 'l': szLogFile=strdup(optarg); break;
 	case 'O': this->bOptSkipOriginate=true; break;
+#ifdef G4TOOL
+	case 'o': /* outut encoding */
+	  switch (tolower(*optarg))
+	    {
+	    case 'p': idOutputFormat=PFMT_PCL; break;
+	    case 'g': idOutputFormat=PFMT_TIFFG4; break;
+	    case 'b': idOutputFormat=PFMT_PBM; break;
+	    case 'n': idOutputFormat=PFMT_DEFAULT; break;
+	    }
+	  break;
+#endif G4TOOL
 	case 'p': /* preset */
 	  switch (tolower(*optarg))
 	    {
 	    case 'c': /* copy */
-	      this->param.res=300;
-	      this->param.x=this->param.y=300;
-	      this->param.cx=9600;
-	      this->param.cy=13937;
+	      this->param.res=600;
+	      this->param.x=this->param.y=0;
+	      this->param.cx=2380*4;
+	      this->param.cy=3408*4;
+	      this->param.nBrightness=50;
+	      this->mode=halftone;
 	      break;
 	    case 'f': /* fax */
 	      this->param.res=200;
 	      this->param.x=this->param.y=300;
 	      this->param.cx=9200;   /* TODO */
 	      this->param.cy=12990;
+	      this->mode=line;
 	      break;
 	    }
 	  break;

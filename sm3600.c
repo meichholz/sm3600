@@ -526,6 +526,8 @@ sane_close (SANE_Handle handle)
   else
     pinstFirst=this->pNext; /* NULL with last entry */
   /* free resources */
+  if (this->pchPageBuffer)
+    free(this->pchPageBuffer);
   if (this->szErrorReason)
     {
       DBG(DEBUG_VERBOSE,"Error status: %d, %s",

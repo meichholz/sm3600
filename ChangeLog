@@ -1,3 +1,13 @@
+2001-12-16  Marian Eichholz <eichholz@computer.org>
+	* Fixes in g4-modules
+	* sm3600.h : TInstance has page buffer parameters
+	* sm3600-scanutil.c : Support for scan to page buffer
+	* scantool.c : Support for pcl/pbm encoders. TIFF untested.
+	* scantool.c : New defaults for copy-preset
+	* pcl.c : "printf" fixed.
+	* Makefile : fixed install target
+	* Makefile : testcopy target
+
 2001-10-25  Marian Eichholz <eichholz@computer.org>
 	* Calibration data for 3700, experimental.
 	* Relaxed first-hole-pos in sm3600-homerun.c

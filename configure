@@ -5,6 +5,7 @@ use strict;
 my $usbdir="/usr/local";
 my $sEfence="";
 my $sG4Support="";
+my $sPrefix="/usr/local";
 
 my $usage=<<"EOS";
 usage configure {option}
@@ -13,6 +14,7 @@ Environment:
   --usbdir=DIR            read usb.h from DIR [$usbdir]
   --with-efence           link efence
   --with-g4tool           include g4tool stuff
+  --prefix                where to install binaries and manpages [$sPrefix]
 
 Other:
   --help                  print this page
@@ -22,6 +24,7 @@ while (defined $ARGV[0])
 {
   $_=shift @ARGV;
   if (/^--usbdir=(.*)/) { $usbdir=$1; }
+  elsif (/^--prefix=(.*)/) { $sPrefix=$1; }
   elsif (/^--with-efence/) { $sEfence="-lefence"; }
   elsif (/^--with-g4tool/) { $sG4Support="-DG4TOOL"; }
   else { print $usage; exit 0; }
@@ -35,6 +38,7 @@ print "writing Makefile...\n";
 while (<INFILE>)
   {
     s/\@USBDIR\@/$usbdir/g;
+    s/\@PREFIX\@/$sPrefix/g;
     s/\@USE_EFENCE\@/$sEfence/g;
     s/\@USE_G4TOOL\@/$sG4Support/g;
     print OUTFILE;

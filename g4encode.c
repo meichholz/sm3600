@@ -209,6 +209,12 @@ static void UnPackLine()
       abitWork[i++]=!!((*pch) & bi);
     pch++;
    }
+#define xDEBUG_UNPACK
+#ifdef  DEBUG_UNPACK
+  for (i=1; i<=cxPaperOut; i+=5)
+    fprintf(stderr,"%c",abitWork[i]? 'M' : '/');
+  fprintf(stderr,"\n");
+#endif
  }
 
 /*
@@ -244,32 +250,31 @@ BOOL ClosePageG4(FILE *f, BOOL bTiff)
 
 /*
  ******************************************************************
- * EncodePage()
+ * EncodePage(fh)
  ******************************************************************
  */
 
-int EncodePage(void)
+int EncodePage(FILE *fh)
  {
   int i;
-  if (bVerboseX)
-    fprintf(stderr,"encoding [%d,%d] ...\n",cxPaperOut,cyPaperOut);
-  WriteHeader(stdout);
   abitRef=aabitBuffers[1];
   abitWork=aabitBuffers[0];
   iBuffer=0;
   CenterPage();
+  if (!WriteHeader(fh)) return FALSE;
+  if (bVerboseX)
+    fprintf(stderr,"encoding [%d,%d] ...\n",cxPaperOut,cyPaperOut);
   for (iLine=1; iLine<=yPaperOut; iLine++) UnPackLine();
   for (i=0; i<cxPaperOut+3; abitRef[i]=WHITE) i++;
   for (iLine=1; iLine<=cyPaperOut; iLine++)
-   {
-    UnPackLine();
-    FlushLine(stdout);
-    iBuffer=(iBuffer+1) & 1;
-    abitRef=abitWork;
-    abitWork=aabitBuffers[iBuffer];
-   }
-  ClosePage(stdout);
-  return 0;
+    {
+      UnPackLine();
+      if (!FlushLine(fh)) return FALSE;
+      iBuffer=(iBuffer+1) & 1;
+      abitRef=abitWork;
+      abitWork=aabitBuffers[iBuffer];
+    }
+  return ClosePage(fh);
  }
 
 /* $Extended$File$Info$

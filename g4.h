@@ -33,14 +33,16 @@ typedef int		BOOL;
 #define WHITE	0
 
 #define	xDUMP_SPECS
-#define SUPPORT_FULL_PAGE
 #define xSUPPRESS_DELTA_PCL
+
+#define SUPPORT_FULL_PAGE
 #define DIRECT_DELTA_PCL
 
 /*
   Die folgenden Setzungen gehen direkt in die Pufferberechnung und skalieren
   im MB-Sektor, also sparsam. Die Settings sollten für A4 600x600 reichen.
 */
+
 #define		CX_MAX	5000
 #define		CY_MAX	8000
 
@@ -174,7 +176,7 @@ BOOL FlushLinePCL(FILE *f);
 
 BOOL WriteHeadG4(FILE *f, BOOL bTiff);
 BOOL ClosePageG4(FILE *f, BOOL bTiff);
-BOOL EncodePage();
+BOOL EncodePage(FILE *f);
 BOOL FlushLineG4(FILE *f);
 
 /* DECODE */

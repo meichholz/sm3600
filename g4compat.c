@@ -4,7 +4,7 @@ Userspace scan tool for the Microtek 3600 scanner
 
 compatibility functions for g4tool functions
 
-$Id: g4compat.c,v 1.1 2001/07/30 07:48:11 eichholz Exp $
+$Id: g4compat.c,v 1.2 2001/12/16 22:48:52 eichholz Exp $
 
 (C) Marian Eichholz 1997/2001
 
@@ -14,6 +14,92 @@ $Id: g4compat.c,v 1.1 2001/07/30 07:48:11 eichholz Exp $
 
 #define INSTANTIATE_VARIABLES
 #include "g4.h"
+
+/*
+ ******************************************************************
+ * SetTables()
+ ******************************************************************
+ */
+
+	/**
+	Zuerst wird die Dualkodierung der Lauflängen-Codes
+	aus den handeingegebenen Tabellen
+	berechnet.
+	
+	Der Code wird nach Codewort aufsteigend einsortiert.
+	*/
+BOOL SetTables(void)
+ {
+  int iColor, iRun;
+  for (iColor=WHITE; iColor<=BLACK; iColor++)
+   {
+    int i;
+    		/**
+    		Zuallererst wird die Tabelle gelöscht.
+    		*/
+    for (iRun=0; iRun<CRUNTABLE; iRun++)
+      arsRuns[iColor][iRun].bitMask=0;
+      		/**
+      		Dann erst geht es in die Mustertabelle.
+      		*/
+    for (	iRun=0;
+    		arstSpecs[iColor][iRun].szBitMask
+    			&& iRun<CRUNTABLE;
+    		iRun++)
+     {
+      int	cBits=0;
+      USHORT	usWord=1;
+      int	iTarget=iRun;
+      		/**
+      		Erst mal wird das Codewort, vorn durch eine
+      		pivotierende 1 ergänzt, bestimmt.
+      		*/
+      char *pch=arstSpecs[iColor][iRun].szBitMask;
+      while (cBits<16 && *pch)
+       {
+        usWord=(usWord<<1) | (*pch=='1');
+        pch++;
+        cBits++;
+       }
+      		/**
+      		Dann wird für die "straight insertion strategy"
+      		der Zielindex bestimmt.
+      		*/
+      for 	(iTarget=0;
+      		arsRuns[iColor][iTarget].bitMask
+      		&& arsRuns[iColor][iTarget].bitMask<usWord;
+      		iTarget++);
+      		/**
+      		Die oben liegenden Elemente werden hochgeschoben.
+      		*/
+      for (i=CRUNTABLE-1; i>iTarget; i--)
+        arsRuns[iColor][i]=arsRuns[iColor][i-1];
+        	/**
+        	Dann erst wird das neue Element eingeschrieben.
+        	*/
+      arsRuns[iColor][iTarget].cPixel=arstSpecs[iColor][iRun].cPixel;
+      arsRuns[iColor][iTarget].bitMask=usWord;
+      if (*pch)
+       {
+        fprintf(stderr,"Fehler in color %d, runlength %d.\n",
+        		iColor,arstSpecs[iColor][iRun].cPixel);
+        return FALSE;
+       }
+     }
+    if (iRun==CRUNTABLE)
+     {
+      fprintf(stderr,"Lookuptable overflow!\n");
+      exit(2);
+     }
+    acRuns[iColor]=iRun;
+ #ifdef DUMP_SPECS
+    for (i=0; i<CRUNTABLE; i++)
+      fprintf(stderr,"table %d, code=%04X, length=%d\n",
+      	iColor,arsRuns[iColor][i].bitMask,arsRuns[iColor][i].cPixel);
+ #endif
+   }
+  return TRUE;
+ }
 
 /*
  *                     A U S G A B E T E I L
@@ -193,7 +279,7 @@ void CenterPage(void)
          }
        break;
      case CLIP_FIX_BORDERS:
-	/* fprintf(stderr,"Wir hatten: %d/%d",xPaperOut,yPaperOut); */
+       /* fprintf(stderr,"Wir hatten: %d/%d",xPaperOut,yPaperOut); */
      	xPaperOut=nPCLResolution/5;
         xPaperOut-=(xPaperOut % 8);
      	yPaperOut=nPCLResolution/7; /* xxx */

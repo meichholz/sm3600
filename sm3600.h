@@ -114,8 +114,11 @@ typedef enum { fast, high, best } TQuality;
 typedef enum { color, gray, line, halftone } TMode;
 
 #define INST_ASSERT() { if (this->nErrorState) return this->nErrorState; }
+
+#define CHECK_ASSERTION(a) if (!(a)) return SetError(this,SANE_STATUS_INVAL,"assertion failed in %s %d",__FILE__,__LINE__)
+
 #define CHECK_POINTER(p) \
-if (!p) return SetError(this,SANE_STATUS_NO_MEM,"memory failed in %d",__LINE__)
+if (!(p)) return SetError(this,SANE_STATUS_NO_MEM,"memory failed in %s %d",__FILE__,__LINE__)
 
 #define dprintf debug_printf
 
@@ -198,6 +201,9 @@ typedef struct TInstance {
   usb_dev_handle    *hScanner;
   FILE              *fhLog;
   FILE              *fhScan;
+  int                ichPageBuffer; /* write position in full page buffer */
+  int                cchPageBuffer; /* total size of '' */
+  unsigned char     *pchPageBuffer; /* the humble buffer */
 } TInstance;
 
 #define TRUE  1
