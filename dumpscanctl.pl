@@ -11,7 +11,8 @@ use strict;
 # to SPOS, and looks, if they are followed by a 32768 BULK transfer.
 # The last of such blocks is "the one".
 #
-# 29.3.2001, Mariuan Matthias Eichholz
+# 29.3.2001, Marian Matthias Eichholz
+# 30.3.2001, Extension for C code
 #
 # ======================================================================
 
@@ -20,20 +21,11 @@ my $sPhase="waiting";
 while (<STDIN>)
   {
 #    print "$sPhase -> $_";
-    if (/\=>\[SPOS\]/) # new control blocks ends all search!
+    if (/\=>\[SPOS\]/ or /\{/) # new control blocks ends all search!
       {
 	@aTemp=( $_ );
 	$sPhase="collecting";
 	next;
-      }
-    if ($sPhase eq "waiting")
-      {
-	if (/\=>\[SPOS\]/)
-	  {
-	    @aTemp=( $_ );
-	    $sPhase="collecting";
-	    next;
-	  }
       }
     if ($sPhase eq "collecting")
       {
@@ -43,12 +35,13 @@ while (<STDIN>)
 	  }
 	else
 	  {
+	    $sPhase="checking" if /\}/;
 	    push @aTemp,$_;
 	  }
       }
     if ($sPhase eq "checking")
       {
-	if (/: (\d+) bytes BULK/)
+	if (/: (\d+) bytes BULK/ or /BulkRead\(fh,(\d+)\)/)
 	  {
 	    @aDump=@aTemp if $1==32768;
 	    $sPhase="waiting";

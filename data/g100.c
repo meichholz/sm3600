@@ -1,12 +1,12 @@
-ulVal2 = RegRead(R_STAT, 2); /*=0x0000*/    /* #1678[146.4] */
-RegWrite(0x43, 1, 0x03);    /* #1679[146.4] */
-ulVal1 = RegRead(R_CTL, 1); /*=0x39*/    /* #1680[146.4] */
-ulVal2 = RegRead(0x12, 2); /*=0x1540*/    /* #1681[146.4] */
-ulVal1 = RegRead(R_CTL, 1); /*=0x39*/    /* #1682[146.4] */
-ulVal1 = RegRead(R_LMP, 1); /*=0x01*/    /* #1683[146.4] */
-RegWrite(0x32, 2, 0x290A);    /* #1684[146.4] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x0000*/    /* #1675[235.9] */
+RegWrite(0x43, 1, 0x03);    /* #1676[235.9] */
+ulVal1 = RegRead(R_CTL, 1); /*=0x39*/    /* #1677[235.9] */
+ulVal2 = RegRead(0x12, 2); /*=0x1540*/    /* #1678[235.9] */
+ulVal1 = RegRead(R_CTL, 1); /*=0x39*/    /* #1679[236.0] */
+ulVal1 = RegRead(R_LMP, 1); /*=0x01*/    /* #1680[236.0] */
+RegWrite(0x32, 2, 0x20C9);    /* #1681[236.0] */
 {
- unsigned char uchRegs1685[]={
+ unsigned char uchRegs1682[]={
    /*R_SPOS*/ 0x00, /*R_SPOSH*/ 0x00, /*0x03*/ 0x3F,
    /*R_SWID*/ 0x10, /*R_SWIDH*/ 0xC0, /*R_STPS*/ 0x00,
    /*R_STPSH*/ 0x00, /*0x08*/ 0xFF, /*0x09*/ 0xFF,
@@ -32,18 +32,18 @@ RegWrite(0x32, 2, 0x290A);    /* #1684[146.4] */
    /*0x43*/ 0x03, /*R_LMP*/ 0x01, /*0x45*/ 0x00,
    /*R_CTL*/ 0x39, /*0x47*/ 0xC0, /*0x48*/ 0x40,
    /*0x49*/ 0x96, /*0x4A*/ 0x8C };
-  RegWriteArray(R_ALL, 74, uchRegs1685);
-}    /* #1685[146.4] */
-RegWrite(0x43, 1, 0x03);    /* #1686[146.4] */
-ulVal3 = RegRead(R_CCAL, 3); /*=0x808080*/    /* #1687[146.4] */
-RegWrite(R_CCAL, 3, 0x848888);    /* #1688[146.4] */
-RegWrite(0x32, 2, 0x290A);    /* #1689[146.4] */
-RegWrite(0x32, 2, 0x290A);    /* #1690[146.4] */
-ulVal1 = RegRead(R_CTL, 1); /*=0x39*/    /* #1691[146.4] */
-ulVal1 = RegRead(R_CTL, 1); /*=0x39*/    /* #1692[146.4] */
-RegWrite(0x32, 2, 0x290A);    /* #1693[146.4] */
+  RegWriteArray(R_ALL, 74, uchRegs1682);
+}    /* #1682[236.0] */
+RegWrite(0x43, 1, 0x03);    /* #1683[236.0] */
+ulVal3 = RegRead(R_CCAL, 3); /*=0x808080*/    /* #1684[236.0] */
+RegWrite(R_CCAL, 3, 0x848888);    /* #1685[236.0] */
+RegWrite(0x32, 2, 0x20C9);    /* #1686[236.0] */
+RegWrite(0x32, 2, 0x20C9);    /* #1687[236.0] */
+ulVal1 = RegRead(R_CTL, 1); /*=0x39*/    /* #1688[236.0] */
+ulVal1 = RegRead(R_CTL, 1); /*=0x39*/    /* #1689[236.0] */
+RegWrite(0x32, 2, 0x20C9);    /* #1690[236.0] */
 {
- unsigned char uchRegs1694[]={
+ unsigned char uchRegs1691[]={
    /*R_SPOS*/ 0x00, /*R_SPOSH*/ 0x00, /*0x03*/ 0x3F,
    /*R_SWID*/ 0x10, /*R_SWIDH*/ 0xC0, /*R_STPS*/ 0x00,
    /*R_STPSH*/ 0x00, /*0x08*/ 0xFF, /*0x09*/ 0xFF,
@@ -69,17 +69,17 @@ RegWrite(0x32, 2, 0x290A);    /* #1693[146.4] */
    /*0x43*/ 0x03, /*R_LMP*/ 0x01, /*0x45*/ 0x00,
    /*R_CTL*/ 0x39, /*0x47*/ 0xC0, /*0x48*/ 0x40,
    /*0x49*/ 0x96, /*0x4A*/ 0x8C };
-  RegWriteArray(R_ALL, 74, uchRegs1694);
-}    /* #1694[146.4] */
-RegWrite(0x43, 1, 0x03);    /* #1695[146.4] */
-RegWrite(R_CCAL, 3, 0x808080);    /* #1696[146.4] */
-RegWrite(0x32, 2, 0x290A);    /* #1697[146.4] */
-ulVal1 = RegRead(R_CTL, 1); /*=0x39*/    /* #1698[146.4] */
-RegWrite(0x32, 2, 0x290A);    /* #1699[146.4] */
-RegWrite(0x34, 1, 0x63);    /* #1700[146.5] */
-RegWrite(0x49, 1, 0x9E);    /* #1701[146.5] */
+  RegWriteArray(R_ALL, 74, uchRegs1691);
+}    /* #1691[236.0] */
+RegWrite(0x43, 1, 0x03);    /* #1692[236.0] */
+RegWrite(R_CCAL, 3, 0x808080);    /* #1693[236.0] */
+RegWrite(0x32, 2, 0x20C9);    /* #1694[236.0] */
+ulVal1 = RegRead(R_CTL, 1); /*=0x39*/    /* #1695[236.0] */
+RegWrite(0x32, 2, 0x20C9);    /* #1696[236.0] */
+RegWrite(0x34, 1, 0x63);    /* #1697[236.0] */
+RegWrite(0x49, 1, 0x9E);    /* #1698[236.0] */
 {
- unsigned char uchRegs1702[]={
+ unsigned char uchRegs1699[]={
    /*R_SPOS*/ 0x00, /*R_SPOSH*/ 0x00, /*0x03*/ 0x3F,
    /*R_SWID*/ 0x40, /*R_SWIDH*/ 0x00, /*R_STPS*/ 0xC8,
    /*R_STPSH*/ 0x00, /*0x08*/ 0x00, /*0x09*/ 0x00,
@@ -96,7 +96,7 @@ RegWrite(0x49, 1, 0x9E);    /* #1701[146.5] */
    /*0x28*/ 0x00, /*0x29*/ 0x00, /*0x2A*/ 0x4E,
    /*0x2B*/ 0xF0, /*0x2C*/ 0x00, /*0x2D*/ 0x00,
    /*0x2E*/ 0x4E, /*R_CCAL*/ 0x80, /*R_CCAL2*/ 0x80,
-   /*R_CCAL3*/ 0x80, /*0x32*/ 0x0A, /*0x33*/ 0x29,
+   /*R_CCAL3*/ 0x80, /*0x32*/ 0xC9, /*0x33*/ 0x20,
    /*0x34*/ 0x63, /*0x35*/ 0x29, /*0x36*/ 0x00,
    /*0x37*/ 0x00, /*0x38*/ 0x00, /*0x39*/ 0x00,
    /*0x3A*/ 0x00, /*0x3B*/ 0x00, /*0x3C*/ 0xFF,
@@ -105,32 +105,32 @@ RegWrite(0x49, 1, 0x9E);    /* #1701[146.5] */
    /*0x43*/ 0x03, /*R_LMP*/ 0x01, /*0x45*/ 0x00,
    /*R_CTL*/ 0x39, /*0x47*/ 0xC0, /*0x48*/ 0x40,
    /*0x49*/ 0x9E, /*0x4A*/ 0x8C };
-  RegWriteArray(R_ALL, 74, uchRegs1702);
-}    /* #1702[146.5] */
-RegWrite(R_CTL, 1, 0x39);    /* #1703[146.5] */
-RegWrite(R_CTL, 1, 0x79);    /* #1704[146.5] */
-RegWrite(R_CTL, 1, 0xF9);    /* #1705[146.5] */
-RegWrite(0x32, 2, 0x290A);    /* #1706[146.5] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1707[146.5] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1708[146.6] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1709[146.6] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1710[146.7] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1711[146.7] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1712[146.8] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1713[146.9] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1714[146.9] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1715[147.0] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1716[147.0] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1717[147.1] */
-ulVal1 = RegRead(R_CTL, 1); /*=0x79*/    /* #1718[147.1] */
-RegWrite(R_LMP, 1, 0x01);    /* #1719[147.1] */
-RegWrite(R_LMP, 1, 0x01);    /* #1720[147.1] */
-RegWrite(R_CTL, 1, 0x39);    /* #1721[147.1] */
-RegWrite(0x34, 1, 0x63);    /* #1722[147.1] */
-RegWrite(0x49, 1, 0x96);    /* #1723[147.1] */
+  RegWriteArray(R_ALL, 74, uchRegs1699);
+}    /* #1699[236.0] */
+RegWrite(R_CTL, 1, 0x39);    /* #1700[236.0] */
+RegWrite(R_CTL, 1, 0x79);    /* #1701[236.0] */
+RegWrite(R_CTL, 1, 0xF9);    /* #1702[236.1] */
+RegWrite(0x32, 2, 0x20C9);    /* #1703[236.1] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1704[236.1] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1705[236.2] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1706[236.2] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1707[236.3] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1708[236.3] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1709[236.4] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1710[236.4] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1711[236.5] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1712[236.5] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1713[236.6] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1714[236.7] */
+ulVal1 = RegRead(R_CTL, 1); /*=0x79*/    /* #1715[236.7] */
+RegWrite(R_LMP, 1, 0x01);    /* #1716[236.7] */
+RegWrite(R_LMP, 1, 0x01);    /* #1717[236.7] */
+RegWrite(R_CTL, 1, 0x39);    /* #1718[236.7] */
+RegWrite(0x34, 1, 0x63);    /* #1719[236.7] */
+RegWrite(0x49, 1, 0x96);    /* #1720[236.7] */
 {
- unsigned char uchRegs1724[]={
-   /*R_SPOS*/ 0xFB, /*R_SPOSH*/ 0x00, /*0x03*/ 0x3F,
+ unsigned char uchRegs1721[]={
+   /*R_SPOS*/ 0xFC, /*R_SPOSH*/ 0x00, /*0x03*/ 0x3F,
    /*R_SWID*/ 0xEC, /*R_SWIDH*/ 0x93, /*R_STPS*/ 0x00,
    /*R_STPSH*/ 0x00, /*0x08*/ 0xAA, /*0x09*/ 0xAA,
    /*R_LEN*/ 0x44, /*R_LENH*/ 0x00, /*0x0C*/ 0x6D,
@@ -146,7 +146,7 @@ RegWrite(0x49, 1, 0x96);    /* #1723[147.1] */
    /*0x28*/ 0x00, /*0x29*/ 0x00, /*0x2A*/ 0x4E,
    /*0x2B*/ 0xF0, /*0x2C*/ 0x00, /*0x2D*/ 0x00,
    /*0x2E*/ 0x4E, /*R_CCAL*/ 0x80, /*R_CCAL2*/ 0x80,
-   /*R_CCAL3*/ 0x80, /*0x32*/ 0x0A, /*0x33*/ 0x29,
+   /*R_CCAL3*/ 0x80, /*0x32*/ 0xC9, /*0x33*/ 0x20,
    /*0x34*/ 0x63, /*0x35*/ 0x29, /*0x36*/ 0x00,
    /*0x37*/ 0x00, /*0x38*/ 0x00, /*0x39*/ 0x00,
    /*0x3A*/ 0x00, /*0x3B*/ 0x00, /*0x3C*/ 0xFF,
@@ -155,111 +155,111 @@ RegWrite(0x49, 1, 0x96);    /* #1723[147.1] */
    /*0x43*/ 0x03, /*R_LMP*/ 0x01, /*0x45*/ 0x00,
    /*R_CTL*/ 0x39, /*0x47*/ 0xC0, /*0x48*/ 0x40,
    /*0x49*/ 0x96, /*0x4A*/ 0x8C };
-  RegWriteArray(R_ALL, 74, uchRegs1724);
-}    /* #1724[147.1] */
-ulVal1 = RegRead(R_CTL, 1); /*=0x39*/    /* #1725[147.2] */
-RegWrite(R_CTL, 1, 0x39);    /* #1726[147.2] */
-RegWrite(R_CTL, 1, 0x79);    /* #1727[147.2] */
-RegWrite(R_CTL, 1, 0xF9);    /* #1728[147.2] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1729[147.2] */
-ulVal2 = RegRead(R_STAT, 2); /*=0x2FFD*/    /* #1730[147.2] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1731[147.2] */
-ulVal2 = RegRead(R_STAT, 2); /*=0xB34C*/    /* #1732[147.3] */
-BulkRead(fh,32768);   /* #1733[147.3] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1734[147.3] */
-ulVal2 = RegRead(R_STAT, 2); /*=0xEAD4*/    /* #1735[147.3] */
-BulkRead(fh,32768);   /* #1736[147.3] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1737[147.4] */
-ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1738[147.4] */
-BulkRead(fh,32768);   /* #1739[147.4] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1740[147.4] */
-ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1741[147.4] */
-BulkRead(fh,32768);   /* #1742[147.5] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1743[147.5] */
-ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1744[147.5] */
-BulkRead(fh,32768);   /* #1745[147.5] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1746[147.5] */
-ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1747[147.5] */
-BulkRead(fh,32768);   /* #1748[147.5] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1749[147.6] */
-ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1750[147.6] */
-BulkRead(fh,32768);   /* #1751[147.6] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1752[147.6] */
-ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1753[147.6] */
-BulkRead(fh,32768);   /* #1754[147.7] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1755[147.7] */
-ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1756[147.7] */
-BulkRead(fh,32768);   /* #1757[147.7] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1758[147.7] */
-ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1759[147.7] */
-BulkRead(fh,32768);   /* #1760[147.8] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1761[147.8] */
-ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1762[147.8] */
-BulkRead(fh,32768);   /* #1763[147.8] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1764[147.8] */
-ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1765[147.8] */
-BulkRead(fh,32768);   /* #1766[147.9] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1767[147.9] */
-ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1768[147.9] */
-BulkRead(fh,32768);   /* #1769[147.9] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1770[147.9] */
-ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1771[147.9] */
-BulkRead(fh,32768);   /* #1772[148.0] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1773[148.0] */
-ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1774[148.0] */
-BulkRead(fh,32768);   /* #1775[148.0] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1776[148.0] */
-ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1777[148.0] */
-BulkRead(fh,32768);   /* #1778[148.1] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1779[148.1] */
-ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1780[148.1] */
-BulkRead(fh,32768);   /* #1781[148.1] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1782[148.1] */
-ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1783[148.1] */
-BulkRead(fh,32768);   /* #1784[148.2] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1785[148.2] */
-ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1786[148.2] */
-BulkRead(fh,32768);   /* #1787[148.2] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1788[148.2] */
-ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1789[148.2] */
-BulkRead(fh,32768);   /* #1790[148.3] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1791[148.3] */
-ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1792[148.3] */
-BulkRead(fh,32768);   /* #1793[148.3] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1794[148.3] */
-ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1795[148.3] */
-BulkRead(fh,32768);   /* #1796[148.4] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1797[148.4] */
-ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1798[148.4] */
-BulkRead(fh,32768);   /* #1799[148.4] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1800[148.4] */
-ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1801[148.5] */
-BulkRead(fh,32768);   /* #1802[148.5] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1803[148.5] */
-ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1804[148.5] */
-BulkRead(fh,32768);   /* #1805[148.5] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1806[148.5] */
-ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1807[148.5] */
-BulkRead(fh,32768);   /* #1808[148.6] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1809[148.6] */
-ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1810[148.6] */
-BulkRead(fh,32768);   /* #1811[148.6] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x80*/    /* #1812[148.6] */
-ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1813[148.6] */
-BulkRead(fh,32768);   /* #1814[148.7] */
-ulVal2 = RegRead(R_STAT, 2); /*=0xF008*/    /* #1815[148.7] */
-BulkRead(fh,32768);   /* #1816[148.7] */
-ulVal2 = RegRead(R_STAT, 2); /*=0xB008*/    /* #1817[148.7] */
-BulkRead(fh,32768);   /* #1818[148.7] */
-ulVal2 = RegRead(R_STAT, 2); /*=0x7008*/    /* #1819[148.7] */
-BulkRead(fh,32768);   /* #1820[148.8] */
-ulVal2 = RegRead(R_STAT, 2); /*=0x3008*/    /* #1821[148.8] */
-BulkRead(fh,24592);   /* #1822[148.8] */
-ulVal2 = RegRead(R_STAT, 2); /*=0x0000*/    /* #1823[148.8] */
-RegWrite(0x43, 1, 0x03);    /* #1824[148.8] */
-ulVal1 = RegRead(R_CTL, 1); /*=0x79*/    /* #1825[148.8] */
+  RegWriteArray(R_ALL, 74, uchRegs1721);
+}    /* #1721[236.7] */
+ulVal1 = RegRead(R_CTL, 1); /*=0x39*/    /* #1722[236.7] */
+RegWrite(R_CTL, 1, 0x39);    /* #1723[236.7] */
+RegWrite(R_CTL, 1, 0x79);    /* #1724[236.8] */
+RegWrite(R_CTL, 1, 0xF9);    /* #1725[236.8] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1726[236.8] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x241B*/    /* #1727[236.8] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1728[236.8] */
+ulVal2 = RegRead(R_STAT, 2); /*=0xB34C*/    /* #1729[236.8] */
+BulkRead(fh,32768);   /* #1730[236.9] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1731[236.9] */
+ulVal2 = RegRead(R_STAT, 2); /*=0xEAD4*/    /* #1732[236.9] */
+BulkRead(fh,32768);   /* #1733[236.9] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1734[236.9] */
+ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1735[237.0] */
+BulkRead(fh,32768);   /* #1736[237.0] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1737[237.0] */
+ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1738[237.0] */
+BulkRead(fh,32768);   /* #1739[237.0] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1740[237.0] */
+ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1741[237.0] */
+BulkRead(fh,32768);   /* #1742[237.1] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1743[237.1] */
+ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1744[237.1] */
+BulkRead(fh,32768);   /* #1745[237.1] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1746[237.1] */
+ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1747[237.1] */
+BulkRead(fh,32768);   /* #1748[237.2] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1749[237.2] */
+ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1750[237.2] */
+BulkRead(fh,32768);   /* #1751[237.2] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1752[237.2] */
+ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1753[237.3] */
+BulkRead(fh,32768);   /* #1754[237.3] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1755[237.3] */
+ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1756[237.3] */
+BulkRead(fh,32768);   /* #1757[237.3] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1758[237.4] */
+ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1759[237.4] */
+BulkRead(fh,32768);   /* #1760[237.4] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1761[237.4] */
+ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1762[237.4] */
+BulkRead(fh,32768);   /* #1763[237.5] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1764[237.5] */
+ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1765[237.5] */
+BulkRead(fh,32768);   /* #1766[237.5] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1767[237.5] */
+ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1768[237.5] */
+BulkRead(fh,32768);   /* #1769[237.6] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1770[237.6] */
+ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1771[237.6] */
+BulkRead(fh,32768);   /* #1772[237.6] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1773[237.6] */
+ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1774[237.6] */
+BulkRead(fh,32768);   /* #1775[237.6] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1776[237.6] */
+ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1777[237.7] */
+BulkRead(fh,32768);   /* #1778[237.7] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1779[237.7] */
+ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1780[237.7] */
+BulkRead(fh,32768);   /* #1781[237.7] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1782[237.7] */
+ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1783[237.8] */
+BulkRead(fh,32768);   /* #1784[237.8] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1785[237.8] */
+ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1786[237.8] */
+BulkRead(fh,32768);   /* #1787[237.8] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1788[237.9] */
+ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1789[237.9] */
+BulkRead(fh,32768);   /* #1790[237.9] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1791[237.9] */
+ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1792[237.9] */
+BulkRead(fh,32768);   /* #1793[238.0] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1794[238.0] */
+ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1795[238.0] */
+BulkRead(fh,32768);   /* #1796[238.0] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1797[238.1] */
+ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1798[238.1] */
+BulkRead(fh,32768);   /* #1799[238.1] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1800[238.1] */
+ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1801[238.1] */
+BulkRead(fh,32768);   /* #1802[238.1] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1803[238.2] */
+ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1804[238.2] */
+BulkRead(fh,32768);   /* #1805[238.2] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1806[238.2] */
+ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1807[238.2] */
+BulkRead(fh,32768);   /* #1808[238.2] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x80*/    /* #1809[238.2] */
+ulVal2 = RegRead(R_STAT, 2); /*=0xFFFF*/    /* #1810[238.3] */
+BulkRead(fh,32768);   /* #1811[238.3] */
+ulVal2 = RegRead(R_STAT, 2); /*=0xF008*/    /* #1812[238.3] */
+BulkRead(fh,32768);   /* #1813[238.3] */
+ulVal2 = RegRead(R_STAT, 2); /*=0xB008*/    /* #1814[238.3] */
+BulkRead(fh,32768);   /* #1815[238.4] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x7008*/    /* #1816[238.4] */
+BulkRead(fh,32768);   /* #1817[238.4] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x3008*/    /* #1818[238.4] */
+BulkRead(fh,24592);   /* #1819[238.5] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x0000*/    /* #1820[238.5] */
+RegWrite(0x43, 1, 0x03);    /* #1821[238.5] */
+ulVal1 = RegRead(R_CTL, 1); /*=0x79*/    /* #1822[238.5] */
 {
- unsigned char uchRegs1826[]={
+ unsigned char uchRegs1823[]={
    /*R_SPOS*/ 0x00, /*R_SPOSH*/ 0x00, /*0x03*/ 0x00,
    /*R_SWID*/ 0x00, /*R_SWIDH*/ 0x00, /*R_STPS*/ 0x00,
    /*R_STPSH*/ 0x00, /*0x08*/ 0x00, /*0x09*/ 0x00,
@@ -276,7 +276,7 @@ ulVal1 = RegRead(R_CTL, 1); /*=0x79*/    /* #1825[148.8] */
    /*0x28*/ 0x00, /*0x29*/ 0x00, /*0x2A*/ 0x4E,
    /*0x2B*/ 0xF0, /*0x2C*/ 0x00, /*0x2D*/ 0x00,
    /*0x2E*/ 0x4E, /*R_CCAL*/ 0x80, /*R_CCAL2*/ 0x80,
-   /*R_CCAL3*/ 0x80, /*0x32*/ 0x0A, /*0x33*/ 0x29,
+   /*R_CCAL3*/ 0x80, /*0x32*/ 0xC9, /*0x33*/ 0x20,
    /*0x34*/ 0x63, /*0x35*/ 0x29, /*0x36*/ 0x00,
    /*0x37*/ 0x00, /*0x38*/ 0x00, /*0x39*/ 0x00,
    /*0x3A*/ 0x00, /*0x3B*/ 0x00, /*0x3C*/ 0xFF,
@@ -285,20 +285,25 @@ ulVal1 = RegRead(R_CTL, 1); /*=0x79*/    /* #1825[148.8] */
    /*0x43*/ 0x03, /*R_LMP*/ 0x01, /*0x45*/ 0x00,
    /*R_CTL*/ 0x79, /*0x47*/ 0xC0, /*0x48*/ 0x40,
    /*0x49*/ 0x96, /*0x4A*/ 0x8C };
-  RegWriteArray(R_ALL, 74, uchRegs1826);
-}    /* #1826[148.8] */
-RegWrite(R_CTL, 1, 0x39);    /* #1827[148.9] */
-RegWrite(R_CTL, 1, 0x79);    /* #1828[148.9] */
-RegWrite(R_CTL, 1, 0xF9);    /* #1829[148.9] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1830[148.9] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x80*/    /* #1831[148.9] */
-RegWrite(R_CTL, 1, 0x39);    /* #1832[148.9] */
-ulVal1 = RegRead(R_CTL, 1); /*=0x39*/    /* #1833[148.9] */
-RegWrite(0x32, 2, 0x290A);    /* #1834[148.9] */
-RegWrite(0x34, 1, 0x63);    /* #1835[148.9] */
-RegWrite(0x49, 1, 0x9E);    /* #1836[149.0] */
+  RegWriteArray(R_ALL, 74, uchRegs1823);
+}    /* #1823[238.5] */
+RegWrite(R_CTL, 1, 0x39);    /* #1824[238.5] */
+RegWrite(R_CTL, 1, 0x79);    /* #1825[238.5] */
+RegWrite(R_CTL, 1, 0xF9);    /* #1826[238.5] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1827[238.5] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1828[238.5] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1829[238.5] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1830[238.5] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1831[238.5] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1832[238.5] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x80*/    /* #1833[238.5] */
+RegWrite(R_CTL, 1, 0x39);    /* #1834[238.5] */
+ulVal1 = RegRead(R_CTL, 1); /*=0x39*/    /* #1835[238.6] */
+RegWrite(0x32, 2, 0x20C9);    /* #1836[238.6] */
+RegWrite(0x34, 1, 0x63);    /* #1837[238.6] */
+RegWrite(0x49, 1, 0x9E);    /* #1838[238.6] */
 {
- unsigned char uchRegs1837[]={
+ unsigned char uchRegs1839[]={
    /*R_SPOS*/ 0x00, /*R_SPOSH*/ 0x00, /*0x03*/ 0x3F,
    /*R_SWID*/ 0x40, /*R_SWIDH*/ 0x00, /*R_STPS*/ 0x44,
    /*R_STPSH*/ 0x00, /*0x08*/ 0x00, /*0x09*/ 0x00,
@@ -315,7 +320,7 @@ RegWrite(0x49, 1, 0x9E);    /* #1836[149.0] */
    /*0x28*/ 0x00, /*0x29*/ 0x00, /*0x2A*/ 0x4E,
    /*0x2B*/ 0xF0, /*0x2C*/ 0x00, /*0x2D*/ 0x00,
    /*0x2E*/ 0x4E, /*R_CCAL*/ 0x80, /*R_CCAL2*/ 0x80,
-   /*R_CCAL3*/ 0x80, /*0x32*/ 0x0A, /*0x33*/ 0x29,
+   /*R_CCAL3*/ 0x80, /*0x32*/ 0xC9, /*0x33*/ 0x20,
    /*0x34*/ 0x63, /*0x35*/ 0x29, /*0x36*/ 0x00,
    /*0x37*/ 0x00, /*0x38*/ 0x00, /*0x39*/ 0x00,
    /*0x3A*/ 0x00, /*0x3B*/ 0x00, /*0x3C*/ 0xFF,
@@ -324,26 +329,26 @@ RegWrite(0x49, 1, 0x9E);    /* #1836[149.0] */
    /*0x43*/ 0x03, /*R_LMP*/ 0x01, /*0x45*/ 0x00,
    /*R_CTL*/ 0x39, /*0x47*/ 0xC0, /*0x48*/ 0x40,
    /*0x49*/ 0x9E, /*0x4A*/ 0x8C };
-  RegWriteArray(R_ALL, 74, uchRegs1837);
-}    /* #1837[149.0] */
-RegWrite(R_CTL, 1, 0x19);    /* #1838[149.0] */
-RegWrite(R_CTL, 1, 0x59);    /* #1839[149.0] */
-RegWrite(R_CTL, 1, 0xD9);    /* #1840[149.0] */
-RegWrite(0x32, 2, 0x290A);    /* #1841[149.0] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #1842[149.0] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #1843[149.1] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #1844[149.1] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #1845[149.2] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #1846[149.3] */
-ulVal1 = RegRead(R_CTL, 1); /*=0x59*/    /* #1847[149.7] */
-RegWrite(R_LMP, 1, 0x01);    /* #1848[149.7] */
-RegWrite(R_LMP, 1, 0x01);    /* #1849[149.7] */
-ulVal1 = RegRead(R_CTL, 1); /*=0x59*/    /* #1850[149.7] */
-RegWrite(0x32, 2, 0x290A);    /* #1851[149.7] */
-RegWrite(0x34, 1, 0x63);    /* #1852[149.7] */
-RegWrite(0x49, 1, 0x9E);    /* #1853[149.7] */
+  RegWriteArray(R_ALL, 74, uchRegs1839);
+}    /* #1839[238.6] */
+RegWrite(R_CTL, 1, 0x19);    /* #1840[238.6] */
+RegWrite(R_CTL, 1, 0x59);    /* #1841[238.6] */
+RegWrite(R_CTL, 1, 0xD9);    /* #1842[238.6] */
+RegWrite(0x32, 2, 0x20C9);    /* #1843[238.6] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #1844[238.6] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #1845[238.7] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #1846[238.8] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #1847[238.8] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #1848[238.9] */
+ulVal1 = RegRead(R_CTL, 1); /*=0x59*/    /* #1849[239.3] */
+RegWrite(R_LMP, 1, 0x01);    /* #1850[239.3] */
+RegWrite(R_LMP, 1, 0x01);    /* #1851[239.3] */
+ulVal1 = RegRead(R_CTL, 1); /*=0x59*/    /* #1852[239.3] */
+RegWrite(0x32, 2, 0x20C9);    /* #1853[239.3] */
+RegWrite(0x34, 1, 0x63);    /* #1854[239.3] */
+RegWrite(0x49, 1, 0x9E);    /* #1855[239.3] */
 {
- unsigned char uchRegs1854[]={
+ unsigned char uchRegs1856[]={
    /*R_SPOS*/ 0x00, /*R_SPOSH*/ 0x00, /*0x03*/ 0x3F,
    /*R_SWID*/ 0x40, /*R_SWIDH*/ 0x00, /*R_STPS*/ 0xC8,
    /*R_STPSH*/ 0x00, /*0x08*/ 0x00, /*0x09*/ 0x00,
@@ -360,7 +365,7 @@ RegWrite(0x49, 1, 0x9E);    /* #1853[149.7] */
    /*0x28*/ 0x00, /*0x29*/ 0x00, /*0x2A*/ 0x4E,
    /*0x2B*/ 0xF0, /*0x2C*/ 0x00, /*0x2D*/ 0x00,
    /*0x2E*/ 0x4E, /*R_CCAL*/ 0x80, /*R_CCAL2*/ 0x80,
-   /*R_CCAL3*/ 0x80, /*0x32*/ 0x0A, /*0x33*/ 0x29,
+   /*R_CCAL3*/ 0x80, /*0x32*/ 0xC9, /*0x33*/ 0x20,
    /*0x34*/ 0x63, /*0x35*/ 0x29, /*0x36*/ 0x00,
    /*0x37*/ 0x00, /*0x38*/ 0x00, /*0x39*/ 0x00,
    /*0x3A*/ 0x00, /*0x3B*/ 0x00, /*0x3C*/ 0xFF,
@@ -369,37 +374,37 @@ RegWrite(0x49, 1, 0x9E);    /* #1853[149.7] */
    /*0x43*/ 0x03, /*R_LMP*/ 0x01, /*0x45*/ 0x00,
    /*R_CTL*/ 0x59, /*0x47*/ 0xC0, /*0x48*/ 0x40,
    /*0x49*/ 0x9E, /*0x4A*/ 0x8C };
-  RegWriteArray(R_ALL, 74, uchRegs1854);
-}    /* #1854[149.7] */
-RegWrite(R_CTL, 1, 0x19);    /* #1855[149.7] */
-RegWrite(R_CTL, 1, 0x59);    /* #1856[149.8] */
-RegWrite(R_CTL, 1, 0xD9);    /* #1857[149.8] */
-RegWrite(0x32, 2, 0x290A);    /* #1858[149.8] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #1859[149.9] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #1860[149.9] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #1861[150.0] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #1862[150.0] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #1863[150.1] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #1864[150.1] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #1865[150.2] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #1866[150.2] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #1867[150.3] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #1868[150.4] */
-ulVal1 = RegRead(R_CTL, 1); /*=0x59*/    /* #1869[150.4] */
-RegWrite(0x32, 2, 0x290A);    /* #1870[150.4] */
-RegWrite(R_LMP, 1, 0x01);    /* #1871[150.4] */
-RegWrite(R_LMP, 1, 0x01);    /* #1872[150.4] */
-ulVal1 = RegRead(R_CTL, 1); /*=0x59*/    /* #1873[150.4] */
-ulVal1 = RegRead(R_CTL, 1); /*=0x59*/    /* #1874[150.4] */
-RegWrite(R_CTL, 1, 0x39);    /* #1875[150.4] */
-RegWrite(0x34, 1, 0x63);    /* #1876[150.4] */
-RegWrite(0x49, 1, 0x9E);    /* #1877[150.4] */
-ulVal1 = RegRead(R_CTL, 1); /*=0x39*/    /* #1878[150.4] */
-RegWrite(0x32, 2, 0x290A);    /* #1879[150.4] */
-RegWrite(0x34, 1, 0x63);    /* #1880[150.5] */
-RegWrite(0x49, 1, 0x9E);    /* #1881[150.5] */
+  RegWriteArray(R_ALL, 74, uchRegs1856);
+}    /* #1856[239.3] */
+RegWrite(R_CTL, 1, 0x19);    /* #1857[239.3] */
+RegWrite(R_CTL, 1, 0x59);    /* #1858[239.4] */
+RegWrite(R_CTL, 1, 0xD9);    /* #1859[239.4] */
+RegWrite(0x32, 2, 0x20C9);    /* #1860[239.4] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #1861[239.4] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #1862[239.5] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #1863[239.5] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #1864[239.6] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #1865[239.6] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #1866[239.7] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #1867[239.8] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #1868[239.8] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #1869[239.9] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #1870[240.0] */
+ulVal1 = RegRead(R_CTL, 1); /*=0x59*/    /* #1871[240.0] */
+RegWrite(0x32, 2, 0x20C9);    /* #1872[240.0] */
+RegWrite(R_LMP, 1, 0x01);    /* #1873[240.0] */
+RegWrite(R_LMP, 1, 0x01);    /* #1874[240.0] */
+ulVal1 = RegRead(R_CTL, 1); /*=0x59*/    /* #1875[240.0] */
+ulVal1 = RegRead(R_CTL, 1); /*=0x59*/    /* #1876[240.0] */
+RegWrite(R_CTL, 1, 0x39);    /* #1877[240.0] */
+RegWrite(0x34, 1, 0x63);    /* #1878[240.0] */
+RegWrite(0x49, 1, 0x9E);    /* #1879[240.0] */
+ulVal1 = RegRead(R_CTL, 1); /*=0x39*/    /* #1880[240.1] */
+RegWrite(0x32, 2, 0x20C9);    /* #1881[240.1] */
+RegWrite(0x34, 1, 0x63);    /* #1882[240.1] */
+RegWrite(0x49, 1, 0x9E);    /* #1883[240.1] */
 {
- unsigned char uchRegs1882[]={
+ unsigned char uchRegs1884[]={
    /*R_SPOS*/ 0x00, /*R_SPOSH*/ 0x00, /*0x03*/ 0x3F,
    /*R_SWID*/ 0x40, /*R_SWIDH*/ 0x00, /*R_STPS*/ 0x92,
    /*R_STPSH*/ 0x01, /*0x08*/ 0x00, /*0x09*/ 0x00,
@@ -416,7 +421,7 @@ RegWrite(0x49, 1, 0x9E);    /* #1881[150.5] */
    /*0x28*/ 0x00, /*0x29*/ 0x00, /*0x2A*/ 0x4E,
    /*0x2B*/ 0xF0, /*0x2C*/ 0x00, /*0x2D*/ 0x00,
    /*0x2E*/ 0x4E, /*R_CCAL*/ 0x80, /*R_CCAL2*/ 0x80,
-   /*R_CCAL3*/ 0x80, /*0x32*/ 0x0A, /*0x33*/ 0x29,
+   /*R_CCAL3*/ 0x80, /*0x32*/ 0xC9, /*0x33*/ 0x20,
    /*0x34*/ 0x63, /*0x35*/ 0x29, /*0x36*/ 0x00,
    /*0x37*/ 0x00, /*0x38*/ 0x00, /*0x39*/ 0x00,
    /*0x3A*/ 0x00, /*0x3B*/ 0x00, /*0x3C*/ 0xFF,
@@ -425,41 +430,41 @@ RegWrite(0x49, 1, 0x9E);    /* #1881[150.5] */
    /*0x43*/ 0x03, /*R_LMP*/ 0x01, /*0x45*/ 0x00,
    /*R_CTL*/ 0x39, /*0x47*/ 0xC0, /*0x48*/ 0x40,
    /*0x49*/ 0x9E, /*0x4A*/ 0x8C };
-  RegWriteArray(R_ALL, 74, uchRegs1882);
-}    /* #1882[150.5] */
-RegWrite(R_CTL, 1, 0x39);    /* #1883[150.5] */
-RegWrite(R_CTL, 1, 0x79);    /* #1884[150.5] */
-RegWrite(R_CTL, 1, 0xF9);    /* #1885[150.5] */
-RegWrite(0x32, 2, 0x290A);    /* #1886[150.5] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1887[150.6] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1888[150.6] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1889[150.7] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1890[150.7] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1891[150.8] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1892[150.9] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1893[150.9] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1894[151.0] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1895[151.0] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1896[151.1] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1897[151.1] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1898[151.2] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1899[151.3] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1900[151.3] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1901[151.4] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1902[151.4] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1903[151.5] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1904[151.5] */
-ulVal1 = RegRead(R_CTL, 1); /*=0x79*/    /* #1905[151.5] */
-RegWrite(0x43, 1, 0x03);    /* #1906[151.5] */
-RegWrite(R_CTL, 1, 0x39);    /* #1907[151.5] */
-RegWrite(0x34, 1, 0x63);    /* #1908[151.5] */
-RegWrite(0x49, 1, 0x9E);    /* #1909[151.6] */
+  RegWriteArray(R_ALL, 74, uchRegs1884);
+}    /* #1884[240.1] */
+RegWrite(R_CTL, 1, 0x39);    /* #1885[240.1] */
+RegWrite(R_CTL, 1, 0x79);    /* #1886[240.1] */
+RegWrite(R_CTL, 1, 0xF9);    /* #1887[240.1] */
+RegWrite(0x32, 2, 0x20C9);    /* #1888[240.1] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1889[240.2] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1890[240.2] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1891[240.3] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1892[240.3] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1893[240.4] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1894[240.4] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1895[240.5] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1896[240.5] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1897[240.6] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1898[240.7] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1899[240.7] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1900[240.8] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1901[240.9] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1902[240.9] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1903[241.0] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1904[241.0] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1905[241.1] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xF9*/    /* #1906[241.1] */
+ulVal1 = RegRead(R_CTL, 1); /*=0x79*/    /* #1907[241.1] */
+RegWrite(0x43, 1, 0x03);    /* #1908[241.2] */
+RegWrite(R_CTL, 1, 0x39);    /* #1909[241.2] */
+RegWrite(0x34, 1, 0x63);    /* #1910[241.2] */
+RegWrite(0x49, 1, 0x9E);    /* #1911[241.2] */
 {
- unsigned char uchRegs1910[]={
-   /*R_SPOS*/ 0xFB, /*R_SPOSH*/ 0x00, /*0x03*/ 0x20,
+ unsigned char uchRegs1912[]={
+   /*R_SPOS*/ 0xFC, /*R_SPOSH*/ 0x00, /*0x03*/ 0x20,
    /*R_SWID*/ 0xB0, /*R_SWIDH*/ 0x04, /*R_STPS*/ 0x06,
    /*R_STPSH*/ 0x00, /*0x08*/ 0x00, /*0x09*/ 0x3F,
-   /*R_LEN*/ 0xD0, /*R_LENH*/ 0x04, /*0x0C*/ 0x6D,
+   /*R_LEN*/ 0x34, /*R_LENH*/ 0x07, /*0x0C*/ 0x6D,
    /*0x0D*/ 0x70, /*0x0E*/ 0x69, /*0x0F*/ 0xD0,
    /*0x10*/ 0x00, /*0x11*/ 0x00, /*0x12*/ 0x42,
    /*0x13*/ 0x15, /*0x14*/ 0x84, /*0x15*/ 0x2A,
@@ -472,7 +477,7 @@ RegWrite(0x49, 1, 0x9E);    /* #1909[151.6] */
    /*0x28*/ 0x00, /*0x29*/ 0x00, /*0x2A*/ 0x4E,
    /*0x2B*/ 0xF0, /*0x2C*/ 0x00, /*0x2D*/ 0x00,
    /*0x2E*/ 0x4E, /*R_CCAL*/ 0x80, /*R_CCAL2*/ 0x80,
-   /*R_CCAL3*/ 0x80, /*0x32*/ 0x0A, /*0x33*/ 0x29,
+   /*R_CCAL3*/ 0x80, /*0x32*/ 0xC9, /*0x33*/ 0x20,
    /*0x34*/ 0x63, /*0x35*/ 0x29, /*0x36*/ 0x00,
    /*0x37*/ 0x00, /*0x38*/ 0x00, /*0x39*/ 0x00,
    /*0x3A*/ 0x00, /*0x3B*/ 0x00, /*0x3C*/ 0xFF,
@@ -481,78 +486,102 @@ RegWrite(0x49, 1, 0x9E);    /* #1909[151.6] */
    /*0x43*/ 0x03, /*R_LMP*/ 0x01, /*0x45*/ 0x00,
    /*R_CTL*/ 0x39, /*0x47*/ 0xC2, /*0x48*/ 0x40,
    /*0x49*/ 0x9E, /*0x4A*/ 0x8C };
-  RegWriteArray(R_ALL, 74, uchRegs1910);
-}    /* #1910[151.6] */
-ulVal1 = RegRead(R_CTL, 1); /*=0x39*/    /* #1911[151.6] */
-ulVal1 = RegRead(R_CTL, 1); /*=0x39*/    /* #1912[151.7] */
-RegWrite(R_CTL, 1, 0x39);    /* #1913[151.7] */
-RegWrite(R_CTL, 1, 0x79);    /* #1914[151.7] */
-RegWrite(R_CTL, 1, 0xF9);    /* #1915[151.7] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1916[151.7] */
-ulVal2 = RegRead(R_STAT, 2); /*=0x0000*/    /* #1917[151.8] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1918[151.8] */
-ulVal2 = RegRead(R_STAT, 2); /*=0x012C*/    /* #1919[151.9] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1920[151.9] */
-ulVal2 = RegRead(R_STAT, 2); /*=0x044C*/    /* #1921[152.0] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1922[152.1] */
-ulVal2 = RegRead(R_STAT, 2); /*=0x0834*/    /* #1923[152.1] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1924[152.2] */
-ulVal2 = RegRead(R_STAT, 2); /*=0x0B54*/    /* #1925[152.3] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1926[152.3] */
-ulVal2 = RegRead(R_STAT, 2); /*=0x0ED8*/    /* #1927[152.4] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1928[152.4] */
-ulVal2 = RegRead(R_STAT, 2); /*=0x11F8*/    /* #1929[152.5] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1930[152.5] */
-ulVal2 = RegRead(R_STAT, 2); /*=0x1518*/    /* #1931[152.6] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1932[152.6] */
-ulVal2 = RegRead(R_STAT, 2); /*=0x1838*/    /* #1933[152.7] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1934[152.7] */
-ulVal2 = RegRead(R_STAT, 2); /*=0x1B41*/    /* #1935[152.8] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1936[152.8] */
-ulVal2 = RegRead(R_STAT, 2); /*=0x1E78*/    /* #1937[152.9] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1938[152.9] */
-ulVal2 = RegRead(R_STAT, 2); /*=0x21EC*/    /* #1939[153.0] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1940[153.1] */
-ulVal2 = RegRead(R_STAT, 2); /*=0x25E4*/    /* #1941[153.1] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1942[153.1] */
-ulVal2 = RegRead(R_STAT, 2); /*=0x28A0*/    /* #1943[153.3] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1944[153.3] */
-ulVal2 = RegRead(R_STAT, 2); /*=0x2C88*/    /* #1945[153.4] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1946[153.4] */
-ulVal2 = RegRead(R_STAT, 2); /*=0x2F44*/    /* #1947[153.5] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1948[153.5] */
-ulVal2 = RegRead(R_STAT, 2); /*=0x322B*/    /* #1949[153.6] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1950[153.6] */
-ulVal2 = RegRead(R_STAT, 2); /*=0x3584*/    /* #1951[153.7] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1952[153.7] */
-ulVal2 = RegRead(R_STAT, 2); /*=0x38D6*/    /* #1953[153.8] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1954[153.8] */
-ulVal2 = RegRead(R_STAT, 2); /*=0x3BC4*/    /* #1955[153.9] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1956[153.9] */
-ulVal2 = RegRead(R_STAT, 2); /*=0x3E80*/    /* #1957[154.0] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1958[154.0] */
-ulVal2 = RegRead(R_STAT, 2); /*=0x4204*/    /* #1959[154.0] */
-BulkRead(fh,32768);   /* #1960[154.1] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1961[154.1] */
-ulVal2 = RegRead(R_STAT, 2); /*=0x0441*/    /* #1962[154.1] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1963[154.1] */
-ulVal2 = RegRead(R_STAT, 2); /*=0x0588*/    /* #1964[154.2] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1965[154.2] */
-ulVal2 = RegRead(R_STAT, 2); /*=0x08A8*/    /* #1966[154.3] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1967[154.3] */
-ulVal2 = RegRead(R_STAT, 2); /*=0x0BC8*/    /* #1968[154.4] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1969[154.4] */
-ulVal2 = RegRead(R_STAT, 2); /*=0x0EE8*/    /* #1970[154.5] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x80*/    /* #1971[154.5] */
-ulVal2 = RegRead(R_STAT, 2); /*=0x1014*/    /* #1972[154.5] */
-BulkRead(fh,8232);   /* #1973[154.6] */
-ulVal2 = RegRead(R_STAT, 2); /*=0x0000*/    /* #1974[154.6] */
-ulVal2 = RegRead(R_STAT, 2); /*=0x0000*/    /* #1975[154.6] */
-RegWrite(0x43, 1, 0x03);    /* #1976[154.6] */
-RegWrite(0x43, 1, 0x03);    /* #1977[154.6] */
-RegWrite(R_CTL, 1, 0x39);    /* #1978[154.7] */
+  RegWriteArray(R_ALL, 74, uchRegs1912);
+}    /* #1912[241.2] */
+ulVal1 = RegRead(R_CTL, 1); /*=0x39*/    /* #1913[241.2] */
+ulVal1 = RegRead(R_CTL, 1); /*=0x39*/    /* #1914[241.3] */
+RegWrite(R_CTL, 1, 0x39);    /* #1915[241.3] */
+RegWrite(R_CTL, 1, 0x79);    /* #1916[241.3] */
+RegWrite(R_CTL, 1, 0xF9);    /* #1917[241.3] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1918[241.3] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x0000*/    /* #1919[241.4] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1920[241.4] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x01F9*/    /* #1921[241.5] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1922[241.5] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x0578*/    /* #1923[241.6] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1924[241.6] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x0834*/    /* #1925[241.7] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1926[241.8] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x0C80*/    /* #1927[241.8] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1928[241.9] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x0F3C*/    /* #1929[241.9] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1930[242.0] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x12C0*/    /* #1931[242.1] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1932[242.1] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x157C*/    /* #1933[242.1] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1934[242.2] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x1838*/    /* #1935[242.3] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1936[242.3] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x1BBC*/    /* #1937[242.4] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1938[242.4] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x1E78*/    /* #1939[242.5] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1940[242.5] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x21FC*/    /* #1941[242.6] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1942[242.6] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x251C*/    /* #1943[242.7] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1944[242.7] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x27D8*/    /* #1945[242.8] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1946[242.8] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x2B5C*/    /* #1947[242.9] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1948[242.9] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x2E18*/    /* #1949[243.0] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1950[243.0] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x319C*/    /* #1951[243.1] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1952[243.1] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x3520*/    /* #1953[243.2] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1954[243.2] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x37DC*/    /* #1955[243.3] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1956[243.3] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x3AFC*/    /* #1957[243.4] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1958[243.5] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x3E80*/    /* #1959[243.5] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1960[243.6] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x41A0*/    /* #1961[243.6] */
+BulkRead(fh,32768);   /* #1962[243.6] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1963[243.6] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x03F8*/    /* #1964[243.7] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1965[243.7] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x0650*/    /* #1966[243.8] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1967[243.8] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x09D4*/    /* #1968[243.9] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1969[244.0] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x0D58*/    /* #1970[244.0] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1971[244.1] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x1078*/    /* #1972[244.2] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1973[244.2] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x13FC*/    /* #1974[244.3] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1975[244.3] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x16B8*/    /* #1976[244.4] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1977[244.4] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x1A3C*/    /* #1978[244.5] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1979[244.5] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x1CF8*/    /* #1980[244.6] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1981[244.6] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x1FB4*/    /* #1982[244.7] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1983[244.7] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x22D4*/    /* #1984[244.8] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1985[244.8] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x25F4*/    /* #1986[244.9] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1987[244.9] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x2978*/    /* #1988[245.0] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1989[245.0] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x2D60*/    /* #1990[245.1] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1991[245.1] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x2FB8*/    /* #1992[245.2] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1993[245.2] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x32D8*/    /* #1994[245.3] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x00*/    /* #1995[245.3] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x365C*/    /* #1996[245.4] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x80*/    /* #1997[245.5] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x37EC*/    /* #1998[245.5] */
+BulkRead(fh,28632);   /* #1999[245.5] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x0000*/    /* #2000[245.6] */
+ulVal2 = RegRead(R_STAT, 2); /*=0x0000*/    /* #2001[245.6] */
+RegWrite(0x43, 1, 0x03);    /* #2002[245.6] */
+RegWrite(0x43, 1, 0x03);    /* #2003[245.6] */
+RegWrite(R_CTL, 1, 0x39);    /* #2004[245.6] */
 {
- unsigned char uchRegs1979[]={
+ unsigned char uchRegs2005[]={
    /*R_SPOS*/ 0x00, /*R_SPOSH*/ 0x00, /*0x03*/ 0x00,
    /*R_SWID*/ 0x00, /*R_SWIDH*/ 0x00, /*R_STPS*/ 0x00,
    /*R_STPSH*/ 0x00, /*0x08*/ 0x00, /*0x09*/ 0x00,
@@ -569,7 +598,7 @@ RegWrite(R_CTL, 1, 0x39);    /* #1978[154.7] */
    /*0x28*/ 0x00, /*0x29*/ 0x00, /*0x2A*/ 0x4E,
    /*0x2B*/ 0xF0, /*0x2C*/ 0x00, /*0x2D*/ 0x00,
    /*0x2E*/ 0x4E, /*R_CCAL*/ 0x80, /*R_CCAL2*/ 0x80,
-   /*R_CCAL3*/ 0x80, /*0x32*/ 0x0A, /*0x33*/ 0x29,
+   /*R_CCAL3*/ 0x80, /*0x32*/ 0xC9, /*0x33*/ 0x20,
    /*0x34*/ 0x63, /*0x35*/ 0x29, /*0x36*/ 0x00,
    /*0x37*/ 0x00, /*0x38*/ 0x00, /*0x39*/ 0x00,
    /*0x3A*/ 0x00, /*0x3B*/ 0x00, /*0x3C*/ 0xFF,
@@ -578,23 +607,23 @@ RegWrite(R_CTL, 1, 0x39);    /* #1978[154.7] */
    /*0x43*/ 0x03, /*R_LMP*/ 0x01, /*0x45*/ 0x00,
    /*R_CTL*/ 0x39, /*0x47*/ 0xC2, /*0x48*/ 0x40,
    /*0x49*/ 0x9E, /*0x4A*/ 0x8C };
-  RegWriteArray(R_ALL, 74, uchRegs1979);
-}    /* #1979[154.7] */
-RegWrite(R_CTL, 1, 0x39);    /* #1980[154.7] */
-RegWrite(R_CTL, 1, 0x79);    /* #1981[154.7] */
-RegWrite(R_CTL, 1, 0xF9);    /* #1982[154.8] */
-ulVal1 = RegRead(R_CSTAT, 1); /*=0x80*/    /* #1983[154.8] */
-RegWrite(R_CTL, 1, 0x39);    /* #1984[154.8] */
-RegWrite(0x43, 1, 0x07);    /* #1985[154.8] */
-ulVal1 = RegRead(R_CTL, 1); /*=0x39*/    /* #1986[154.9] */
-RegWrite(0x32, 2, 0x290A);    /* #1987[154.9] */
-RegWrite(0x34, 1, 0xC3);    /* #1988[154.9] */
-RegWrite(0x49, 1, 0x9E);    /* #1989[154.9] */
+  RegWriteArray(R_ALL, 74, uchRegs2005);
+}    /* #2005[245.6] */
+RegWrite(R_CTL, 1, 0x39);    /* #2006[245.7] */
+RegWrite(R_CTL, 1, 0x79);    /* #2007[245.7] */
+RegWrite(R_CTL, 1, 0xF9);    /* #2008[245.7] */
+ulVal1 = RegRead(R_CSTAT, 1); /*=0x80*/    /* #2009[245.7] */
+RegWrite(R_CTL, 1, 0x39);    /* #2010[245.7] */
+RegWrite(0x43, 1, 0x07);    /* #2011[245.8] */
+ulVal1 = RegRead(R_CTL, 1); /*=0x39*/    /* #2012[245.8] */
+RegWrite(0x32, 2, 0x20C9);    /* #2013[245.8] */
+RegWrite(0x34, 1, 0xC3);    /* #2014[245.8] */
+RegWrite(0x49, 1, 0x9E);    /* #2015[245.9] */
 {
- unsigned char uchRegs1990[]={
+ unsigned char uchRegs2016[]={
    /*R_SPOS*/ 0x00, /*R_SPOSH*/ 0x00, /*0x03*/ 0x3F,
-   /*R_SWID*/ 0x40, /*R_SWIDH*/ 0x00, /*R_STPS*/ 0x68,
-   /*R_STPSH*/ 0x06, /*0x08*/ 0x00, /*0x09*/ 0x00,
+   /*R_SWID*/ 0x40, /*R_SWIDH*/ 0x00, /*R_STPS*/ 0xCC,
+   /*R_STPSH*/ 0x08, /*0x08*/ 0x00, /*0x09*/ 0x00,
    /*R_LEN*/ 0x00, /*R_LENH*/ 0x00, /*0x0C*/ 0x6D,
    /*0x0D*/ 0x70, /*0x0E*/ 0x69, /*0x0F*/ 0xD0,
    /*0x10*/ 0x00, /*0x11*/ 0x00, /*0x12*/ 0x40,
@@ -608,7 +637,7 @@ RegWrite(0x49, 1, 0x9E);    /* #1989[154.9] */
    /*0x28*/ 0x00, /*0x29*/ 0x00, /*0x2A*/ 0x4E,
    /*0x2B*/ 0xF0, /*0x2C*/ 0x00, /*0x2D*/ 0x00,
    /*0x2E*/ 0x4E, /*R_CCAL*/ 0x80, /*R_CCAL2*/ 0x80,
-   /*R_CCAL3*/ 0x80, /*0x32*/ 0x0A, /*0x33*/ 0x29,
+   /*R_CCAL3*/ 0x80, /*0x32*/ 0xC9, /*0x33*/ 0x20,
    /*0x34*/ 0xC3, /*0x35*/ 0x29, /*0x36*/ 0x00,
    /*0x37*/ 0x00, /*0x38*/ 0x00, /*0x39*/ 0x00,
    /*0x3A*/ 0x00, /*0x3B*/ 0x00, /*0x3C*/ 0xFF,
@@ -617,59 +646,65 @@ RegWrite(0x49, 1, 0x9E);    /* #1989[154.9] */
    /*0x43*/ 0x07, /*R_LMP*/ 0x01, /*0x45*/ 0x00,
    /*R_CTL*/ 0x39, /*0x47*/ 0xC0, /*0x48*/ 0x40,
    /*0x49*/ 0x9E, /*0x4A*/ 0x8C };
-  RegWriteArray(R_ALL, 74, uchRegs1990);
-}    /* #1990[154.9] */
-RegWrite(0x43, 1, 0x03);    /* #1991[155.0] */
-RegWrite(R_STPS, 2, 0x0000);    /* #1992[155.0] */
-RegWrite(R_LEN, 2, 0x0668);    /* #1993[155.0] */
-RegWrite(0x47, 2, 0xA000);    /* #1994[155.0] */
-RegWrite(0x34, 1, 0xC3);    /* #1995[155.1] */
-RegWrite(0x49, 1, 0x9E);    /* #1996[155.1] */
-RegWrite(R_CTL, 1, 0x19);    /* #1997[155.1] */
-RegWrite(R_CTL, 1, 0x59);    /* #1998[155.1] */
-RegWrite(R_CTL, 1, 0xD9);    /* #1999[155.2] */
-ulVal2 = RegRead(R_POS, 2); /*=0x0662*/    /* #2000[155.2] */
-ulVal2 = RegRead(R_POS, 2); /*=0x0659*/    /* #2001[155.2] */
-ulVal2 = RegRead(R_POS, 2); /*=0x0654*/    /* #2002[155.2] */
-RegWrite(0x47, 2, 0xA000);    /* #2003[155.2] */
-ulVal2 = RegRead(R_POS, 2); /*=0x063D*/    /* #2004[155.3] */
-RegWrite(0x47, 2, 0x9800);    /* #2005[155.3] */
-ulVal2 = RegRead(R_POS, 2); /*=0x0629*/    /* #2006[155.3] */
-RegWrite(0x47, 2, 0x9000);    /* #2007[155.3] */
-ulVal2 = RegRead(R_POS, 2); /*=0x0614*/    /* #2008[155.4] */
-RegWrite(0x47, 2, 0x8800);    /* #2009[155.4] */
-ulVal2 = RegRead(R_POS, 2); /*=0x05EA*/    /* #2010[155.4] */
-RegWrite(0x47, 2, 0x8000);    /* #2011[155.4] */
-RegWrite(0x43, 1, 0x07);    /* #2012[155.4] */
-ulVal2 = RegRead(R_POS, 2); /*=0x05C7*/    /* #2013[155.5] */
-RegWrite(0x47, 2, 0x7800);    /* #2014[155.5] */
-RegWrite(0x43, 1, 0x07);    /* #2015[155.5] */
-ulVal2 = RegRead(R_POS, 2); /*=0x0597*/    /* #2016[155.6] */
-RegWrite(0x47, 2, 0x7000);    /* #2017[155.6] */
-RegWrite(0x43, 1, 0x07);    /* #2018[155.6] */
-ulVal2 = RegRead(R_POS, 2); /*=0x0570*/    /* #2019[155.6] */
-RegWrite(0x47, 2, 0x6800);    /* #2020[155.6] */
-RegWrite(0x43, 1, 0x07);    /* #2021[155.7] */
-ulVal2 = RegRead(R_POS, 2); /*=0x0538*/    /* #2022[155.7] */
-RegWrite(0x47, 2, 0x6000);    /* #2023[155.7] */
-RegWrite(0x43, 1, 0x07);    /* #2024[155.7] */
-ulVal2 = RegRead(R_POS, 2); /*=0x0509*/    /* #2025[155.8] */
-RegWrite(0x47, 2, 0x5800);    /* #2026[155.8] */
-RegWrite(0x43, 1, 0x07);    /* #2027[155.8] */
-ulVal2 = RegRead(R_POS, 2); /*=0x04DC*/    /* #2028[155.8] */
-RegWrite(0x47, 2, 0x5000);    /* #2029[155.8] */
-RegWrite(0x43, 1, 0x07);    /* #2030[155.8] */
-ulVal2 = RegRead(R_POS, 2); /*=0x04A6*/    /* #2031[155.9] */
-RegWrite(0x47, 2, 0x40C0);    /* #2032[155.9] */
-RegWrite(0x32, 2, 0x290A);    /* #2033[155.9] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #2034[156.1] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #2035[156.2] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #2036[156.3] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #2037[156.4] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #2038[156.5] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #2039[156.6] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #2040[156.7] */
-ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #2041[156.8] */
-ulVal1 = RegRead(R_CTL, 1); /*=0x59*/    /* #2042[156.9] */
-RegWrite(0x43, 1, 0x03);    /* #2043[156.9] */
-RegWrite(R_CTL, 1, 0x39);    /* #2044[156.9] */
+  RegWriteArray(R_ALL, 74, uchRegs2016);
+}    /* #2016[245.9] */
+RegWrite(0x43, 1, 0x03);    /* #2017[245.9] */
+RegWrite(R_STPS, 2, 0x0000);    /* #2018[245.9] */
+RegWrite(R_LEN, 2, 0x08CC);    /* #2019[246.0] */
+RegWrite(0x47, 2, 0xA000);    /* #2020[246.0] */
+RegWrite(0x34, 1, 0xC3);    /* #2021[246.0] */
+RegWrite(0x49, 1, 0x9E);    /* #2022[246.0] */
+RegWrite(R_CTL, 1, 0x19);    /* #2023[246.1] */
+RegWrite(R_CTL, 1, 0x59);    /* #2024[246.1] */
+RegWrite(R_CTL, 1, 0xD9);    /* #2025[246.1] */
+ulVal2 = RegRead(R_POS, 2); /*=0x0000*/    /* #2026[246.1] */
+RegWrite(0x47, 2, 0xA000);    /* #2027[246.1] */
+ulVal2 = RegRead(R_POS, 2); /*=0x08C0*/    /* #2028[246.2] */
+ulVal2 = RegRead(R_POS, 2); /*=0x08B0*/    /* #2029[246.2] */
+ulVal2 = RegRead(R_POS, 2); /*=0x08AD*/    /* #2030[246.2] */
+ulVal2 = RegRead(R_POS, 2); /*=0x08A4*/    /* #2031[246.2] */
+RegWrite(0x47, 2, 0x9800);    /* #2032[246.2] */
+ulVal2 = RegRead(R_POS, 2); /*=0x0891*/    /* #2033[246.2] */
+RegWrite(0x47, 2, 0x9000);    /* #2034[246.2] */
+ulVal2 = RegRead(R_POS, 2); /*=0x087C*/    /* #2035[246.3] */
+RegWrite(0x47, 2, 0x8800);    /* #2036[246.3] */
+ulVal2 = RegRead(R_POS, 2); /*=0x0867*/    /* #2037[246.3] */
+RegWrite(0x47, 2, 0x8000);    /* #2038[246.3] */
+RegWrite(0x43, 1, 0x07);    /* #2039[246.3] */
+ulVal2 = RegRead(R_POS, 2); /*=0x0846*/    /* #2040[246.4] */
+RegWrite(0x47, 2, 0x7800);    /* #2041[246.4] */
+RegWrite(0x43, 1, 0x07);    /* #2042[246.4] */
+ulVal2 = RegRead(R_POS, 2); /*=0x0815*/    /* #2043[246.4] */
+RegWrite(0x47, 2, 0x7000);    /* #2044[246.5] */
+RegWrite(0x43, 1, 0x07);    /* #2045[246.5] */
+ulVal2 = RegRead(R_POS, 2); /*=0x07E0*/    /* #2046[246.5] */
+RegWrite(0x47, 2, 0x6800);    /* #2047[246.5] */
+RegWrite(0x43, 1, 0x07);    /* #2048[246.5] */
+ulVal2 = RegRead(R_POS, 2); /*=0x07C4*/    /* #2049[246.6] */
+RegWrite(0x47, 2, 0x6000);    /* #2050[246.6] */
+RegWrite(0x43, 1, 0x07);    /* #2051[246.6] */
+ulVal2 = RegRead(R_POS, 2); /*=0x078A*/    /* #2052[246.6] */
+RegWrite(0x47, 2, 0x5800);    /* #2053[246.6] */
+RegWrite(0x43, 1, 0x07);    /* #2054[246.7] */
+ulVal2 = RegRead(R_POS, 2); /*=0x0757*/    /* #2055[246.7] */
+RegWrite(0x47, 2, 0x5000);    /* #2056[246.7] */
+RegWrite(0x43, 1, 0x07);    /* #2057[246.7] */
+ulVal2 = RegRead(R_POS, 2); /*=0x0721*/    /* #2058[246.8] */
+RegWrite(0x47, 2, 0x40C0);    /* #2059[246.8] */
+RegWrite(0x32, 2, 0x20C9);    /* #2060[246.8] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #2061[247.0] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #2062[247.1] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #2063[247.2] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #2064[247.3] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #2065[247.4] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #2066[247.5] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #2067[247.6] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #2068[247.7] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #2069[247.9] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #2070[248.0] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #2071[248.1] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #2072[248.2] */
+ulVal1 = RegRead(R_CTL, 1); /*=0xD9*/    /* #2073[248.3] */
+ulVal1 = RegRead(R_CTL, 1); /*=0x59*/    /* #2074[248.3] */
+RegWrite(0x43, 1, 0x03);    /* #2075[248.3] */
+RegWrite(R_CTL, 1, 0x39);    /* #2076[248.3] */

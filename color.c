@@ -200,6 +200,7 @@ void DoScanColor(FILE *fh, int nResolution,
 	  while (iFrom+3*cxMax<cchBulk)
 	    {
 	      char *pchLineSwap;
+	      int   cxToWrite=cxPixel;
 	      /* iTo starts with buffer offset from copy above */
 	      while (iTo<3*cxMax) /* whole line or rest */
 		ppchLines[0][iTo++]=pchBuf[iFrom++];
@@ -210,12 +211,13 @@ void DoScanColor(FILE *fh, int nResolution,
 	      if (iLine>2*ySensorSkew)
 		{
 		  /* dprintf(DEBUG_SCAN,"assembling line %d\n",++iLine); */
-		  int nInterpolator=0;
-		  for (iTo=0; iTo<cxMax; iTo++)
+		  int nInterpolator=100;
+		  for (iTo=0; iTo<cxMax && cxToWrite>0; iTo++)
 		    {
 		      nInterpolator+=nFixAspect;
 		      if (nInterpolator<100) continue; /* res. reduction */
 		      nInterpolator-=100;
+		      cxToWrite--;
 		      fwrite(ppchLines[2*ySensorSkew]+iTo+iOffsetR,1,1,fh);
 		      fwrite(ppchLines[ySensorSkew]+iTo+iOffsetG,1,1,fh);
 		      fwrite(ppchLines[0]+iTo+iOffsetB,1,1,fh);

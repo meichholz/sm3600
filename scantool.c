@@ -2,7 +2,7 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id: scantool.c,v 1.11 2001/03/29 22:01:51 eichholz Exp $
+$Id: scantool.c,v 1.12 2001/03/30 22:50:31 eichholz Exp $
 
 (C) Marian Eichholz 2001
 
@@ -10,7 +10,7 @@ $Id: scantool.c,v 1.11 2001/03/29 22:01:51 eichholz Exp $
 
 #include "scantool.h"
 
-#define REVISION "$Revision: 1.11 $"
+#define REVISION "$Revision: 1.12 $"
 
 #define USAGE \
 "usage: %s <outfile> <resolution> <x> <y> <w> <h>" \
@@ -325,13 +325,11 @@ int main(int cArg, char * const ppchArg[])
 
   switch (param.res)
     {
-    case 50:
     case 75:
     case 100:
     case 200:
     case 300:
     case 600:
-      /* case 1200: */
       break; /* ok */
     default:
       Panic(PANIC_SETUP,"unsupported resolution requested");
@@ -340,7 +338,7 @@ int main(int cArg, char * const ppchArg[])
   
   /* ======================================== initalize */
 
-  usb_set_debug(1);
+  usb_set_debug(0);
   usb_init();
   if (!(pdevScanner=FindScanner()))
     Panic(PANIC_SETUP, "no microtek 3600 connected");

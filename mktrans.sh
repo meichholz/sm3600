@@ -40,6 +40,7 @@ for NAME in $NAMES ; do
 	squeezelog.pl -fc < $LOGS/$NAME.log >data/$NAME.c
 	squeezelog.pl -fr < $LOGS/$NAME.log >data/$NAME.txt
         dumpscanctl.pl < data/$NAME.txt > data/ctlblocks/$NAME.txt
+        dumpscanctl.pl < data/$NAME.c > data/ctlblocks/$NAME.c
   fi
 done
 
