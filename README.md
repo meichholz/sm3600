@@ -91,3 +91,9 @@ If you have ideas and suggestions about the code, please ask
 There is a web site with a mailing list. Please have a look at
 
 	http://sm3600.sourceforge.net/
+
+License
+-------
+
+MIT. See [LICENSE](LICENSE)
+
